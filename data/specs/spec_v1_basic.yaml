@@ -1,0 +1,12 @@
+id: spec_v1_basic
+version: 1
+constraints:
+  - { id: pains_block, type: hard, check: substructure_absent, params: {alert_set: "PAINS_A"}, severity: high }
+  - { id: ro5_bounds,  type: hard, check: property_bounds_all, params: {bounds: {MW: [100,500], HBD: [0,5], HBA: [0,10], logP: [0,5]}}, severity: medium }
+  - { id: tpsa_pref,   type: soft, check: property_bounds_any, params: {TPSA: [20,120]}, weight: 0.5 }
+behaviour:
+  interrupt_policy: confirm_then_continue
+  abstain_policy:
+    margin_lt:
+      TPSA: 5.0
+      logP: 0.2

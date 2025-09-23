@@ -1,0 +1,4 @@
+- Use Python 3.11+, type hints, docstrings.
+- Run `pre-commit run -a` before pushing.
+- Tests: `pytest -q`; target ≥95% coverage in `verifiers/`, ≥80% overall.
+- Add examples & docs for new features.

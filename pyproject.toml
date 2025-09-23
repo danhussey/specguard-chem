@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "specguard-chem"
+version = "0.1.0"
+requires-python = ">=3.11"
+description = "Spec-driven evaluation harness for medicinal-chemistry constraint compliance."
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+  { name = "SpecGuard Team" }
+]
+dependencies = [
+  "rdkit-pypi>=2022.9.5",
+  "pydantic>=2.7",
+  "typer>=0.12",
+  "rich>=13.7",
+  "numpy>=1.26",
+  "pandas>=2.2",
+  "scikit-learn>=1.3"
+]
+
+[project.urls]
+Homepage = "https://example.com/specguard-chem"
+
+[project.scripts]
+specguard-chem = "specguard_chem.cli:app"
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7.4",
+  "pytest-cov>=4.1",
+  "pre-commit>=3.6"
+]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+
+[tool.setuptools.packages.find]
+where = ["src"]
