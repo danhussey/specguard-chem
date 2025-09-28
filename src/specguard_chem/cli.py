@@ -78,11 +78,38 @@ def report(
     records = reports.load_trace(run_path)
     summary = reports.summarise(records)
 
+    metric_order = [
+        "num_tasks",
+        "avg_spec_score",
+        "hard_violation_rate",
+        "abstain_rate",
+        "accept_rate",
+        "avg_rounds",
+        "avg_edit_distance",
+        "avg_confidence",
+        "brier_score",
+        "ece",
+        "abstention_utility",
+    ]
+
     table = Table(title="Run Metrics")
     table.add_column("metric")
     table.add_column("value")
+
+    def _format(value: object) -> str:
+        if value is None:
+            return "N/A"
+        if isinstance(value, float):
+            return f"{value:.3f}"
+        return str(value)
+
+    for key in metric_order:
+        if key in summary:
+            table.add_row(key, _format(summary[key]))
+
     for key, value in summary.items():
-        table.add_row(key, f"{value:.3f}" if isinstance(value, float) else str(value))
+        if key not in metric_order:
+            table.add_row(key, _format(value))
 
     console.print(table)
 

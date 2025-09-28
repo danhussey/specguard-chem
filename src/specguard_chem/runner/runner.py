@@ -7,7 +7,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
 
-from ..config import FailureVector, TaskModel, load_spec, load_tasks_for_suite, select_tasks
+from ..config import (
+    FailureVector,
+    SpecModel,
+    TaskModel,
+    load_spec,
+    load_tasks_for_suite,
+    select_tasks,
+)
 from ..models import get_adapter
 from ..scoring.metrics import spec_compliance
 from ..utils import jsonio
@@ -28,6 +35,8 @@ class RoundLog:
     failure_vector: Optional[Dict[str, Any]]
     tool_name: Optional[str] = None
     abstained: bool = False
+    interrupt: bool = False
+    confidence: Optional[float] = None
 
     def to_dict(self) -> Dict[str, Any]:
         payload = asdict(self)
@@ -48,6 +57,8 @@ class RunRecord:
     abstained: bool
     interrupt_handled: bool
     edit_distance: Optional[int]
+    final_confidence: Optional[float]
+    decision: str
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -63,6 +74,8 @@ class RunRecord:
             "abstained": self.abstained,
             "interrupt_handled": self.interrupt_handled,
             "edit_distance": self.edit_distance,
+            "final_confidence": self.final_confidence,
+            "decision": self.decision,
         }
 
 
@@ -103,8 +116,16 @@ class TaskRunner:
         abstained = False
         final_smiles: Optional[str] = None
         canonical_smiles: Optional[str] = None
+        interrupt_triggered = False
+        interrupt_resolved = False
+        last_confidence: Optional[float] = None
 
         for round_index in range(1, max_rounds + 1):
+            interrupt_payload = self._interrupt_payload(
+                task, evaluator.spec, round_index
+            )
+            if interrupt_payload:
+                interrupt_triggered = True
             request = AgentRequest(
                 task=task.model_dump(mode="json"),
                 round=round_index,
@@ -113,8 +134,11 @@ class TaskRunner:
                 if last_failure_vector
                 else None,
             )
+            if interrupt_payload:
+                request["interrupt"] = interrupt_payload
             response = self.adapter.step(request)
             action = response.get("action", "propose")
+            response_conf = response.get("confidence")
 
             if action == "tool_call":
                 tool_name = response.get("name")
@@ -131,6 +155,8 @@ class TaskRunner:
                         failure_vector=failure_vector.model_dump(mode="json"),
                         tool_name=tool_name,
                         abstained=False,
+                        interrupt=bool(interrupt_payload),
+                        confidence=response_conf,
                     )
                 )
                 last_failure_vector = failure_vector
@@ -138,6 +164,7 @@ class TaskRunner:
 
             if action == "abstain":
                 abstained = True
+                last_confidence = response_conf
                 rounds.append(
                     RoundLog(
                         round_index=round_index,
@@ -147,6 +174,8 @@ class TaskRunner:
                         failure_vector=None,
                         tool_name=None,
                         abstained=True,
+                        interrupt=bool(interrupt_payload),
+                        confidence=response_conf,
                     )
                 )
                 break
@@ -158,6 +187,7 @@ class TaskRunner:
             last_evaluation = evaluation
             final_smiles = smiles
             canonical_smiles = evaluation.canonical_smiles
+            last_confidence = response_conf
             rounds.append(
                 RoundLog(
                     round_index=round_index,
@@ -167,15 +197,31 @@ class TaskRunner:
                     failure_vector=failure_vector.model_dump(mode="json"),
                     tool_name=None,
                     abstained=False,
+                    interrupt=bool(interrupt_payload),
+                    confidence=response_conf,
                 )
             )
             if evaluation.hard_pass:
+                if interrupt_triggered:
+                    interrupt_resolved = True
                 break
 
         hard_pass = bool(last_evaluation and last_evaluation.hard_pass)
         soft_terms = last_evaluation.soft_score_terms() if last_evaluation else []
         spec_score = spec_compliance(hard_pass, soft_terms)
-        interrupt_handled = task.interrupt_at_step is None or hard_pass
+        if not hard_pass:
+            final_smiles = None
+            canonical_smiles = None
+        decision = (
+            "abstain"
+            if abstained
+            else ("accept" if hard_pass else "reject")
+        )
+        interrupt_handled = (
+            task.interrupt_at_step is None
+            or (not interrupt_triggered)
+            or (interrupt_resolved and hard_pass and not abstained)
+        )
         edit_dist = None
         if task.input.smiles and final_smiles:
             edit_dist = levenshtein(task.input.smiles, final_smiles)
@@ -193,6 +239,8 @@ class TaskRunner:
             abstained=abstained,
             interrupt_handled=interrupt_handled,
             edit_distance=edit_dist,
+            final_confidence=last_confidence,
+            decision=decision,
         )
 
     @staticmethod
@@ -200,6 +248,17 @@ class TaskRunner:
         if protocol == "L3":
             return [{"name": "verify", "schema": {"smiles": "string"}}]
         return []
+
+    @staticmethod
+    def _interrupt_payload(
+        task: TaskModel, spec: SpecModel, round_index: int
+    ) -> Optional[Dict[str, Any]]:
+        if task.interrupt_at_step and round_index == task.interrupt_at_step:
+            return {
+                "policy": spec.behaviour.interrupt_policy,
+                "round": round_index,
+            }
+        return None
 
 
 def evaluation_summary(result: EvaluationResult) -> Dict[str, Any]:
@@ -234,14 +293,30 @@ def persist_run(
     jsonio.write_jsonl(trace_path, [record.to_dict() for record in records])
 
     leaderboard_rows: List[str] = [
-        "task_id	hard_pass	spec_score	abstained	rounds"
+        "task_id	hard_pass	spec_score	decision	confidence	rounds"
     ]
     for record in records:
+        confidence = (
+            f"{record.final_confidence:.3f}" if record.final_confidence is not None else ""
+        )
         leaderboard_rows.append(
-            f"{record.task_id}	{int(record.hard_pass)}	{record.spec_score:.3f}	{int(record.abstained)}	{len(record.rounds)}"
+            f"{record.task_id}	{int(record.hard_pass)}	{record.spec_score:.3f}"
+            f"	{record.decision}	{confidence}	{len(record.rounds)}"
         )
     leaderboard_path.parent.mkdir(parents=True, exist_ok=True)
     leaderboard_path.write_text("\n".join(leaderboard_rows) + "\n", encoding="utf-8")
+
+    avg_rounds = (
+        sum(len(record.rounds) for record in records) / len(records)
+        if records
+        else 0.0
+    )
+    edit_distances = [
+        record.edit_distance for record in records if record.edit_distance is not None
+    ]
+    avg_edit_distance = (
+        sum(edit_distances) / len(edit_distances) if edit_distances else 0.0
+    )
 
     summary = {
         "generated_at": timestamp,
@@ -258,5 +333,7 @@ def persist_run(
             if records
             else 0.0
         ),
+        "avg_rounds": avg_rounds,
+        "avg_edit_distance": avg_edit_distance,
     }
     jsonio.write_json(summary_path, summary)

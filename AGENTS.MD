@@ -26,9 +26,12 @@
 3) **Verifiers** (Verifier Eng): properties, alerts, SA; unit tests.
 4) **Runner** (Runner Eng): protocols L1/L2/L3; failure vector; tool-gated finalize.
 5) **Adapters** (Adapter Eng): `BaseAdapter`; `heuristic_mutator`; `open_source_example`.
+   - Register new adapters via `specguard_chem.models.register_adapter` so the CLI can discover them.
+   - Provide at least one abstention-focused baseline (`abstention_guard`) for comparison.
 6) **Scoring** (Scoring Eng): compliance, ECE/Brier, reports; CLI `report`.
 7) **Docs & Safety** (Docs Eng): examples, metrics doc, safety guardrails.
-8) **Smoke CI**: run 5 tasks in CI; enforce < 120s runtime.
+   - Keep README adapter list in sync and describe task suites (basic + interrupts).
+8) **Smoke CI**: run 5 tasks in CI; enforce < 120s runtime and include `specguard-chem report` smoke.
 
 ## Commit conventions
 - Prefix by area: `verifiers: …`, `runner: …`, `scoring: …`, `docs: …`.

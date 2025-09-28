@@ -58,6 +58,9 @@ behaviour:
 }
 ```
 
+The canonical `basic` suite ships with ten mixed tasks (L1/L2/L3). A dedicated `interrupts` suite
+exercises pause-handling behaviour where `interrupt_at_step` is always set.
+
 3.3 Failure Vector (runner → agent, L2/L3)
 
 ```
@@ -78,8 +81,16 @@ Request to agent adapter
   "task": {...},
   "round": 1,
   "tools": [{"name":"verify","schema":{"smiles":"string"}}],
-  "failure_vector": null
+  "failure_vector": null,
+  "interrupt": null
 }
+```
+
+When `interrupt_at_step` is provided in the task metadata, the request for the
+matching round includes an `interrupt` payload, for example
+
+```
+"interrupt": {"policy": "confirm_then_continue", "round": 2}
 ```
 
 Agent response

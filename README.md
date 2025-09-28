@@ -16,3 +16,20 @@ specguard-chem report --run-path runs/2025-01-01_basic_L3/
 ```
 
 Repro in <10 minutes on a laptop. No proprietary data; all tasks are synthetic and safe.
+
+`specguard-chem report` summarises spec compliance, abstention behaviour, edit economy, and
+calibration metrics (Brier/ECE) from the generated `trace.jsonl` artefacts.
+
+### Included adapters
+
+- `heuristic` – deterministic mutator that iteratively repairs hard failures using the runner's
+  failure vector feedback.
+- `open_source_example` – demonstrates tool calls during L3 protocols.
+- `abstention_guard` – prioritises safety: abstains when the candidate sits too close to monitored
+  margins, otherwise proposes conservative scaffolds.
+
+### Task suites
+
+- `basic` – mixed L1/L2/L3 tasks (10 total) covering single-shot proposals, repair rounds, and
+  verify-in-the-loop flows.
+- `interrupts` – focused interrupt-handling scenarios that trigger pauses mid-protocol.

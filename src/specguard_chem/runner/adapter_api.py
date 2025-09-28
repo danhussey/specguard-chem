@@ -17,6 +17,7 @@ class AgentRequest(TypedDict, total=False):
     round: int
     tools: list[ToolSpec]
     failure_vector: Optional[Dict[str, Any]]
+    interrupt: Optional[Dict[str, Any]]
 
 
 class AgentResponse(TypedDict, total=False):

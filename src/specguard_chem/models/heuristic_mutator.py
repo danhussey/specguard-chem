@@ -26,10 +26,14 @@ class HeuristicMutatorAdapter(BaseAdapter):
 
         if round_id == 1 and not failure_vector:
             proposal = starting_smiles or _SAFE_OPTIONS["default"]
-            return {"action": "propose", "smiles": proposal, "confidence": 0.5}
+            return {
+                "action": "propose",
+                "smiles": proposal,
+                "confidence": 0.5,
+                "cited_specs": ["initial_guess"],
+            }
 
-        proposal = self._select_fix(failure_vector, starting_smiles)
-        cited = [item.get("id") for item in failure_vector.get("hard_fails", [])] if failure_vector else []
+        proposal, cited = self._select_fix(failure_vector, starting_smiles)
         return {
             "action": "propose",
             "smiles": proposal,
@@ -39,22 +43,27 @@ class HeuristicMutatorAdapter(BaseAdapter):
 
     def _select_fix(
         self, failure_vector: Optional[Dict[str, Any]], starting_smiles: Optional[str]
-    ) -> str:
+    ) -> tuple[str, list[str]]:
         if not failure_vector:
-            return starting_smiles or _SAFE_OPTIONS["default"]
+            return starting_smiles or _SAFE_OPTIONS["default"], ["fallback_default"]
 
-        margins = {item.get("id"): item.get("distance_to_bound") for item in failure_vector.get("margins", [])}
+        margins = {
+            item.get("id"): item.get("distance_to_bound")
+            for item in failure_vector.get("margins", [])
+        }
         hard_ids = [item.get("id") for item in failure_vector.get("hard_fails", [])]
+        soft_ids = [item.get("id") for item in failure_vector.get("soft_misses", [])]
+        cited: list[str] = [cid for cid in hard_ids + soft_ids if cid]
 
         if "pains_block" in hard_ids:
-            return _SAFE_OPTIONS["ring_safe"]
-        if margins.get("logP", 1) < 0:
-            return _SAFE_OPTIONS["polar"]
-        if margins.get("MW", 1) < 0:
-            return _SAFE_OPTIONS["polar"]
+            return _SAFE_OPTIONS["ring_safe"], cited
+
+        if any(name in margins and (margin or 0) < 0 for name, margin in margins.items()):
+            return _SAFE_OPTIONS["polar"], cited
+
         if starting_smiles:
-            return starting_smiles
-        return _SAFE_OPTIONS["default"]
+            return starting_smiles, cited or ["original"]
+        return _SAFE_OPTIONS["default"], cited or ["default"]
 
 
 __all__ = ["HeuristicMutatorAdapter"]
