@@ -9,5 +9,7 @@ jobs:
         with:
           python-version: "3.11"
       - run: uv pip install -e .[dev]
-      - run: uv run pytest -q
-      - run: uv run specguard-chem run --suite basic --protocol L1 --model heuristic --limit 5
+      - run: uv run pre-commit run --all-files
+      - run: uv run pytest --cov=src/specguard_chem --cov-report=term-missing
+      - run: uv run specguard-chem run basic --protocol L1 --model heuristic --limit 5 --run-path runs/ci_basic
+      - run: uv run specguard-chem report runs/ci_basic

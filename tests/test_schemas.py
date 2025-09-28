@@ -3,6 +3,7 @@ from __future__ import annotations
 from specguard_chem.config import (
     FailureItem,
     FailureVector,
+    list_available_suites,
     load_spec,
     load_tasks_for_suite,
     select_tasks,
@@ -20,6 +21,11 @@ def test_task_selection_filters_protocol() -> None:
     l1_tasks = select_tasks(tasks, protocol="L1", limit=2)
     assert len(l1_tasks) <= 2
     assert all(task.protocol == "L1" for task in l1_tasks)
+
+
+def test_interrupts_suite_available() -> None:
+    suites = list_available_suites()
+    assert "interrupts" in suites
 
 
 def test_failure_vector_validation() -> None:
