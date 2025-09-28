@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SpecGuard Task",
+  "type": "object",
+  "required": ["task_id", "suite", "protocol", "prompt", "input", "spec_id", "scoring"],
+  "properties": {
+    "task_id": {"type": "string"},
+    "suite": {"type": "string"},
+    "protocol": {"enum": ["L1", "L2", "L3"]},
+    "prompt": {"type": "string"},
+    "input": {"type": "object"},
+    "spec_id": {"type": "string"},
+    "scoring": {
+      "type": "object",
+      "required": ["primary"],
+      "properties": {
+        "primary": {"type": "string"},
+        "secondary": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "interrupt_at_step": {"type": "integer", "minimum": 0}
+  },
+  "additionalProperties": false
+}

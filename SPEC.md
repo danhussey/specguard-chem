@@ -128,7 +128,7 @@ See METRICS.md for formulas (Brier/ECE, decision curves).
 	•	CI: schema validation + smoke run (5 tasks).
 
 7) Acceptance Criteria
-	•	pip install -e . provides specguard-chem CLI.
+	•	uv pip install -e . provides specguard-chem CLI.
 	•	Running L1/L2/L3 on basic suite produces JSON traces + TSV leaderboard.
 	•	Verifier-in-loop (L3) reduces hard violations by ≥ X pp vs L1 (set in paper).
 	•	No synthesis/activity claims; all tasks pass SAFETY.md checks.

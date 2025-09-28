@@ -9,7 +9,7 @@
 6) **Docs Engineer**: README/CLI help/examples; METRICS; SAFETY.
 
 ## Global constraints
-- Python 3.11+, **rdkit-pypi** only; no docking/toxicity/activity predictors.
+- Python 3.11+, **rdkit** (PyPI wheels) only; no docking/toxicity/activity predictors.
 - **Do not** implement synthesis planning.
 - All modules must be deterministic, pure, and unit-tested.
 - No external web calls; offline only.
