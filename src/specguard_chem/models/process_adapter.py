@@ -24,8 +24,8 @@ class ProcessAdapter(BaseAdapter):
             env_value = os.getenv(DEFAULT_ENV_VAR)
             if not env_value:
                 raise RuntimeError(
-                    "ProcessAdapter requires a command. Set SPEC_GUARD_PROCESS_ADAPTER_CMD or "
-                    "pass a `command` list to the constructor."
+                    "ProcessAdapter requires a command. Set "
+                    "SPEC_GUARD_PROCESS_ADAPTER_CMD or pass a command list to the constructor."
                 )
             command = env_value.split()
         self.command = list(command)
@@ -40,8 +40,10 @@ class ProcessAdapter(BaseAdapter):
             check=False,
         )
         if proc.returncode != 0:
+            stderr_text = proc.stderr.decode("utf-8", "ignore")
             raise RuntimeError(
-                f"External adapter command failed with code {proc.returncode}: {proc.stderr.decode('utf-8', 'ignore')}"
+                "External adapter command failed with code "
+                f"{proc.returncode}: {stderr_text}"
             )
         try:
             data = json.loads(proc.stdout.decode("utf-8"))

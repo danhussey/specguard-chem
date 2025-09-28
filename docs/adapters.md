@@ -48,6 +48,19 @@ register_adapter(MyAdapter)
 
 After registration you can refer to the adapter via its `name` attribute in CLI runs.
 
+### 4. OpenAI Chat adapter
+
+If your agent already speaks to the OpenAI API you can reuse that work with the `openai_chat` adapter:
+
+```bash
+pip install specguard-chem[providers]
+export OPENAI_API_KEY=sk-...
+specguard-chem run --suite basic --model openai_chat --limit 3
+```
+
+Each step submits the current state (task, failure vector, interrupt) to the Chat Completions API and expects a JSON response. You may customise the OpenAI model, temperature, or provide a preconfigured `OpenAI` client when instantiating the adapter programmatically.
+
+
 ## Tips
 - Always fill `confidence` to enable calibration metrics.
 - Use failure vectors to adjust proposals in L2/L3 protocols.

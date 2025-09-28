@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import sys
 from pathlib import Path
 
@@ -11,12 +10,26 @@ from specguard_chem.models.process_adapter import DEFAULT_ENV_VAR, ProcessAdapte
 from specguard_chem.runner.runner import TaskRunner
 
 SCRIPT = """
-import json, sys
+import json
+import sys
+
+
 request = json.load(sys.stdin)
+
 if request["round"] == 1:
-    sys.stdout.write(json.dumps({"action": "tool_call", "name": "verify", "args": {"smiles": "CC"}}))
+    payload = {
+        "action": "tool_call",
+        "name": "verify",
+        "args": {"smiles": "CC"},
+    }
 else:
-    sys.stdout.write(json.dumps({"action": "propose", "smiles": "CC(=O)NC1=CC=CC=C1O", "confidence": 0.6}))
+    payload = {
+        "action": "propose",
+        "smiles": "CC(=O)NC1=CC=CC=C1O",
+        "confidence": 0.6,
+    }
+
+sys.stdout.write(json.dumps(payload))
 """
 
 
@@ -37,4 +50,3 @@ def test_process_adapter_handles_tool_and_proposal():
     assert record.rounds[0].action == "tool_call"
     assert record.rounds[1].action == "propose"
     assert record.rounds[1].smiles == "CC(=O)NC1=CC=CC=C1O"
-

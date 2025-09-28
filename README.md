@@ -34,6 +34,7 @@ For a narrative tour of the system architecture, see [`docs/overview.md`](docs/o
 - `abstention_guard` – prioritises safety: abstains when the candidate sits too close to monitored
   margins, otherwise proposes conservative scaffolds.
 - `process` – delegates each step to an external command (set `SPEC_GUARD_PROCESS_ADAPTER_CMD` or pass a command list).
+- `openai_chat` – calls the OpenAI Chat Completions API; set `OPENAI_API_KEY` or inject a client.
 
 ### Task suites
 
