@@ -2,8 +2,7 @@ from __future__ import annotations
 
 """Calibration metrics (Brier, ECE)."""
 
-import math
-from typing import Iterable, Sequence
+from typing import Sequence
 
 
 def brier_score(y_true: Sequence[int], y_prob: Sequence[float]) -> float:

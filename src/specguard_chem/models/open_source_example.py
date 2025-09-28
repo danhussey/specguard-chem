@@ -2,7 +2,7 @@ from __future__ import annotations
 
 """Lightweight deterministic adapter showcasing tool usage."""
 
-from typing import Any, Dict, Optional
+from typing import Optional
 
 from .base_adapter import BaseAdapter
 from ..runner.adapter_api import AgentRequest, AgentResponse
@@ -32,7 +32,9 @@ class OpenSourceExampleAdapter(BaseAdapter):
             }
 
         if failure_vector:
-            hard_fails = [item.get("id") for item in failure_vector.get("hard_fails", [])]
+            hard_fails = [
+                item.get("id") for item in failure_vector.get("hard_fails", [])
+            ]
             proposal = starting_smiles or _SAFE_PROPOSAL
             if "pains_block" in hard_fails or not proposal:
                 proposal = _SAFE_PROPOSAL

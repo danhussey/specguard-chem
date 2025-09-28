@@ -40,20 +40,20 @@ def summarise(records: List[Dict[str, Any]]) -> Dict[str, Any]:
             "avg_confidence": None,
         }
 
-    spec_scores = [record.get("spec_score", 0.0) for record in records]
+    spec_scores = [float(record.get("spec_score", 0.0)) for record in records]
     hard_flags = [bool(record.get("hard_pass", False)) for record in records]
-    decisions = [record.get("decision", "accept") for record in records]
+    decisions = [str(record.get("decision", "accept")) for record in records]
     abstains = [decision == "abstain" for decision in decisions]
     rounds_counts = [len(record.get("rounds", [])) for record in records]
     edit_distances = [
-        record.get("edit_distance")
-        for record in records
-        if record.get("edit_distance") is not None
+        int(value)
+        for value in (record.get("edit_distance") for record in records)
+        if value is not None
     ]
     confidences = [
-        record.get("final_confidence")
-        for record in records
-        if record.get("final_confidence") is not None
+        float(value)
+        for value in (record.get("final_confidence") for record in records)
+        if value is not None
     ]
 
     calibration_pairs = [

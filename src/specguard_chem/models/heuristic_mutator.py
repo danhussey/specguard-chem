@@ -58,7 +58,9 @@ class HeuristicMutatorAdapter(BaseAdapter):
         if "pains_block" in hard_ids:
             return _SAFE_OPTIONS["ring_safe"], cited
 
-        if any(name in margins and (margin or 0) < 0 for name, margin in margins.items()):
+        if any(
+            name in margins and (margin or 0) < 0 for name, margin in margins.items()
+        ):
             return _SAFE_OPTIONS["polar"], cited
 
         if starting_smiles:

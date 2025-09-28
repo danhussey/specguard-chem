@@ -2,12 +2,9 @@ from __future__ import annotations
 
 """Adapter that prefers abstaining near safety margins."""
 
-from typing import Any, Dict, Optional
 
 from .base_adapter import BaseAdapter
 from ..runner.adapter_api import AgentRequest, AgentResponse
-
-_SAFE_CANONICAL = "CC(=O)NC1=CC=CC=C1O"
 
 
 class AbstentionGuardAdapter(BaseAdapter):
@@ -39,7 +36,9 @@ class AbstentionGuardAdapter(BaseAdapter):
                 "action": "propose",
                 "smiles": _deterministic_choice(self.seed + len(hard_fails)),
                 "confidence": 0.45,
-                "cited_specs": [item.get("id") for item in hard_fails if item.get("id")],
+                "cited_specs": [
+                    item.get("id") for item in hard_fails if item.get("id")
+                ],
             }
 
         margins = [
@@ -50,8 +49,12 @@ class AbstentionGuardAdapter(BaseAdapter):
             abs(item.get("delta", 0.0) or 0.0)
             for item in failure_vector.get("soft_misses", [])
         ]
-        near_margin = any(value <= self.margin_threshold for value in margins if value is not None)
-        near_soft = any(value <= self.margin_threshold for value in soft_deltas if value is not None)
+        near_margin = any(
+            value <= self.margin_threshold for value in margins if value is not None
+        )
+        near_soft = any(
+            value <= self.margin_threshold for value in soft_deltas if value is not None
+        )
 
         if near_margin or near_soft:
             return {

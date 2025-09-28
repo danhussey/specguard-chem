@@ -20,7 +20,7 @@ from ..scoring.metrics import spec_compliance
 from ..utils import jsonio
 from ..utils.edit_distance import levenshtein
 from ..utils.seeds import seed_everything
-from .adapter_api import AgentRequest
+from .adapter_api import AgentRequest, ToolSpec
 from .protocols import ConstraintEvaluator, EvaluationResult
 
 ProtocolName = str
@@ -106,9 +106,7 @@ class TaskRunner:
             persist_run(results, run_dir, suite=suite, protocol=protocol or "mixed")
         return results
 
-    def _run_task(
-        self, task: TaskModel, evaluator: ConstraintEvaluator
-    ) -> RunRecord:
+    def _run_task(self, task: TaskModel, evaluator: ConstraintEvaluator) -> RunRecord:
         max_rounds = self.MAX_ROUNDS.get(task.protocol, 1)
         rounds: List[RoundLog] = []
         last_failure_vector: Optional[FailureVector] = None
@@ -126,14 +124,16 @@ class TaskRunner:
             )
             if interrupt_payload:
                 interrupt_triggered = True
-            request = AgentRequest(
-                task=task.model_dump(mode="json"),
-                round=round_index,
-                tools=self._tool_spec(task.protocol),
-                failure_vector=last_failure_vector.model_dump(mode="json")
-                if last_failure_vector
-                else None,
-            )
+            request: AgentRequest = {
+                "task": task.model_dump(mode="json"),
+                "round": round_index,
+                "tools": self._tool_spec(task.protocol),
+                "failure_vector": (
+                    last_failure_vector.model_dump(mode="json")
+                    if last_failure_vector
+                    else None
+                ),
+            }
             if interrupt_payload:
                 request["interrupt"] = interrupt_payload
             response = self.adapter.step(request)
@@ -212,11 +212,7 @@ class TaskRunner:
         if not hard_pass:
             final_smiles = None
             canonical_smiles = None
-        decision = (
-            "abstain"
-            if abstained
-            else ("accept" if hard_pass else "reject")
-        )
+        decision = "abstain" if abstained else ("accept" if hard_pass else "reject")
         interrupt_handled = (
             task.interrupt_at_step is None
             or (not interrupt_triggered)
@@ -244,7 +240,7 @@ class TaskRunner:
         )
 
     @staticmethod
-    def _tool_spec(protocol: str) -> List[Dict[str, Any]]:
+    def _tool_spec(protocol: str) -> list[ToolSpec]:
         if protocol == "L3":
             return [{"name": "verify", "schema": {"smiles": "string"}}]
         return []
@@ -265,10 +261,14 @@ def evaluation_summary(result: EvaluationResult) -> Dict[str, Any]:
     return {
         "hard_pass": result.hard_pass,
         "hard_fails": [
-            outcome.constraint.id for outcome in result.hard_outcomes if not outcome.passed
+            outcome.constraint.id
+            for outcome in result.hard_outcomes
+            if not outcome.passed
         ],
         "soft_fails": [
-            outcome.constraint.id for outcome in result.soft_outcomes if not outcome.passed
+            outcome.constraint.id
+            for outcome in result.soft_outcomes
+            if not outcome.passed
         ],
         "properties": result.properties,
         "property_margins": result.property_margins,
@@ -297,7 +297,9 @@ def persist_run(
     ]
     for record in records:
         confidence = (
-            f"{record.final_confidence:.3f}" if record.final_confidence is not None else ""
+            f"{record.final_confidence:.3f}"
+            if record.final_confidence is not None
+            else ""
         )
         edit_distance = record.edit_distance if record.edit_distance is not None else ""
         leaderboard_rows.append(
@@ -308,9 +310,7 @@ def persist_run(
     leaderboard_path.write_text("\n".join(leaderboard_rows) + "\n", encoding="utf-8")
 
     avg_rounds = (
-        sum(len(record.rounds) for record in records) / len(records)
-        if records
-        else 0.0
+        sum(len(record.rounds) for record in records) / len(records) if records else 0.0
     )
     edit_distances = [
         record.edit_distance for record in records if record.edit_distance is not None

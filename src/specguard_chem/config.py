@@ -134,7 +134,9 @@ def load_tasks_for_suite(
 
     suite_path = paths.suites_dir / f"{suite_name}.jsonl"
     if not suite_path.exists():
-        raise TaskSuiteNotFoundError(f"Unknown task suite '{suite_name}' at {suite_path}")
+        raise TaskSuiteNotFoundError(
+            f"Unknown task suite '{suite_name}' at {suite_path}"
+        )
     tasks: List[TaskModel] = []
     for entry in jsonio.read_jsonl(suite_path):
         try:

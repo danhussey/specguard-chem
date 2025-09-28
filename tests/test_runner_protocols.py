@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import List, cast
 
 import pytest
 
 import specguard_chem.models as adapters_module
 from specguard_chem.models import BaseAdapter, register_adapter
+from specguard_chem.runner.adapter_api import AgentRequest, AgentResponse
 from specguard_chem.runner.runner import TaskRunner
 
 
@@ -14,22 +15,28 @@ class RecordingL2Adapter(BaseAdapter):
 
     def __init__(self, *, seed: int = 0) -> None:
         super().__init__(seed=seed)
-        self.requests: List[Dict[str, Any]] = []
+        self.requests: List[AgentRequest] = []
 
-    def step(self, req: Dict[str, Any]) -> Dict[str, Any]:
+    def step(self, req: AgentRequest) -> AgentResponse:
         self.requests.append(req)
         if req["round"] == 1:
             # echo the starting SMILES, which is known to fail the spec
             input_smiles = (req["task"].get("input") or {}).get("smiles")
-            return {"action": "propose", "smiles": input_smiles}
+            return cast(
+                AgentResponse,
+                {"action": "propose", "smiles": input_smiles},
+            )
         # second round should receive a failure vector and interrupt signal
         assert req.get("failure_vector") is not None
         assert req.get("interrupt") is not None
-        return {
-            "action": "propose",
-            "smiles": "CC(=O)NC1=CC=CC=C1O",
-            "confidence": 0.9,
-        }
+        return cast(
+            AgentResponse,
+            {
+                "action": "propose",
+                "smiles": "CC(=O)NC1=CC=CC=C1O",
+                "confidence": 0.9,
+            },
+        )
 
 
 class ToolCallingAdapter(BaseAdapter):
@@ -37,24 +44,30 @@ class ToolCallingAdapter(BaseAdapter):
 
     def __init__(self, *, seed: int = 0) -> None:
         super().__init__(seed=seed)
-        self.requests: List[Dict[str, Any]] = []
+        self.requests: List[AgentRequest] = []
         self.tool_invoked = False
 
-    def step(self, req: Dict[str, Any]) -> Dict[str, Any]:
+    def step(self, req: AgentRequest) -> AgentResponse:
         self.requests.append(req)
         if not self.tool_invoked:
             self.tool_invoked = True
-            return {
-                "action": "tool_call",
-                "name": "verify",
-                "args": {"smiles": "CC"},
-            }
+            return cast(
+                AgentResponse,
+                {
+                    "action": "tool_call",
+                    "name": "verify",
+                    "args": {"smiles": "CC"},
+                },
+            )
         assert req.get("failure_vector") is not None
-        return {
-            "action": "propose",
-            "smiles": "CC(=O)NC1=CC=CC=C1O",
-            "confidence": 0.75,
-        }
+        return cast(
+            AgentResponse,
+            {
+                "action": "propose",
+                "smiles": "CC(=O)NC1=CC=CC=C1O",
+                "confidence": 0.75,
+            },
+        )
 
 
 @pytest.fixture(autouse=True)

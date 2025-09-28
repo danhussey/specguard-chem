@@ -1,4 +1,5 @@
 """SpecGuard-Chem package."""
+
 from importlib.metadata import version, PackageNotFoundError
 
 try:

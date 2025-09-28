@@ -3,7 +3,7 @@ from __future__ import annotations
 """Constraint evaluation primitives and protocol helpers."""
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from ..config import ConstraintModel, FailureItem, FailureVector, SpecModel
 from ..verifiers import (
@@ -55,7 +55,9 @@ class EvaluationResult:
 
     def build_failure_vector(self, round_id: int) -> FailureVector:
         hard_items = [
-            outcome.as_failure_item() for outcome in self.hard_outcomes if not outcome.passed
+            outcome.as_failure_item()
+            for outcome in self.hard_outcomes
+            if not outcome.passed
         ]
         soft_items: List[FailureItem] = []
         for outcome in self.soft_outcomes:
@@ -63,7 +65,9 @@ class EvaluationResult:
                 continue
             delta = outcome.info.get("delta")
             soft_items.append(
-                FailureItem(id=outcome.constraint.id, detail=outcome.detail, delta=delta)
+                FailureItem(
+                    id=outcome.constraint.id, detail=outcome.detail, delta=delta
+                )
             )
         margin_items = [
             FailureItem(id=name, distance_to_bound=margin)
@@ -145,12 +149,16 @@ class ConstraintEvaluator:
                 self._update_margins(property_margins, margins)
                 detail = None
                 if not passed:
-                    violations = [
-                        f"{name}={properties.get(name, float('nan')):.1f} outside [{lower:.1f},{upper:.1f}]"
-                        for name, (lower, upper) in bounds.items()
-                        if name in properties
-                        and not (lower <= properties[name] <= upper)
-                    ]
+                    violations = []
+                    for name, (lower, upper) in bounds.items():
+                        if name not in properties:
+                            continue
+                        value = properties[name]
+                        if lower <= value <= upper:
+                            continue
+                        violations.append(
+                            f"{name}={value:.1f} outside [{lower:.1f},{upper:.1f}]"
+                        )
                     detail = "; ".join(violations) or "Property outside bounds"
                 outcome = ConstraintOutcome(
                     constraint=constraint,
@@ -200,9 +208,7 @@ class ConstraintEvaluator:
         )
 
     @staticmethod
-    def _update_margins(
-        target: Dict[str, float], margins: Dict[str, float]
-    ) -> None:
+    def _update_margins(target: Dict[str, float], margins: Dict[str, float]) -> None:
         for name, margin in margins.items():
             current = target.get(name)
             if current is None or abs(margin) < abs(current):
