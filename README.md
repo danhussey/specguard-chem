@@ -20,6 +20,8 @@ Repro in <10 minutes on a laptop. No proprietary data; all tasks are synthetic a
 `specguard-chem report` summarises spec compliance, abstention behaviour, edit economy, and
 calibration metrics (Brier/ECE) from the generated `trace.jsonl` artefacts.
 
+For a narrative tour of the system architecture, see [`docs/overview.md`](docs/overview.md).
+
 ### Included adapters
 
 - `heuristic` – deterministic mutator that iteratively repairs hard failures using the runner's
