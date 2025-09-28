@@ -13,6 +13,7 @@ uv pip install -e .[dev]
 specguard-chem run --suite basic --protocol L1 --model heuristic
 specguard-chem run --suite basic --protocol L3 --model open_source_example
 specguard-chem report --run-path runs/2025-01-01_basic_L3/
+uv run pytest --cov=src/specguard_chem --cov-report=term-missing
 ```
 
 Repro in <10 minutes on a laptop. No proprietary data; all tasks are synthetic and safe.
@@ -35,3 +36,8 @@ For a narrative tour of the system architecture, see [`docs/overview.md`](docs/o
 - `basic` – mixed L1/L2/L3 tasks (10 total) covering single-shot proposals, repair rounds, and
   verify-in-the-loop flows.
 - `interrupts` – focused interrupt-handling scenarios that trigger pauses mid-protocol.
+
+### Continuous integration
+
+The GitHub Actions workflow runs linting, coverage collection (published as a `coverage.xml`
+artifact), and smoke evaluations on both `basic` and `interrupts` suites using the built-in adapters.

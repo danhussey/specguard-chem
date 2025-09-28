@@ -10,6 +10,13 @@ jobs:
           python-version: "3.11"
       - run: uv pip install -e .[dev]
       - run: uv run pre-commit run --all-files
-      - run: uv run pytest --cov=src/specguard_chem --cov-report=term-missing
+      - run: uv run pytest --cov=src/specguard_chem --cov-report=term-missing --cov-report=xml
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: coverage.xml
       - run: uv run specguard-chem run basic --protocol L1 --model heuristic --limit 5 --run-path runs/ci_basic
       - run: uv run specguard-chem report runs/ci_basic
+      - run: uv run specguard-chem run interrupts --model abstention_guard --run-path runs/ci_interrupts
+      - run: uv run specguard-chem report runs/ci_interrupts

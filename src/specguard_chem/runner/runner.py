@@ -293,15 +293,16 @@ def persist_run(
     jsonio.write_jsonl(trace_path, [record.to_dict() for record in records])
 
     leaderboard_rows: List[str] = [
-        "task_id	hard_pass	spec_score	decision	confidence	rounds"
+        "task_id	hard_pass	spec_score	decision	confidence	rounds	edit_distance"
     ]
     for record in records:
         confidence = (
             f"{record.final_confidence:.3f}" if record.final_confidence is not None else ""
         )
+        edit_distance = record.edit_distance if record.edit_distance is not None else ""
         leaderboard_rows.append(
             f"{record.task_id}	{int(record.hard_pass)}	{record.spec_score:.3f}"
-            f"	{record.decision}	{confidence}	{len(record.rounds)}"
+            f"	{record.decision}	{confidence}	{len(record.rounds)}	{edit_distance}"
         )
     leaderboard_path.parent.mkdir(parents=True, exist_ok=True)
     leaderboard_path.write_text("\n".join(leaderboard_rows) + "\n", encoding="utf-8")

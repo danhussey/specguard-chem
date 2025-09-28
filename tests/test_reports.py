@@ -48,9 +48,9 @@ def test_summarise_computes_extended_metrics(tmp_path: Path) -> None:
     assert summary["avg_rounds"] == pytest.approx(4 / 3)
     assert summary["avg_edit_distance"] == pytest.approx((2 + 1) / 2)
     assert summary["accept_rate"] == pytest.approx(1 / 3)
-    assert summary["avg_confidence"] is not None
-    assert summary["brier_score"] is not None
-    assert summary["ece"] is not None
+    assert summary["avg_confidence"] == pytest.approx((0.8 + 0.3) / 2)
+    assert summary["brier_score"] == pytest.approx(0.065, abs=1e-6)
+    assert summary["ece"] == pytest.approx(0.25, abs=1e-6)
     assert summary["abstention_utility"] < 0
 
 
