@@ -35,7 +35,11 @@ def _ensure_key(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_openai_adapter_parses_response(monkeypatch: pytest.MonkeyPatch) -> None:
     payload = {
-        "choice": _Choice(content=json.dumps({"action": "propose", "smiles": "CCO", "confidence": 0.9})),
+        "choice": _Choice(
+            content=json.dumps(
+                {"action": "propose", "smiles": "CCO", "confidence": 0.9}
+            )
+        ),
     }
     adapter = OpenAIChatAdapter(client=_FakeClient(payload))
     req: AgentRequest = {
@@ -67,3 +71,42 @@ def test_openai_adapter_requires_api_key(monkeypatch: pytest.MonkeyPatch) -> Non
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     with pytest.raises(RuntimeError, match="OPENAI_API_KEY"):
         oa.OpenAIChatAdapter()
+
+
+def test_openai_adapter_invalid_action(monkeypatch: pytest.MonkeyPatch) -> None:
+    payload = {
+        "choice": _Choice(content=json.dumps({"action": "INVALID", "reason": "oops"})),
+    }
+    adapter = OpenAIChatAdapter(client=_FakeClient(payload))
+    req: AgentRequest = {"task": {}, "round": 1, "tools": [], "failure_vector": None}
+    response = adapter.step(req)
+    assert response["action"] == "abstain"
+    reason = response["reason"]
+    assert isinstance(reason, str)
+    assert "invalid" in reason.lower()
+
+
+def test_openai_adapter_tool_validation(monkeypatch: pytest.MonkeyPatch) -> None:
+    payload = {
+        "choice": _Choice(
+            content=json.dumps(
+                {
+                    "action": "tool_call",
+                    "name": "verify",
+                    "args": {"smiles": "CC"},
+                }
+            )
+        ),
+    }
+    adapter = OpenAIChatAdapter(client=_FakeClient(payload))
+    req: AgentRequest = {
+        "task": {},
+        "round": 2,
+        "tools": [{"name": "different", "schema": {}}],
+        "failure_vector": None,
+    }
+    response = adapter.step(req)
+    assert response["action"] == "abstain"
+    reason = response["reason"]
+    assert isinstance(reason, str)
+    assert "unavailable" in reason.lower()

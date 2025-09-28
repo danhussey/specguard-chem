@@ -16,9 +16,12 @@ from ..runner.adapter_api import AgentRequest, AgentResponse
 
 DEFAULT_MODEL = "gpt-4o-mini"
 DEFAULT_SYSTEM_PROMPT = (
-    "You are an autonomous medicinal chemistry assistant that must obey the provided "
-    "specification. Always respond with compact JSON and no additional prose."
+    "You are an autonomous medicinal chemistry assistant operating inside an "
+    "automated test harness. Every reply MUST be a single JSON object with "
+    "double-quoted keys and no trailing text."
 )
+
+ALLOWED_ACTIONS = {"propose", "tool_call", "abstain"}
 
 
 class OpenAIChatAdapter(BaseAdapter):
@@ -39,7 +42,9 @@ class OpenAIChatAdapter(BaseAdapter):
         super().__init__(seed=seed)
         if client is None:
             if OpenAI is None:  # pragma: no cover - optional dependency guard
-                raise RuntimeError("Install the 'openai' package to use OpenAIChatAdapter.")
+                raise RuntimeError(
+                    "Install the 'openai' package to use OpenAIChatAdapter."
+                )
             if not os.getenv("OPENAI_API_KEY"):
                 raise RuntimeError(
                     "OPENAI_API_KEY is not set. Export it before using the OpenAIChatAdapter."
@@ -66,41 +71,121 @@ class OpenAIChatAdapter(BaseAdapter):
             data = json.loads(message)
         except json.JSONDecodeError as exc:
             raise RuntimeError(
-                "OpenAI response was not valid JSON. Configure the system prompt to force JSON output."
+                "OpenAI response was not valid JSON. Configure the system prompt "
+                "to force JSON output."
             ) from exc
         if not isinstance(data, dict):  # pragma: no cover - defensive
             raise RuntimeError("OpenAI response JSON must be an object")
-        data.setdefault("confidence", 0.5)
-        return data  # type: ignore[return-value]
+        return self._normalize_response(data, req)
 
     def _build_prompt(self, req: AgentRequest) -> list[Dict[str, Any]]:
         task = req.get("task", {})
         failure_vector = req.get("failure_vector")
         tools = req.get("tools") or []
         interrupt = req.get("interrupt")
-        tool_instructions = (
-            "Available tool: verify(smiles) returns property checks prior to submission."
-            if any(tool.get("name") == "verify" for tool in tools)
-            else "No tools available."
-        )
-        failure_summary = "None"
-        if failure_vector:
-            failure_summary = json.dumps(failure_vector)
-        interrupt_summary = json.dumps(interrupt) if interrupt else "None"
-        content = (
-            "You must return JSON with keys: action, and depending on the action, either "
-            "smiles (for propose), name/args (for tool_call), or reason (for abstain). "
-            "You may also include confidence (float 0-1).\n\n"
-            f"Task metadata: {json.dumps(task)}\n"
-            f"Failure vector from the runner: {failure_summary}\n"
-            f"Interrupt signal: {interrupt_summary}\n"
-            f"Tools: {tool_instructions}\n"
-            "Never include prose outside the JSON object."
-        )
+        tool_names = [tool.get("name") for tool in tools if tool.get("name")]
+        instructions = {
+            "task": task,
+            "failure_vector": failure_vector,
+            "interrupt": interrupt,
+            "available_tools": tool_names,
+            "output_schema": {
+                "action": "propose | tool_call | abstain (lowercase)",
+                "smiles": "required if action == 'propose'",
+                "name": "required if action == 'tool_call'",
+                "args": "object, required if action == 'tool_call'",
+                "reason": "required if action == 'abstain'",
+                "confidence": "float between 0 and 1 (optional)",
+            },
+            "rules": [
+                "Always return a single JSON object. Never include markdown or prose.",
+                (
+                    "If a tool is available you may choose action 'tool_call'. Otherwise "
+                    "avoid tool calls."
+                ),
+                (
+                    "If unsure or missing data, respond with action 'abstain' and a concise "
+                    "reason."
+                ),
+                "Respect the failure vector: try to fix hard fails before finalising.",
+            ],
+        }
         return [
             {"role": "system", "content": self.system_prompt},
-            {"role": "user", "content": content},
+            {"role": "user", "content": json.dumps(instructions)},
         ]
+
+    def _normalize_response(
+        self, data: Dict[str, Any], req: AgentRequest
+    ) -> AgentResponse:
+        action = str(data.get("action", "")).strip().lower()
+        confidence = self._extract_confidence(data.get("confidence"))
+        tools = {
+            tool.get("name") for tool in (req.get("tools") or []) if tool.get("name")
+        }
+
+        if action not in ALLOWED_ACTIONS:
+            return {
+                "action": "abstain",
+                "reason": "Model returned invalid action",
+                "confidence": confidence,
+            }
+
+        if action == "propose":
+            smiles = data.get("smiles")
+            if not isinstance(smiles, str) or not smiles.strip():
+                return {
+                    "action": "abstain",
+                    "reason": "Missing SMILES for proposal",
+                    "confidence": confidence,
+                }
+            return {
+                "action": "propose",
+                "smiles": smiles.strip(),
+                "confidence": confidence,
+            }
+
+        if action == "tool_call":
+            name = data.get("name")
+            args = data.get("args")
+            if not isinstance(name, str) or name not in tools:
+                return {
+                    "action": "abstain",
+                    "reason": "Requested unavailable tool",
+                    "confidence": confidence,
+                }
+            if not isinstance(args, dict):
+                return {
+                    "action": "abstain",
+                    "reason": "Tool call missing arguments object",
+                    "confidence": confidence,
+                }
+            return {
+                "action": "tool_call",
+                "name": name,
+                "args": args,
+                "confidence": confidence,
+            }
+
+        # abstain
+        reason = data.get("reason")
+        if not isinstance(reason, str) or not reason.strip():
+            reason = "Model chose to abstain."
+        return {
+            "action": "abstain",
+            "reason": reason.strip(),
+            "confidence": confidence,
+        }
+
+    @staticmethod
+    def _extract_confidence(value: Any) -> float:
+        try:
+            if value is None:
+                raise ValueError
+            confidence = float(value)
+        except (TypeError, ValueError):
+            confidence = 0.5
+        return max(0.0, min(1.0, confidence))
 
 
 __all__ = ["OpenAIChatAdapter", "DEFAULT_MODEL"]
