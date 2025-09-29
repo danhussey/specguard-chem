@@ -1,5 +1,5 @@
 # SpecGuard-Chem
-[![CI](https://img.shields.io/github/actions/workflow/status/specguard-chem/specguard-chem/ci.yml?label=CI)](https://github.com/specguard-chem/specguard-chem/actions/workflows/ci.yml) ![Coverage](https://img.shields.io/badge/coverage-84%25-brightgreen) 
+[![CI](https://img.shields.io/github/actions/workflow/status/danhussey/specguard-chem/ci.yml?label=CI)](https://github.com/danhussey/specguard-chem/actions/workflows/ci.yml) ![Coverage](https://img.shields.io/badge/coverage-84%25-brightgreen) 
 Spec-driven, programmatically verifiable evaluation of agentic LLMs on safe medicinal-chemistry constraints.
 
 **What it is:** a small, model-agnostic test rig. Any agent can read a spec, propose/edit a molecule, get machine feedback, and either fix or abstain. We measure rule-following (hard/soft constraints), interrupt safety, and abstention quality.
