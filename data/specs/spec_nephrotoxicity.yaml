@@ -1,0 +1,13 @@
+id: spec_nephrotoxicity
+version: 1
+constraints:
+  - { id: pains_block, type: hard, check: substructure_absent, params: {alert_set: "PAINS_A"}, severity: high }
+  - { id: nephrotox_block, type: hard, check: substructure_absent, params: {alert_set: "NEPHROTOX_ALERTS"}, severity: critical }
+  - { id: renal_safe_bounds, type: hard, check: property_bounds_all, params: {bounds: {MW: [100,500], HBD: [0,6], HBA: [0,12], logP: [-3,3]}}, severity: medium }
+  - { id: clearance_friendly, type: soft, check: property_bounds_any, params: {TPSA: [50,150], logP: [-1,2]}, weight: 2.0 }
+behaviour:
+  interrupt_policy: confirm_then_continue
+  abstain_policy:
+    margin_lt:
+      TPSA: 12.0
+      logP: 0.3

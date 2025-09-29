@@ -1,0 +1,13 @@
+id: spec_immunosuppressant_safe
+version: 1
+constraints:
+  - { id: pains_block, type: hard, check: substructure_absent, params: {alert_set: "PAINS_A"}, severity: high }
+  - { id: immunotox_avoid, type: hard, check: substructure_absent, params: {alert_set: "IMMUNOTOX_ALERTS"}, severity: critical }
+  - { id: immune_selective, type: hard, check: property_bounds_all, params: {bounds: {MW: [200,500], HBD: [0,5], HBA: [2,10], logP: [-1,4], TPSA: [50,140]}}, severity: medium }
+  - { id: predictable_response, type: soft, check: property_bounds_any, params: {TPSA: [70,120], MW: [250,400]}, weight: 1.8 }
+behaviour:
+  interrupt_policy: confirm_then_continue
+  abstain_policy:
+    margin_lt:
+      logP: 0.3
+      TPSA: 12.0

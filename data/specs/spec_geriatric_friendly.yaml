@@ -1,0 +1,14 @@
+id: spec_geriatric_friendly
+version: 1
+constraints:
+  - { id: pains_block, type: hard, check: substructure_absent, params: {alert_set: "PAINS_A"}, severity: high }
+  - { id: elderly_optimized, type: hard, check: substructure_absent, params: {alert_set: "GERIATRIC_AVOID"}, severity: critical }
+  - { id: age_appropriate, type: hard, check: property_bounds_all, params: {bounds: {MW: [150,350], HBD: [0,3], HBA: [1,6], logP: [-1,2.5], TPSA: [40,110]}}, severity: medium }
+  - { id: interaction_minimal, type: soft, check: property_bounds_any, params: {logP: [0,2], TPSA: [50,100]}, weight: 2.0 }
+  - { id: renal_friendly, type: soft, check: property_bounds_all, params: {bounds: {MW: [0,300], logP: [-1,2]}}, weight: 1.5 }
+behaviour:
+  interrupt_policy: confirm_then_continue
+  abstain_policy:
+    margin_lt:
+      logP: 0.15
+      TPSA: 8.0

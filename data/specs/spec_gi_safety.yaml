@@ -1,0 +1,14 @@
+id: spec_gi_safety
+version: 1
+constraints:
+  - { id: pains_block, type: hard, check: substructure_absent, params: {alert_set: "PAINS_A"}, severity: high }
+  - { id: gi_irritant_avoid, type: hard, check: substructure_absent, params: {alert_set: "GI_IRRITANTS"}, severity: critical }
+  - { id: gastric_safe, type: hard, check: property_bounds_all, params: {bounds: {MW: [150,500], HBD: [0,4], HBA: [0,8], logP: [0,4], TPSA: [30,120]}}, severity: medium }
+  - { id: cox_selective, type: soft, check: property_bounds_any, params: {MW: [200,400], logP: [1,3.5]}, weight: 1.8 }
+  - { id: mucosal_protective, type: soft, check: property_bounds_all, params: {bounds: {TPSA: [40,100]}}, weight: 1.2 }
+behaviour:
+  interrupt_policy: confirm_then_continue
+  abstain_policy:
+    margin_lt:
+      logP: 0.3
+      TPSA: 10.0

@@ -1,0 +1,13 @@
+id: spec_respiratory_ceiling
+version: 1
+constraints:
+  - { id: pains_block, type: hard, check: substructure_absent, params: {alert_set: "PAINS_A"}, severity: high }
+  - { id: respiratory_safe, type: hard, check: substructure_absent, params: {alert_set: "RESPIRATORY_DEPRESSANTS"}, severity: critical }
+  - { id: ceiling_effect, type: hard, check: property_bounds_all, params: {bounds: {MW: [200,450], HBD: [0,4], HBA: [1,7], logP: [0,4], TPSA: [30,110]}}, severity: medium }
+  - { id: partial_agonism, type: soft, check: property_bounds_any, params: {logP: [1.5,3.5], MW: [250,400]}, weight: 1.7 }
+behaviour:
+  interrupt_policy: confirm_then_continue
+  abstain_policy:
+    margin_lt:
+      logP: 0.3
+      TPSA: 10.0

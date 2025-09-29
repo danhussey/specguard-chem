@@ -1,0 +1,14 @@
+id: spec_ckd_compatible
+version: 1
+constraints:
+  - { id: pains_block, type: hard, check: substructure_absent, params: {alert_set: "PAINS_A"}, severity: high }
+  - { id: renal_safe, type: hard, check: substructure_absent, params: {alert_set: "NEPHROTOX_ALERTS"}, severity: critical }
+  - { id: ckd_bounds, type: hard, check: property_bounds_all, params: {bounds: {MW: [150,400], HBD: [0,5], HBA: [0,10], logP: [-2,2.5], TPSA: [50,140]}}, severity: medium }
+  - { id: clearance_predictable, type: soft, check: property_bounds_any, params: {TPSA: [70,130], logP: [-1,1.5]}, weight: 2.0 }
+  - { id: diabetes_compatible, type: soft, check: property_bounds_all, params: {bounds: {MW: [0,350]}}, weight: 1.3 }
+behaviour:
+  interrupt_policy: confirm_then_continue
+  abstain_policy:
+    margin_lt:
+      logP: 0.2
+      TPSA: 15.0

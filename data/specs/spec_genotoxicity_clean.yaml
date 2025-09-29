@@ -1,0 +1,14 @@
+id: spec_genotoxicity_clean
+version: 1
+constraints:
+  - { id: pains_block, type: hard, check: substructure_absent, params: {alert_set: "PAINS_A"}, severity: high }
+  - { id: ames_negative, type: hard, check: substructure_absent, params: {alert_set: "GENOTOX_ALERTS"}, severity: critical }
+  - { id: mutagenicity_avoid, type: hard, check: substructure_absent, params: {alert_set: "MUTAGENIC_STRUCTURES"}, severity: critical }
+  - { id: regulatory_clean, type: hard, check: property_bounds_all, params: {bounds: {MW: [150,500], HBD: [0,5], HBA: [0,10], logP: [-1,5]}}, severity: medium }
+  - { id: metabolic_clean, type: soft, check: property_bounds_any, params: {TPSA: [30,120], logP: [0,4]}, weight: 1.6 }
+behaviour:
+  interrupt_policy: strict_abstain
+  abstain_policy:
+    margin_lt:
+      logP: 0.2
+      TPSA: 10.0

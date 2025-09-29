@@ -1,0 +1,13 @@
+id: spec_selective_toxicity
+version: 1
+constraints:
+  - { id: pains_block, type: hard, check: substructure_absent, params: {alert_set: "PAINS_A"}, severity: high }
+  - { id: cancer_selective, type: hard, check: property_bounds_all, params: {bounds: {MW: [200,600], HBD: [0,5], HBA: [1,12], logP: [-1,5], TPSA: [40,150]}}, severity: medium }
+  - { id: normal_tissue_spare, type: soft, check: property_bounds_any, params: {MW: [250,500], TPSA: [60,140]}, weight: 2.0 }
+  - { id: therapeutic_index, type: soft, check: property_bounds_all, params: {bounds: {logP: [0,4]}}, weight: 1.5 }
+behaviour:
+  interrupt_policy: confirm_then_continue
+  abstain_policy:
+    margin_lt:
+      logP: 0.3
+      TPSA: 15.0

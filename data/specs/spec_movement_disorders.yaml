@@ -1,0 +1,13 @@
+id: spec_movement_disorders
+version: 1
+constraints:
+  - { id: pains_block, type: hard, check: substructure_absent, params: {alert_set: "PAINS_A"}, severity: high }
+  - { id: eps_risk_low, type: hard, check: substructure_absent, params: {alert_set: "EPS_RISK_STRUCTURES"}, severity: high }
+  - { id: atypical_profile, type: hard, check: property_bounds_all, params: {bounds: {MW: [200,500], HBD: [0,3], HBA: [0,8], logP: [1,4], TPSA: [30,100]}}, severity: medium }
+  - { id: d2_balanced, type: soft, check: property_bounds_any, params: {logP: [2,4], MW: [250,400]}, weight: 1.7 }
+behaviour:
+  interrupt_policy: confirm_then_continue
+  abstain_policy:
+    margin_lt:
+      logP: 0.3
+      MW: 25.0

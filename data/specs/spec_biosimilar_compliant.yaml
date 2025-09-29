@@ -1,0 +1,13 @@
+id: spec_biosimilar_compliant
+version: 1
+constraints:
+  - { id: pains_block, type: hard, check: substructure_absent, params: {alert_set: "PAINS_A"}, severity: high }
+  - { id: reference_similar, type: hard, check: property_bounds_all, params: {bounds: {MW: [150,500], HBD: [0,5], HBA: [0,10], logP: [-1,5], TPSA: [30,140]}}, severity: medium }
+  - { id: patent_freedom, type: hard, check: substructure_absent, params: {alert_set: "BIOSIMILAR_BLOCKED"}, severity: critical }
+  - { id: analytical_similarity, type: soft, check: property_bounds_any, params: {TPSA: [40,120], logP: [0,4]}, weight: 1.4 }
+behaviour:
+  interrupt_policy: confirm_then_continue
+  abstain_policy:
+    margin_lt:
+      logP: 0.3
+      TPSA: 12.0

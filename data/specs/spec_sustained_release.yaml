@@ -1,0 +1,13 @@
+id: spec_sustained_release
+version: 1
+constraints:
+  - { id: pains_block, type: hard, check: substructure_absent, params: {alert_set: "PAINS_A"}, severity: high }
+  - { id: release_control, type: hard, check: property_bounds_all, params: {bounds: {MW: [200,500], HBD: [0,4], HBA: [2,8], logP: [1,4], TPSA: [40,120]}}, severity: medium }
+  - { id: dissolution_rate, type: soft, check: property_bounds_any, params: {MW: [300,450], logP: [2,4]}, weight: 1.5 }
+  - { id: stability_enhanced, type: soft, check: property_bounds_all, params: {bounds: {TPSA: [50,100]}}, weight: 1.2 }
+behaviour:
+  interrupt_policy: confirm_then_continue
+  abstain_policy:
+    margin_lt:
+      logP: 0.3
+      MW: 20.0

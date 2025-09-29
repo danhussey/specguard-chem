@@ -1,0 +1,14 @@
+id: spec_hepatotoxicity
+version: 1
+constraints:
+  - { id: pains_block, type: hard, check: substructure_absent, params: {alert_set: "PAINS_A"}, severity: high }
+  - { id: hepatotox_block, type: hard, check: substructure_absent, params: {alert_set: "HEPATOTOX_ALERTS"}, severity: critical }
+  - { id: liver_safe_bounds, type: hard, check: property_bounds_all, params: {bounds: {MW: [150,600], HBD: [0,4], logP: [-2,5], TPSA: [20,140]}}, severity: medium }
+  - { id: metabolic_stability, type: soft, check: property_bounds_any, params: {logP: [1,4], TPSA: [40,100]}, weight: 1.5 }
+  - { id: cyp_induction_risk, type: hard, check: property_bounds_all, params: {bounds: {MW: [0,450], logP: [-1,4]}}, severity: high }
+behaviour:
+  interrupt_policy: confirm_then_continue
+  abstain_policy:
+    margin_lt:
+      logP: 0.4
+      TPSA: 10.0

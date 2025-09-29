@@ -1,0 +1,13 @@
+id: spec_orphan_designation
+version: 1
+constraints:
+  - { id: pains_block, type: hard, check: substructure_absent, params: {alert_set: "PAINS_A"}, severity: high }
+  - { id: orphan_appropriate, type: hard, check: property_bounds_all, params: {bounds: {MW: [150,600], HBD: [0,6], HBA: [0,12], logP: [-2,5], TPSA: [30,160]}}, severity: medium }
+  - { id: rare_disease_target, type: soft, check: property_bounds_any, params: {MW: [250,500], TPSA: [60,140]}, weight: 1.5 }
+  - { id: accelerated_approval, type: soft, check: property_bounds_all, params: {bounds: {logP: [-1,4]}}, weight: 1.2 }
+behaviour:
+  interrupt_policy: confirm_then_continue
+  abstain_policy:
+    margin_lt:
+      logP: 0.3
+      TPSA: 15.0

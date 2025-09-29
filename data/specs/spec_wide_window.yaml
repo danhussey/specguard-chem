@@ -1,0 +1,13 @@
+id: spec_wide_window
+version: 1
+constraints:
+  - { id: pains_block, type: hard, check: substructure_absent, params: {alert_set: "PAINS_A"}, severity: high }
+  - { id: predictable_pk, type: hard, check: property_bounds_all, params: {bounds: {MW: [200,450], HBD: [0,3], HBA: [1,7], logP: [0,3.5], TPSA: [40,110]}}, severity: medium }
+  - { id: anticoagulant_safe, type: soft, check: property_bounds_any, params: {TPSA: [50,100], logP: [1,3]}, weight: 1.8 }
+  - { id: variability_low, type: soft, check: property_bounds_all, params: {bounds: {MW: [250,400], logP: [1.5,3]}}, weight: 1.4 }
+behaviour:
+  interrupt_policy: confirm_then_continue
+  abstain_policy:
+    margin_lt:
+      logP: 0.2
+      TPSA: 8.0

@@ -1,0 +1,13 @@
+id: spec_neurotoxicity
+version: 1
+constraints:
+  - { id: pains_block, type: hard, check: substructure_absent, params: {alert_set: "PAINS_A"}, severity: high }
+  - { id: neurotox_block, type: hard, check: substructure_absent, params: {alert_set: "NEUROTOX_ALERTS"}, severity: critical }
+  - { id: bbb_controlled, type: hard, check: property_bounds_all, params: {bounds: {MW: [100,400], HBD: [0,3], HBA: [0,7], logP: [-1,3.5], TPSA: [20,80]}}, severity: medium }
+  - { id: excitotox_avoid, type: soft, check: property_bounds_any, params: {logP: [0,3], TPSA: [30,70]}, weight: 2.0 }
+behaviour:
+  interrupt_policy: confirm_then_continue
+  abstain_policy:
+    margin_lt:
+      logP: 0.3
+      TPSA: 10.0

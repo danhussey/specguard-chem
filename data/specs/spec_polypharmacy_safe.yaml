@@ -1,0 +1,14 @@
+id: spec_polypharmacy_safe
+version: 1
+constraints:
+  - { id: pains_block, type: hard, check: substructure_absent, params: {alert_set: "PAINS_A"}, severity: high }
+  - { id: multi_drug_safe, type: hard, check: substructure_absent, params: {alert_set: "POLYPHARMACY_RISKS"}, severity: critical }
+  - { id: conservative_bounds, type: hard, check: property_bounds_all, params: {bounds: {MW: [150,400], HBD: [0,3], HBA: [0,6], logP: [0,3], TPSA: [40,100]}}, severity: medium }
+  - { id: protein_binding_low, type: soft, check: property_bounds_any, params: {logP: [0,2.5], TPSA: [50,120]}, weight: 1.8 }
+  - { id: renal_clearance, type: soft, check: property_bounds_all, params: {bounds: {MW: [0,350], logP: [-1,2.5]}}, weight: 1.4 }
+behaviour:
+  interrupt_policy: confirm_then_continue
+  abstain_policy:
+    margin_lt:
+      logP: 0.2
+      TPSA: 8.0

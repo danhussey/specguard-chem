@@ -1,0 +1,13 @@
+id: spec_cyp3a4_neutral
+version: 1
+constraints:
+  - { id: pains_block, type: hard, check: substructure_absent, params: {alert_set: "PAINS_A"}, severity: high }
+  - { id: cyp3a4_no_induction, type: hard, check: substructure_absent, params: {alert_set: "CYP3A4_INDUCERS"}, severity: critical }
+  - { id: contraceptive_safe, type: hard, check: property_bounds_all, params: {bounds: {MW: [200,500], HBD: [0,4], HBA: [0,8], logP: [-1,4]}}, severity: medium }
+  - { id: antibiotic_props, type: soft, check: property_bounds_any, params: {TPSA: [60,150], logP: [0,3]}, weight: 1.5 }
+behaviour:
+  interrupt_policy: confirm_then_continue
+  abstain_policy:
+    margin_lt:
+      logP: 0.3
+      TPSA: 10.0

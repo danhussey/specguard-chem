@@ -1,0 +1,13 @@
+id: spec_cns_bioavailability
+version: 1
+constraints:
+  - { id: pains_block, type: hard, check: substructure_absent, params: {alert_set: "PAINS_A"}, severity: high }
+  - { id: bbb_penetration, type: hard, check: property_bounds_all, params: {bounds: {MW: [150,450], HBD: [0,2], HBA: [0,6], logP: [1,4], TPSA: [20,90]}}, severity: medium }
+  - { id: pgp_avoidance, type: soft, check: property_bounds_any, params: {MW: [0,400], TPSA: [0,70]}, weight: 1.8 }
+  - { id: oral_availability, type: soft, check: property_bounds_all, params: {bounds: {MW: [0,500], logP: [-1,5], TPSA: [0,120]}}, weight: 1.2 }
+behaviour:
+  interrupt_policy: confirm_then_continue
+  abstain_policy:
+    margin_lt:
+      logP: 0.2
+      TPSA: 8.0

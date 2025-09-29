@@ -1,0 +1,14 @@
+id: spec_geriatric_safe
+version: 1
+constraints:
+  - { id: pains_block, type: hard, check: substructure_absent, params: {alert_set: "PAINS_A"}, severity: high }
+  - { id: beers_avoid, type: hard, check: substructure_absent, params: {alert_set: "BEERS_CRITERIA"}, severity: critical }
+  - { id: elderly_bounds, type: hard, check: property_bounds_all, params: {bounds: {MW: [150,400], HBD: [0,3], HBA: [0,6], logP: [-1,3], TPSA: [30,100]}}, severity: medium }
+  - { id: cognitive_safe, type: soft, check: property_bounds_any, params: {TPSA: [40,90], logP: [0,2.5]}, weight: 2.0 }
+  - { id: anticholinergic_avoid, type: hard, check: property_bounds_all, params: {bounds: {logP: [-1,2.5]}}, severity: high }
+behaviour:
+  interrupt_policy: confirm_then_continue
+  abstain_policy:
+    margin_lt:
+      logP: 0.2
+      TPSA: 8.0
