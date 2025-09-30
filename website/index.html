@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpecGuard-Chem: AI Safety in Medicinal Chemistry</title>
+    <meta name="description" content="The first comprehensive benchmark for evaluating AI safety in medicinal chemistry and drug discovery">
+    <meta name="keywords" content="AI safety, medicinal chemistry, drug discovery, benchmark, evaluation, pharmaceutical AI">
+
+    <!-- Open Graph for social sharing -->
+    <meta property="og:title" content="SpecGuard-Chem: AI Safety in Medicinal Chemistry">
+    <meta property="og:description" content="Rigorous evaluation framework for AI safety in drug discovery">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://specguard-chem.org">
+
+    <link rel="stylesheet" href="./styles/main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="/">SpecGuard-Chem</a>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="#overview" class="nav-link">Overview</a>
+                <a href="./methodology.html" class="nav-link">Methodology</a>
+                <a href="./tasks.html" class="nav-link">Task Suites</a>
+                <a href="./leaderboard/" class="nav-link">Leaderboard</a>
+                <a href="./results.html" class="nav-link">Results</a>
+                <a href="./paper.html" class="nav-link">Paper</a>
+                <a href="https://github.com/danhussey/specguard-chem" class="nav-link nav-link-external">GitHub</a>
+            </div>
+            <div class="nav-toggle" id="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <span class="hero-title-main">SpecGuard-Chem</span>
+                    <span class="hero-title-sub">Evaluating AI Safety in Medicinal Chemistry</span>
+                </h1>
+                <p class="hero-description">
+                    The first comprehensive benchmark for measuring AI adherence to safety constraints in drug discovery.
+                    Rigorously evaluate how well language models follow medical chemistry safety protocols when proposing molecular structures.
+                </p>
+                <div class="hero-actions">
+                    <a href="./leaderboard/" class="btn btn-primary">View Leaderboard</a>
+                    <a href="#get-started" class="btn btn-secondary">Get Started</a>
+                </div>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="total-models">1</div>
+                    <div class="stat-label">Models Evaluated</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">54</div>
+                    <div class="stat-label">Safety Tasks</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">7</div>
+                    <div class="stat-label">Test Suites</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">6</div>
+                    <div class="stat-label">Safety Domains</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Overview Section -->
+    <section id="overview" class="section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Research Overview</h2>
+                <p class="section-subtitle">
+                    Addressing critical gaps in AI safety evaluation for pharmaceutical applications
+                </p>
+            </div>
+
+            <div class="overview-grid">
+                <div class="overview-card">
+                    <div class="card-icon">⚠️</div>
+                    <h3>The Problem</h3>
+                    <p>
+                        AI models in drug discovery can propose molecules that violate critical safety constraints,
+                        potentially leading to harmful compounds that cause organ toxicity, dangerous drug interactions,
+                        or regulatory non-compliance.
+                    </p>
+                </div>
+                <div class="overview-card">
+                    <div class="card-icon">🛡️</div>
+                    <h3>Our Solution</h3>
+                    <p>
+                        SpecGuard-Chem provides a rigorous evaluation framework with 54 tasks across 6 safety domains,
+                        testing AI models' ability to follow medical chemistry constraints and appropriately abstain
+                        from unsafe proposals.
+                    </p>
+                </div>
+                <div class="overview-card">
+                    <div class="card-icon">🎯</div>
+                    <h3>Key Impact</h3>
+                    <p>
+                        Enable safer deployment of AI in pharmaceutical research by establishing safety standards,
+                        measuring abstention quality, and providing reproducible evaluation protocols for the
+                        research community.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Abstract Section -->
+    <section class="abstract-section">
+        <div class="container">
+            <div class="abstract-content">
+                <h2>Abstract</h2>
+                <p>
+                    As large language models increasingly assist in drug discovery and medicinal chemistry,
+                    ensuring their adherence to critical safety constraints becomes paramount. We introduce
+                    <strong>SpecGuard-Chem</strong>, the first comprehensive benchmark for evaluating AI safety
+                    in medicinal chemistry applications.
+                </p>
+                <p>
+                    Our benchmark comprises 54 carefully designed tasks across 6 critical safety domains:
+                    adversarial safety resistance, organ-specific toxicity avoidance, drug-drug interaction
+                    prevention, ADMET optimization, regulatory compliance, and therapeutic window optimization.
+                    Each task tests not only constraint adherence but also the crucial ability to abstain
+                    when safety cannot be guaranteed.
+                </p>
+                <p>
+                    Through evaluation of current models, we reveal significant gaps in AI safety capabilities
+                    for medical chemistry, particularly in adversarial scenarios and complex multi-constraint
+                    optimization. Our framework provides both a rigorous evaluation protocol and actionable
+                    insights for developing safer AI systems in pharmaceutical research.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Safety Domains -->
+    <section class="domains-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Safety Evaluation Domains</h2>
+                <p class="section-subtitle">
+                    Comprehensive coverage of critical safety concerns in medicinal chemistry
+                </p>
+            </div>
+
+            <div class="domains-grid">
+                <div class="domain-card">
+                    <div class="domain-header">
+                        <h3>Adversarial Safety</h3>
+                        <span class="domain-tasks">6 tasks</span>
+                    </div>
+                    <p>
+                        Tests resistance to safety bypass attempts and pressure tactics. Evaluates whether
+                        models maintain safety standards when faced with adversarial prompts or urgent requests.
+                    </p>
+                    <div class="domain-examples">
+                        <strong>Example:</strong> Refusing to circumvent toxicity screening when requested for "urgent publication"
+                    </div>
+                </div>
+
+                <div class="domain-card">
+                    <div class="domain-header">
+                        <h3>Organ Toxicity</h3>
+                        <span class="domain-tasks">8 tasks</span>
+                    </div>
+                    <p>
+                        Evaluates avoidance of structures known to cause hepatic, cardiac, renal, or neurological toxicity.
+                        Critical for patient safety in drug development.
+                    </p>
+                    <div class="domain-examples">
+                        <strong>Example:</strong> Designing analgesics that avoid hepatotoxic liability patterns
+                    </div>
+                </div>
+
+                <div class="domain-card">
+                    <div class="domain-header">
+                        <h3>Drug Interactions</h3>
+                        <span class="domain-tasks">6 tasks</span>
+                    </div>
+                    <p>
+                        Tests understanding of cytochrome P450 interactions, transporter effects, and polypharmacy
+                        considerations essential for safe co-administration.
+                    </p>
+                    <div class="domain-examples">
+                        <strong>Example:</strong> Avoiding CYP2C9 substrates when designing drugs for warfarin patients
+                    </div>
+                </div>
+
+                <div class="domain-card">
+                    <div class="domain-header">
+                        <h3>ADMET Optimization</h3>
+                        <span class="domain-tasks">8 tasks</span>
+                    </div>
+                    <p>
+                        Evaluates optimization of Absorption, Distribution, Metabolism, Excretion, and Toxicity
+                        properties for pharmaceutical viability.
+                    </p>
+                    <div class="domain-examples">
+                        <strong>Example:</strong> Enhancing blood-brain barrier penetration while avoiding efflux pumps
+                    </div>
+                </div>
+
+                <div class="domain-card">
+                    <div class="domain-header">
+                        <h3>Regulatory Compliance</h3>
+                        <span class="domain-tasks">8 tasks</span>
+                    </div>
+                    <p>
+                        Tests adherence to FDA guidelines, orphan drug requirements, controlled substance avoidance,
+                        and other regulatory considerations.
+                    </p>
+                    <div class="domain-examples">
+                        <strong>Example:</strong> Designing compounds that meet pediatric safety requirements
+                    </div>
+                </div>
+
+                <div class="domain-card">
+                    <div class="domain-header">
+                        <h3>Therapeutic Window</h3>
+                        <span class="domain-tasks">8 tasks</span>
+                    </div>
+                    <p>
+                        Evaluates optimization of safety margins between therapeutic and toxic doses, critical for
+                        clinical safety and dosing protocols.
+                    </p>
+                    <div class="domain-examples">
+                        <strong>Example:</strong> Widening anticoagulant therapeutic windows to reduce bleeding complications
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Getting Started -->
+    <section id="get-started" class="get-started-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Get Started</h2>
+                <p class="section-subtitle">
+                    Evaluate your AI model on SpecGuard-Chem in minutes
+                </p>
+            </div>
+
+            <div class="getting-started-content">
+                <div class="steps-container">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3>Install & Setup</h3>
+                            <div class="code-block">
+                                <code>
+git clone https://github.com/danhussey/specguard-chem.git<br>
+cd specguard-chem<br>
+uv venv --seed && source .venv/bin/activate<br>
+uv pip install -e .[dev]
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3>Run Evaluation</h3>
+                            <div class="code-block">
+                                <code>
+# Test with built-in models<br>
+specguard-chem run basic --model heuristic<br><br>
+# Evaluate all suites<br>
+specguard-chem run all --model your_model
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3>Submit Results</h3>
+                            <div class="code-block">
+                                <code>
+# Generate submission<br>
+specguard-chem export-leaderboard results/ \<br>
+  --model-name "Your Model" \<br>
+  --organization "Your Org"<br><br>
+# Submit via PR to add to leaderboard
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quick-links">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="./methodology.html">Detailed Methodology</a></li>
+                        <li><a href="./tasks.html">Explore Task Suites</a></li>
+                        <li><a href="https://github.com/danhussey/specguard-chem">GitHub Repository</a></li>
+                        <li><a href="./paper.html">Research Paper</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>SpecGuard-Chem</h4>
+                    <p>Advancing AI safety in medicinal chemistry through rigorous evaluation.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="./methodology.html">Methodology</a></li>
+                        <li><a href="./tasks.html">Task Suites</a></li>
+                        <li><a href="./leaderboard/">Leaderboard</a></li>
+                        <li><a href="./results.html">Results</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Community</h4>
+                    <ul>
+                        <li><a href="https://github.com/danhussey/specguard-chem">GitHub</a></li>
+                        <li><a href="https://github.com/danhussey/specguard-chem/issues">Issues</a></li>
+                        <li><a href="https://github.com/danhussey/specguard-chem/discussions">Discussions</a></li>
+                        <li><a href="./paper.html">Cite This Work</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <p>Questions about SpecGuard-Chem?</p>
+                    <p>Open an issue on GitHub or reach out via the repository.</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 SpecGuard-Chem. Licensed under MIT. Research conducted with focus on AI safety and responsible development.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="./scripts/main.js"></script>
+</body>
+</html>
