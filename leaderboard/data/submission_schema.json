@@ -1,0 +1,241 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SpecGuard-Chem Leaderboard Submission",
+  "type": "object",
+  "required": ["model_info", "evaluation_info", "results", "verification"],
+  "properties": {
+    "model_info": {
+      "type": "object",
+      "required": ["id", "name", "organization", "type", "description"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "description": "Unique identifier for the model (lowercase, hyphens allowed)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Display name of the model"
+        },
+        "organization": {
+          "type": "string",
+          "description": "Organization that created/submitted the model"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["open-source", "closed-source", "academic"],
+          "description": "Model accessibility type"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Brief description of the model"
+        },
+        "model_details": {
+          "type": "object",
+          "properties": {
+            "parameters": {
+              "type": "string",
+              "description": "Number of parameters (e.g., '7B', '13B', 'unknown')"
+            },
+            "training_data": {
+              "type": "string",
+              "description": "Description of training data and approach"
+            },
+            "inference_settings": {
+              "type": "object",
+              "properties": {
+                "temperature": { "type": "number", "minimum": 0, "maximum": 2 },
+                "max_tokens": { "type": "integer", "minimum": 1 },
+                "top_p": { "type": "number", "minimum": 0, "maximum": 1 }
+              }
+            }
+          }
+        },
+        "paper_url": {
+          "type": ["string", "null"],
+          "format": "uri",
+          "description": "URL to research paper"
+        },
+        "code_url": {
+          "type": ["string", "null"],
+          "format": "uri",
+          "description": "URL to model code/implementation"
+        },
+        "license": {
+          "type": "string",
+          "description": "Model license"
+        }
+      }
+    },
+    "evaluation_info": {
+      "type": "object",
+      "required": ["submission_date", "evaluator", "evaluation_environment"],
+      "properties": {
+        "submission_date": {
+          "type": "string",
+          "format": "date",
+          "description": "Date of submission (YYYY-MM-DD)"
+        },
+        "evaluator": {
+          "type": "string",
+          "description": "Name or organization of the evaluator"
+        },
+        "evaluation_environment": {
+          "type": "object",
+          "required": ["specguard_version", "python_version"],
+          "properties": {
+            "specguard_version": {
+              "type": "string",
+              "description": "Version of SpecGuard-Chem used"
+            },
+            "python_version": {
+              "type": "string",
+              "description": "Python version used for evaluation"
+            },
+            "hardware": {
+              "type": "string",
+              "description": "Hardware used for evaluation"
+            },
+            "evaluation_date": {
+              "type": "string",
+              "format": "date",
+              "description": "Date evaluation was performed"
+            }
+          }
+        },
+        "reproducibility": {
+          "type": "object",
+          "properties": {
+            "seed": {
+              "type": "integer",
+              "description": "Random seed used for reproducibility"
+            },
+            "evaluation_script": {
+              "type": "string",
+              "description": "Script or command used for evaluation"
+            },
+            "additional_notes": {
+              "type": "string",
+              "description": "Additional setup or configuration notes"
+            }
+          }
+        }
+      }
+    },
+    "results": {
+      "type": "object",
+      "required": ["summary", "suite_results"],
+      "properties": {
+        "summary": {
+          "type": "object",
+          "required": ["total_tasks", "tasks_completed", "spec_compliance", "abstention_quality", "safety_score"],
+          "properties": {
+            "total_tasks": {
+              "type": "integer",
+              "const": 54,
+              "description": "Total number of tasks (must be 54)"
+            },
+            "tasks_completed": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 54,
+              "description": "Number of tasks completed"
+            },
+            "spec_compliance": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Overall specification compliance rate"
+            },
+            "abstention_quality": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Overall abstention quality score"
+            },
+            "safety_score": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Composite safety score"
+            }
+          }
+        },
+        "suite_results": {
+          "type": "object",
+          "required": ["basic", "adversarial_safety", "drug_interactions", "organ_toxicity", "admet_optimization", "regulatory_compliance", "therapeutic_window"],
+          "properties": {
+            "basic": { "$ref": "#/definitions/suite_result" },
+            "adversarial_safety": { "$ref": "#/definitions/suite_result" },
+            "drug_interactions": { "$ref": "#/definitions/suite_result" },
+            "organ_toxicity": { "$ref": "#/definitions/suite_result" },
+            "admet_optimization": { "$ref": "#/definitions/suite_result" },
+            "regulatory_compliance": { "$ref": "#/definitions/suite_result" },
+            "therapeutic_window": { "$ref": "#/definitions/suite_result" }
+          }
+        },
+        "detailed_results_url": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL to detailed results (trace.jsonl files)"
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "required": ["results_hash", "verification_contact"],
+      "properties": {
+        "results_hash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "SHA-256 hash of the detailed results for verification"
+        },
+        "verification_contact": {
+          "type": "string",
+          "format": "email",
+          "description": "Contact email for result verification"
+        },
+        "additional_reviewers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "email"
+          },
+          "description": "Additional reviewers who can verify the results"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "suite_result": {
+      "type": "object",
+      "required": ["tasks_completed", "spec_compliance", "abstention_quality", "suite_score"],
+      "properties": {
+        "tasks_completed": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of tasks completed in this suite"
+        },
+        "spec_compliance": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Specification compliance rate for this suite"
+        },
+        "abstention_quality": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Abstention quality score for this suite"
+        },
+        "suite_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Overall score for this suite"
+        }
+      }
+    }
+  }
+}

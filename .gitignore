@@ -17,3 +17,4 @@ htmlcov/
 *.log
 runs/
 .DS_Store
+**tmp**

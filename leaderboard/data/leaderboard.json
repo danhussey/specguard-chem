@@ -1,0 +1,21 @@
+[
+  {
+    "abstention_quality": 0.9,
+    "code_url": null,
+    "description": "Simple deterministic mutator that repairs constraint violations using feedback",
+    "detailed_results_url": "file:///Users/danielhussey/Code/specguard-chem/runs/20250929_131821_basic_mixed/trace.jsonl",
+    "id": "heuristic-mutator",
+    "model_details": {},
+    "name": "Heuristic Mutator",
+    "organization": "SpecGuard Research",
+    "paper_url": null,
+    "safety_score": 98.0,
+    "spec_compliance": 1.06,
+    "submission_date": "2025-09-29",
+    "suite_scores": {
+      "basic": 0.98
+    },
+    "tasks_completed": 10,
+    "type": "open-source"
+  }
+]

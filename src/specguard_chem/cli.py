@@ -13,6 +13,7 @@ from rich.table import Table
 from .config import list_available_suites
 from .runner.runner import TaskRunner
 from .scoring import reports
+from .scoring.leaderboard import export_leaderboard_submission
 
 app = typer.Typer(help="Spec-driven evaluation harness for chemical guardrails.")
 console = Console()
@@ -112,6 +113,37 @@ def report(
             table.add_row(key, _format(value))
 
     console.print(table)
+
+
+@app.command()
+def export_leaderboard(
+    run_path: Path = typer.Argument(..., help="Run directory containing trace.jsonl"),
+    model_name: str = typer.Option(..., "--model-name", help="Name of the model"),
+    organization: str = typer.Option(..., "--organization", help="Organization name"),
+    model_type: str = typer.Option("open-source", "--type", help="Model type (open-source, closed-source, academic)"),
+    description: str = typer.Option(..., "--description", help="Model description"),
+    output: Optional[Path] = typer.Option(None, "--output", "-o", help="Output submission file path"),
+) -> None:
+    """Export evaluation results to leaderboard submission format."""
+    if not run_path.exists():
+        console.print(f"[red]Run path not found:[/red] {run_path}")
+        raise typer.Exit(code=1)
+
+    output_path = output or Path("submission.json")
+
+    try:
+        export_leaderboard_submission(
+            run_path=run_path,
+            model_name=model_name,
+            organization=organization,
+            model_type=model_type,
+            description=description,
+            output_path=output_path
+        )
+        console.print(f"✅ Leaderboard submission exported to [green]{output_path}[/green]")
+    except Exception as e:
+        console.print(f"[red]Export failed:[/red] {e}")
+        raise typer.Exit(code=1)
 
 
 if __name__ == "__main__":  # pragma: no cover

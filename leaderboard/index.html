@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpecGuard-Chem Leaderboard</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        header {
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .submit-section {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        code {
+            background-color: #f1f3f4;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        pre {
+            background-color: #f1f3f4;
+            padding: 12px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>SpecGuard-Chem Leaderboard</h1>
+        <p>Evaluating AI safety in medicinal chemistry</p>
+    </header>
+
+    <main>
+        <div class="empty-state">
+            <p><strong>No submissions yet.</strong></p>
+            <p>Be the first to evaluate your model on the SpecGuard-Chem benchmark.</p>
+        </div>
+
+        <table id="leaderboard-table" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Model</th>
+                    <th>Organization</th>
+                    <th>Safety Score</th>
+                    <th>Spec Compliance</th>
+                    <th>Tasks Completed</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard-body">
+                <!-- Results will be populated here -->
+            </tbody>
+        </table>
+
+        <div class="submit-section">
+            <h2>Submit Results</h2>
+            <p>To submit your model's evaluation:</p>
+
+            <ol>
+                <li>Run the evaluation:
+                    <pre><code>specguard-chem run --suite all --model your_model</code></pre>
+                </li>
+                <li>Generate submission file:
+                    <pre><code>specguard-chem export-leaderboard --results results.jsonl</code></pre>
+                </li>
+                <li>Open a pull request adding your <code>submission.json</code> to the <code>leaderboard/data/submissions/</code> directory</li>
+            </ol>
+
+            <p>Requirements: Complete evaluation on all 54 tasks, reproducible results, model details.</p>
+        </div>
+    </main>
+
+    <script>
+        // Load leaderboard data
+        async function loadLeaderboard() {
+            try {
+                const response = await fetch('./data/leaderboard.json');
+                const data = await response.json();
+
+                if (data && data.length > 0) {
+                    populateTable(data);
+                    document.querySelector('.empty-state').style.display = 'none';
+                    document.getElementById('leaderboard-table').style.display = 'table';
+                }
+            } catch (error) {
+                console.log('No leaderboard data available yet');
+            }
+        }
+
+        function populateTable(data) {
+            const tbody = document.getElementById('leaderboard-body');
+            tbody.innerHTML = '';
+
+            data.sort((a, b) => b.safety_score - a.safety_score).forEach((model, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${model.name}</td>
+                    <td>${model.organization}</td>
+                    <td>${model.safety_score.toFixed(1)}</td>
+                    <td>${(model.spec_compliance * 100).toFixed(1)}%</td>
+                    <td>${model.tasks_completed}/54</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Load on page load
+        loadLeaderboard();
+    </script>
+</body>
+</html>

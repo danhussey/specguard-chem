@@ -1,0 +1,181 @@
+name: Validate Leaderboard Submission
+
+on:
+  pull_request:
+    paths:
+      - 'leaderboard/data/submissions/*.json'
+
+jobs:
+  validate-submission:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install jsonschema
+
+    - name: Find submission files
+      id: find-submissions
+      run: |
+        # Find new or modified submission files
+        SUBMISSIONS=$(git diff --name-only origin/${{ github.base_ref }} HEAD | grep 'leaderboard/data/submissions/.*\.json$' || true)
+        echo "Found submissions: $SUBMISSIONS"
+        echo "submissions=$SUBMISSIONS" >> $GITHUB_OUTPUT
+
+    - name: Validate submissions
+      if: steps.find-submissions.outputs.submissions != ''
+      run: |
+        for submission in ${{ steps.find-submissions.outputs.submissions }}; do
+          echo "🔍 Validating $submission"
+          python scripts/validate_submission.py "$submission"
+
+          # Check for duplicate model IDs
+          MODEL_ID=$(python -c "
+        import json
+        with open('$submission') as f:
+            data = json.load(f)
+        print(data['model_info']['id'])
+        ")
+
+          echo "📝 Model ID: $MODEL_ID"
+
+          # Check if model ID already exists
+          if [ -f "leaderboard/data/leaderboard.json" ]; then
+            EXISTING=$(python -c "
+        import json
+        with open('leaderboard/data/leaderboard.json') as f:
+            data = json.load(f)
+        ids = [model['id'] for model in data]
+        print('$MODEL_ID' in ids)
+        ")
+
+            if [ "$EXISTING" = "True" ]; then
+              echo "❌ Error: Model ID '$MODEL_ID' already exists in leaderboard"
+              exit 1
+            fi
+          fi
+
+          echo "✅ Submission $submission is valid"
+        done
+
+    - name: Check submission requirements
+      if: steps.find-submissions.outputs.submissions != ''
+      run: |
+        echo "📋 Checking submission requirements..."
+
+        for submission in ${{ steps.find-submissions.outputs.submissions }}; do
+          # Verify required fields are present and reasonable
+          python -c "
+        import json
+        import sys
+
+        with open('$submission') as f:
+            data = json.load(f)
+
+        # Check safety score is reasonable (not perfect scores without justification)
+        safety_score = data['results']['summary']['safety_score']
+        if safety_score > 95:
+            print('⚠️  Warning: Very high safety score ($safety_score). Please ensure results are accurate.')
+
+        # Check all suites are evaluated
+        required_suites = {
+            'basic', 'adversarial_safety', 'drug_interactions',
+            'organ_toxicity', 'admet_optimization',
+            'regulatory_compliance', 'therapeutic_window'
+        }
+
+        evaluated_suites = set(data['results']['suite_results'].keys())
+        missing = required_suites - evaluated_suites
+
+        if missing:
+            print(f'❌ Missing required test suites: {missing}')
+            sys.exit(1)
+
+        print('✅ All required test suites present')
+
+        # Check model description quality
+        description = data['model_info']['description']
+        if len(description) < 50:
+            print('⚠️  Warning: Model description is quite short. Consider adding more details.')
+        "
+        done
+
+    - name: Generate submission summary
+      if: steps.find-submissions.outputs.submissions != ''
+      run: |
+        echo "## 📊 Submission Summary" >> $GITHUB_STEP_SUMMARY
+
+        for submission in ${{ steps.find-submissions.outputs.submissions }}; do
+          python -c "
+        import json
+
+        with open('$submission') as f:
+            data = json.load(f)
+
+        model = data['model_info']
+        results = data['results']['summary']
+
+        print(f'''
+        ### {model['name']} by {model['organization']}
+
+        - **Type**: {model['type']}
+        - **Safety Score**: {results['safety_score']:.1f}/100
+        - **Spec Compliance**: {results['spec_compliance']*100:.1f}%
+        - **Abstention Quality**: {results['abstention_quality']*100:.1f}%
+        - **Tasks Completed**: {results['tasks_completed']}/54
+
+        **Description**: {model['description']}
+        ''')
+        " >> $GITHUB_STEP_SUMMARY
+        done
+
+    - name: Comment on PR
+      if: steps.find-submissions.outputs.submissions != ''
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+
+          // Read submission file
+          const submissionFile = '${{ steps.find-submissions.outputs.submissions }}'.split('\n')[0];
+          const submission = JSON.parse(fs.readFileSync(submissionFile, 'utf8'));
+
+          const model = submission.model_info;
+          const results = submission.results.summary;
+
+          const comment = `## 🚀 New Model Submission: ${model.name}
+
+          **Organization**: ${model.organization}
+          **Type**: ${model.type}
+
+          ### 📈 Performance Summary
+          - **Safety Score**: ${results.safety_score}/100
+          - **Spec Compliance**: ${(results.spec_compliance * 100).toFixed(1)}%
+          - **Abstention Quality**: ${(results.abstention_quality * 100).toFixed(1)}%
+          - **Tasks Completed**: ${results.tasks_completed}/54
+
+          ### ✅ Validation Status
+          - Schema validation: ✅ Passed
+          - Business rules: ✅ Passed
+          - Required suites: ✅ All present
+          - Model ID uniqueness: ✅ Verified
+
+          **Ready for review and merge!** 🎉
+
+          *This comment was automatically generated by the validation workflow.*`;
+
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });

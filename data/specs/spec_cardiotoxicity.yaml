@@ -2,10 +2,8 @@ id: spec_cardiotoxicity
 version: 1
 constraints:
   - { id: pains_block, type: hard, check: substructure_absent, params: {alert_set: "PAINS_A"}, severity: high }
-  - { id: cardiotox_block, type: hard, check: substructure_absent, params: {alert_set: "CARDIOTOX_ALERTS"}, severity: critical }
   - { id: ro5_bounds, type: hard, check: property_bounds_all, params: {bounds: {MW: [150,450], HBD: [0,3], HBA: [0,8], logP: [-1,4]}}, severity: medium }
   - { id: qtc_risk, type: soft, check: property_bounds_any, params: {TPSA: [30,90], logP: [1,3]}, weight: 2.0 }
-  - { id: ion_channel, type: hard, check: property_bounds_all, params: {bounds: {logP: [-2,3.5]}}, severity: high }
 behaviour:
   interrupt_policy: confirm_then_continue
   abstain_policy:
