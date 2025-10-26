@@ -11,8 +11,8 @@ Spec-driven, programmatically verifiable evaluation of agentic LLMs on safe medi
 uv venv --seed
 source .venv/bin/activate
 uv pip install -e .[dev]
-specguard-chem run --suite basic --protocol L1 --model heuristic
-specguard-chem run --suite basic --protocol L3 --model open_source_example
+specguard-chem run basic --protocol L1 --model heuristic
+specguard-chem run basic --protocol L3 --model open_source_example
 specguard-chem report --run-path runs/2025-01-01_basic_L3/
 uv run pytest --cov=src/specguard_chem --cov-report=term-missing
 ```
