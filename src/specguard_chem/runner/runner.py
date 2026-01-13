@@ -139,15 +139,14 @@ class TaskRunner:
             )
             if interrupt_payload:
                 interrupt_triggered = True
+            failure_payload = None
+            if task.protocol == "L3" and last_failure_vector is not None:
+                failure_payload = last_failure_vector.model_dump(mode="json")
             request: AgentRequest = {
                 "task": task.model_dump(mode="json"),
                 "round": round_index,
                 "tools": self._tool_spec(task.protocol),
-                "failure_vector": (
-                    last_failure_vector.model_dump(mode="json")
-                    if last_failure_vector
-                    else None
-                ),
+                "failure_vector": failure_payload,
             }
             if interrupt_payload:
                 request["interrupt"] = interrupt_payload
@@ -182,7 +181,8 @@ class TaskRunner:
                         confidence=response_conf,
                     )
                 )
-                last_failure_vector = failure_vector
+                if task.protocol == "L3":
+                    last_failure_vector = failure_vector
                 continue
 
             if action == "abstain":
@@ -207,7 +207,8 @@ class TaskRunner:
             smiles = response.get("smiles", "") or ""
             evaluation = evaluator.evaluate(smiles)
             failure_vector = evaluation.build_failure_vector(round_index)
-            last_failure_vector = failure_vector
+            if task.protocol == "L3":
+                last_failure_vector = failure_vector
             last_evaluation = evaluation
             final_smiles = smiles
             canonical_smiles = evaluation.canonical_smiles

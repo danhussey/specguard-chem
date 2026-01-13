@@ -46,7 +46,7 @@ def _register(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
 @pytest.mark.usefixtures("_register")
 def test_process_adapter_handles_tool_and_proposal():
     runner = TaskRunner(ProcessAdapter.name, seed=0)
-    record = runner.run_suite("basic", protocol="L3", limit=1)[0]
+    record = runner.run_suite("basic_plain", protocol="L3", limit=1)[0]
     assert record.rounds[0].action == "tool_call"
     assert record.rounds[1].action == "propose"
     assert record.rounds[1].smiles == "CC(=O)NC1=CC=CC=C1O"

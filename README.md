@@ -13,9 +13,9 @@ PAINS-style alerts use a minimal motif subset and are treated as soft constraint
 uv venv --seed
 source .venv/bin/activate
 uv pip install -e .[dev]
-specguard-chem run --suite basic --protocol L1 --model heuristic
-specguard-chem run --suite basic --protocol L3 --model open_source_example
-specguard-chem report --run-path runs/2025-01-01_basic_L3/
+specguard-chem run --suite basic_plain --protocol L1 --model heuristic
+specguard-chem run --suite basic_plain --protocol L3 --model open_source_example
+specguard-chem report --run-path runs/2025-01-01_basic_plain_L3/
 uv run pytest --cov=src/specguard_chem --cov-report=term-missing
 ```
 
@@ -32,7 +32,7 @@ For a narrative tour of the system architecture, see [`docs/overview.md`](docs/o
 ### Included adapters
 
 - `heuristic` – deterministic mutator that iteratively repairs hard failures using the runner's
-  failure vector feedback.
+  failure vector feedback in L3 protocols.
 - `open_source_example` – demonstrates tool calls during L3 protocols.
 - `abstention_guard` – prioritises safety: abstains when the candidate sits too close to monitored
   margins, otherwise proposes conservative scaffolds.
@@ -41,12 +41,15 @@ For a narrative tour of the system architecture, see [`docs/overview.md`](docs/o
 
 ### Task suites
 
-- `basic` – mixed L1/L2/L3 tasks (10 total) covering single-shot proposals, repair rounds, and
-  verify-in-the-loop flows.
+- `basic_plain` – mixed L1/L2/L3 tasks (10 total) with plain prompts covering single-shot proposals,
+  repair rounds, and verify-in-the-loop flows.
+- `basic_checklist` – prompt-variant of `basic_plain` that asks for a checklist-first response.
+- `repair_ladder_plain` – small repair-focused suite with plain prompts.
+- `repair_ladder_checklist` – prompt-variant of `repair_ladder_plain` with checklist-first prompts.
 - `interrupts` – focused interrupt-handling scenarios that trigger pauses mid-protocol and expect safe abstention.
 - `alerts_pains_soft` – PAINS-style alert reporting tasks (soft constraints; not hard-gated).
 
 ### Continuous integration
 
 The GitHub Actions workflow runs linting, coverage collection (published as a `coverage.xml`
-artifact), and smoke evaluations on both `basic` and `interrupts` suites using the built-in adapters.
+artifact), and smoke evaluations on both `basic_plain` and `interrupts` suites using the built-in adapters.

@@ -5,7 +5,7 @@ This guide explains how to plug an external agent into SpecGuard-Chem by impleme
 ## Adapter interface recap
 
 Adapters subclass `specguard_chem.models.BaseAdapter` and implement `step(req: AgentRequest) -> AgentResponse`.
-- `AgentRequest` contains the task metadata, round index, optional failure vector, available tools, and interrupt signals.
+- `AgentRequest` contains the task metadata, round index, optional failure vector (L3 only), available tools, and interrupt signals.
 - An `AgentResponse` must supply an `action` (`propose`, `tool_call`, or `abstain`). Optional fields include `smiles`, `confidence`, `reason`, etc.
 
 ## Options
@@ -20,7 +20,7 @@ For agents implemented in another language or running behind a CLI, use the buil
 
 ```bash
 export SPEC_GUARD_PROCESS_ADAPTER_CMD="python path/to/agent_bridge.py"
-specguard-chem run --suite basic --model process
+specguard-chem run --suite basic_plain --model process
 ```
 
 The bridge script receives the request JSON on STDIN and must emit a single JSON object to STDOUT. Example handler:
@@ -55,7 +55,7 @@ If your agent already speaks to the OpenAI API you can reuse that work with the 
 ```bash
 pip install specguard-chem[providers]
 export OPENAI_API_KEY=sk-...
-specguard-chem run --suite basic --model openai_chat --limit 3
+specguard-chem run --suite basic_plain --model openai_chat --limit 3
 ```
 
 Each step submits the current state (task, failure vector, interrupt) to the Chat Completions API and expects a JSON response. You may customise the OpenAI model, temperature, or provide a preconfigured `OpenAI` client when instantiating the adapter programmatically.
@@ -63,7 +63,7 @@ Each step submits the current state (task, failure vector, interrupt) to the Cha
 
 ## Tips
 - Always fill `confidence` to enable calibration metrics.
-- Use failure vectors to adjust proposals in L2/L3 protocols.
+- Use failure vectors to adjust proposals in L3 protocols.
 - Respect interrupts by pausing/acknowledging when `req["interrupt"]` is present and set `interrupt_ack` fields.
 
 Refer to `tests/test_process_adapter.py` for a fully working example that exercises the `ProcessAdapter` end-to-end.

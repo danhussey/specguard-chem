@@ -8,9 +8,9 @@ This document gives a narrative tour of the SpecGuard-Chem stack so new contribu
 - Remain model-agnostic: any agent that speaks the adapter protocol can plug into the runner.
 
 ## 2. Architecture at a Glance
-1. **Data layer** — `data/specs/*.yaml` define constraint sets; `tasks/suites/*.jsonl` define evaluation tasks grouped into suites (e.g., `basic`, `interrupts`) with expected outcomes and interrupt metadata.
+1. **Data layer** — `data/specs/*.yaml` define constraint sets; `tasks/suites/*.jsonl` define evaluation tasks grouped into suites (e.g., `basic_plain`, `interrupts`) with expected outcomes and interrupt metadata.
 2. **Schemas & config** — `specguard_chem.config` loads/validates specs and tasks, exposing strongly typed Pydantic models.
-3. **Runner core** — `specguard_chem.runner.runner.TaskRunner` orchestrates episodes across protocols L1/L2/L3, feeds failure vectors, handles interrupts, and logs structured traces.
+3. **Runner core** — `specguard_chem.runner.runner.TaskRunner` orchestrates episodes across protocols L1/L2/L3, feeds failure vectors in L3, handles interrupts, and logs structured traces.
 4. **Verifiers** — `specguard_chem.verifiers.*` wraps RDKit descriptors, PAINS-style alert subsets (soft in the base spec), SA scoring, and SMILES canonicalisation used by the runner to judge proposals.
 5. **Adapters** — concrete agents (`heuristic`, `open_source_example`, `abstention_guard`) subclass `BaseAdapter`, interpreting requests and crafting responses.
 6. **Scoring & reports** — `specguard_chem.scoring` aggregates hard/soft outcomes, edit economy, abstention utility, and calibration metrics; the CLI surfaces summaries.
@@ -24,12 +24,12 @@ Tasks ──► Config/Schemas ──► Runner ──► Adapter
 
 ## 3. Protocols
 - **L1 (Single-shot)**: one proposal; no feedback loop. Evaluates immediate spec comprehension.
-- **L2 (Assisted repair)**: up to three rounds. Runner returns a failure vector after each proposal. Interrupts can fire mid-episode to test safety acknowledgements.
-- **L3 (Tool-in-loop)**: agents may call `verify(smiles)` as a dry-run before finalising. Hard gating still applies on final submission.
+- **L2 (Assisted repair)**: up to three rounds. Multi-round interaction without verifier-driven failure vectors. Interrupts can fire mid-episode to test safety acknowledgements.
+- **L3 (Tool-in-loop)**: agents may call `verify(smiles)` as a dry-run before finalising. Runner provides structured failure vectors after proposals, and hard gating still applies on final submission.
 
 ## 4. Runner Mechanics
 - Builds a `ConstraintEvaluator` per task/spec to compute properties, alerts, and synthetic accessibility.
-- Generates a failure vector summarising hard failures, soft misses, and margins to bounds.
+- Generates a failure vector summarising hard failures, soft misses, and margins to bounds (shared in L3 requests and always logged in traces).
 - Injects interrupt payloads on the configured round from task interrupt settings (or legacy `interrupt_at_step`) so adapters can respond deterministically.
 - Logs each round (action, SMILES, evaluation, confidence, interrupt flag) and persists:
   - `trace.jsonl`: detailed round-by-round log.
@@ -50,7 +50,10 @@ Tasks ──► Config/Schemas ──► Runner ──► Adapter
 - CLI reports highlight `avg_spec_score`, violation rate, accept/abstain rates, rounds, edit economy, calibration, and abstention utility, and write `report.json` with definitions.
 
 ## 7. Task Suites
-- **`basic`** (10 tasks): mixture of L1 proposals, L2 repairs, L3 verify-in-loop, and abstention prompts.
+- **`basic_plain`** (10 tasks): mixture of L1 proposals, L2 repairs, L3 verify-in-loop, and abstention prompts.
+- **`basic_checklist`** (10 tasks): prompt-variant of `basic_plain` with checklist-first instructions.
+- **`repair_ladder_plain`** (3 tasks): repair-focused prompts targeting minimal edits.
+- **`repair_ladder_checklist`** (3 tasks): prompt-variant of `repair_ladder_plain` with checklist-first instructions.
 - **`interrupts`** (3 tasks): every task triggers an interrupt to test acknowledgement and safe abstention logic.
 - **`alerts_pains_soft`** (4 tasks): alert-focused tasks that treat PAINS motifs as soft, report-only signals.
 - Suites live under `tasks/suites/*.jsonl`; new suites must respect `tasks/schema.json` and should ship with targeted tests.

@@ -12,4 +12,4 @@ lint:
 	uv run pre-commit run -a
 
 smoke:
-	uv run specguard-chem run --suite basic --protocol L1 --model heuristic --limit 5
+	uv run specguard-chem run --suite basic_plain --protocol L1 --model heuristic --limit 5

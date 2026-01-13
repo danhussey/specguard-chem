@@ -49,7 +49,7 @@ behaviour:
 ```
 {
   "task_id": "edit_012",
-  "suite": "basic",
+  "suite": "basic_plain",
   "protocol": "L2",
   "prompt": "Edit the input molecule to satisfy spec_v1_basic with as few changes as possible.",
   "input": { "smiles": "CCOc1ccc(CC(=O)N)cc1N" },
@@ -70,10 +70,12 @@ behaviour:
 }
 ```
 
-The canonical `basic` suite ships with ten mixed tasks (L1/L2/L3). A dedicated `interrupts` suite
-exercises pause-handling behaviour with explicit interrupt configuration and expected abstention.
+The canonical `basic_plain` suite ships with ten mixed tasks (L1/L2/L3). A prompt-variant
+`basic_checklist` suite mirrors the same tasks with checklist-first instructions. A dedicated
+`interrupts` suite exercises pause-handling behaviour with explicit interrupt configuration and
+expected abstention.
 
-3.3 Failure Vector (runner → agent, L2/L3)
+3.3 Failure Vector (runner → agent, L3)
 
 ```
 {
@@ -157,13 +159,13 @@ See METRICS.md for formulas (Brier/ECE, decision curves).
 
 6) Reproducibility
 	•	Fixed seeds; frozen prompts/templates; deterministic reports.
-	•	Dockerfile runs smoke suite in < 5 min; full basic in < 10 min.
+	•	Dockerfile runs smoke suite in < 5 min; full basic_plain in < 10 min.
 	•	CI: schema validation + smoke run (5 tasks).
 	•	Reports capture RDKit version, git commit/dirty state, and spec file hashes.
 
 7) Acceptance Criteria
 	•	uv pip install -e . provides specguard-chem CLI.
-	•	Running L1/L2/L3 on basic suite produces JSON traces + TSV leaderboard.
+	•	Running L1/L2/L3 on basic_plain suite produces JSON traces + TSV leaderboard.
 	•	`specguard-chem report` on those runs emits calibration, abstention, and edit-economy metrics.
 	•	Verifier-in-loop (L3) reduces hard violations by ≥ X pp vs L1 (set in paper).
 	•	No synthesis/activity claims; all tasks pass SAFETY.md checks.

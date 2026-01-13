@@ -19,7 +19,7 @@ jobs:
         with:
           name: coverage-xml
           path: coverage.xml
-      - run: uv run specguard-chem run basic --protocol L1 --model heuristic --limit 5 --run-path runs/ci_basic
-      - run: uv run specguard-chem report runs/ci_basic
+      - run: uv run specguard-chem run basic_plain --protocol L1 --model heuristic --limit 5 --run-path runs/ci_basic_plain
+      - run: uv run specguard-chem report runs/ci_basic_plain
       - run: uv run specguard-chem run interrupts --model abstention_guard --run-path runs/ci_interrupts
       - run: uv run specguard-chem report runs/ci_interrupts

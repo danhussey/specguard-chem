@@ -12,4 +12,4 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
 
 ENV PATH="/root/.local/bin:$PATH"
 
-CMD ["specguard-chem", "run", "--suite", "basic", "--protocol", "L3", "--model", "heuristic", "--limit", "10"]
+CMD ["specguard-chem", "run", "--suite", "basic_plain", "--protocol", "L3", "--model", "heuristic", "--limit", "10"]

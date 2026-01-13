@@ -17,7 +17,7 @@ def test_spec_loads_and_contains_constraints() -> None:
 
 
 def test_task_selection_filters_protocol() -> None:
-    tasks = load_tasks_for_suite("basic")
+    tasks = load_tasks_for_suite("basic_plain")
     l1_tasks = select_tasks(tasks, protocol="L1", limit=2)
     assert len(l1_tasks) <= 2
     assert all(task.protocol == "L1" for task in l1_tasks)
@@ -27,6 +27,7 @@ def test_task_selection_filters_protocol() -> None:
 def test_interrupts_suite_available() -> None:
     suites = list_available_suites()
     assert "interrupts" in suites
+    assert "basic_plain" in suites
 
 
 def test_failure_vector_validation() -> None:
