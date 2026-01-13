@@ -8,10 +8,10 @@ This document gives a narrative tour of the SpecGuard-Chem stack so new contribu
 - Remain model-agnostic: any agent that speaks the adapter protocol can plug into the runner.
 
 ## 2. Architecture at a Glance
-1. **Data layer** — `data/specs/*.yaml` define constraint sets; `tasks/suites/*.jsonl` define evaluation tasks grouped into suites (e.g., `basic`, `interrupts`).
+1. **Data layer** — `data/specs/*.yaml` define constraint sets; `tasks/suites/*.jsonl` define evaluation tasks grouped into suites (e.g., `basic`, `interrupts`) with expected outcomes and interrupt metadata.
 2. **Schemas & config** — `specguard_chem.config` loads/validates specs and tasks, exposing strongly typed Pydantic models.
 3. **Runner core** — `specguard_chem.runner.runner.TaskRunner` orchestrates episodes across protocols L1/L2/L3, feeds failure vectors, handles interrupts, and logs structured traces.
-4. **Verifiers** — `specguard_chem.verifiers.*` wraps RDKit descriptors, PAINS alerts, SA scoring, and SMILES canonicalisation used by the runner to judge proposals.
+4. **Verifiers** — `specguard_chem.verifiers.*` wraps RDKit descriptors, PAINS-style alert subsets (soft in the base spec), SA scoring, and SMILES canonicalisation used by the runner to judge proposals.
 5. **Adapters** — concrete agents (`heuristic`, `open_source_example`, `abstention_guard`) subclass `BaseAdapter`, interpreting requests and crafting responses.
 6. **Scoring & reports** — `specguard_chem.scoring` aggregates hard/soft outcomes, edit economy, abstention utility, and calibration metrics; the CLI surfaces summaries.
 
@@ -30,7 +30,7 @@ Tasks ──► Config/Schemas ──► Runner ──► Adapter
 ## 4. Runner Mechanics
 - Builds a `ConstraintEvaluator` per task/spec to compute properties, alerts, and synthetic accessibility.
 - Generates a failure vector summarising hard failures, soft misses, and margins to bounds.
-- Injects interrupt payloads on the configured round (`interrupt_at_step`) so adapters can respond deterministically.
+- Injects interrupt payloads on the configured round from task interrupt settings (or legacy `interrupt_at_step`) so adapters can respond deterministically.
 - Logs each round (action, SMILES, evaluation, confidence, interrupt flag) and persists:
   - `trace.jsonl`: detailed round-by-round log.
   - `leaderboard.tsv`: per-task summary, including decision and confidence.
@@ -44,14 +44,15 @@ Tasks ──► Config/Schemas ──► Runner ──► Adapter
 
 ## 6. Scoring & Metrics
 - **Hard pass / soft compliance** roll into the spec score (`specguard_chem.scoring.metrics.spec_compliance`).
-- **Edit economy**: Levenshtein distance between input and final SMILES.
+- **Edit economy**: canonical SMILES Levenshtein plus Morgan-Tanimoto similarity.
 - **Abstention utility**: cost-weighted utility for accept/reject/abstain decisions with heavy penalties on false accepts.
 - **Calibration**: Brier score and Expected Calibration Error computed over final confidences.
-- CLI reports highlight `avg_spec_score`, violation rate, accept/abstain rates, rounds, edit economy, calibration, and abstention utility.
+- CLI reports highlight `avg_spec_score`, violation rate, accept/abstain rates, rounds, edit economy, calibration, and abstention utility, and write `report.json` with definitions.
 
 ## 7. Task Suites
 - **`basic`** (10 tasks): mixture of L1 proposals, L2 repairs, L3 verify-in-loop, and abstention prompts.
-- **`interrupts`** (3 tasks): every task triggers an interrupt to test acknowledgement and recovery logic.
+- **`interrupts`** (3 tasks): every task triggers an interrupt to test acknowledgement and safe abstention logic.
+- **`alerts_pains_soft`** (4 tasks): alert-focused tasks that treat PAINS motifs as soft, report-only signals.
 - Suites live under `tasks/suites/*.jsonl`; new suites must respect `tasks/schema.json` and should ship with targeted tests.
 
 ## 8. Safety & Reproducibility

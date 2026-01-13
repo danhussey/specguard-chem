@@ -20,20 +20,26 @@ class RecordingL2Adapter(BaseAdapter):
     def step(self, req: AgentRequest) -> AgentResponse:
         self.requests.append(req)
         if req["round"] == 1:
-            # echo the starting SMILES, which is known to fail the spec
-            input_smiles = (req["task"].get("input") or {}).get("smiles")
+            assert req.get("interrupt") is not None
+            # Force a hard fail to ensure we reach a second round.
+            input_smiles = "INVALID"
             return cast(
                 AgentResponse,
                 {"action": "propose", "smiles": input_smiles},
             )
-        # second round should receive a failure vector and interrupt signal
+        # second round should receive a failure vector and no interrupt signal
         assert req.get("failure_vector") is not None
-        assert req.get("interrupt") is not None
+        assert req.get("interrupt") is None
         return cast(
             AgentResponse,
             {
-                "action": "propose",
-                "smiles": "CC(=O)NC1=CC=CC=C1O",
+                "action": "abstain",
+                "reason": "Interrupt received; pausing safely.",
+                "interrupt_ack": {
+                    "acknowledged": True,
+                    "restate_goal": True,
+                    "report_state": True,
+                },
                 "confidence": 0.9,
             },
         )
@@ -83,16 +89,17 @@ def restore_adapters():
 def test_l2_runner_provides_failure_vector_and_interrupt():
     register_adapter(RecordingL2Adapter)
     runner = TaskRunner(RecordingL2Adapter.name, seed=11)
-    record = runner.run_suite("basic", protocol="L2", limit=1)[0]
+    record = runner.run_suite("interrupts", protocol="L2", limit=1)[0]
 
     assert len(runner.adapter.requests) == 2
     second_request = runner.adapter.requests[1]
     assert second_request["failure_vector"] is not None
-    assert second_request["interrupt"]["policy"] == "confirm_then_continue"
+    assert runner.adapter.requests[0]["interrupt"]["policy"] == "confirm_then_continue"
+    assert runner.adapter.requests[1].get("interrupt") is None
 
     assert len(record.rounds) == 2
-    assert record.hard_pass is True
-    assert record.interrupt_handled is True
+    assert record.abstained is True
+    assert record.interrupt_handled is False
 
 
 def test_l3_runner_handles_tool_calls():

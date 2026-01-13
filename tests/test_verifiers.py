@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import pytest
 from rdkit import Chem
 
 from specguard_chem.verifiers import (
@@ -7,6 +8,7 @@ from specguard_chem.verifiers import (
     check_property_bounds_any,
     compute_properties,
     margins_to_bounds,
+    morgan_tanimoto,
     pains_alerts,
     synthetic_accessibility_score,
 )
@@ -43,3 +45,8 @@ def test_sa_score_is_bounded() -> None:
     mol = Chem.MolFromSmiles("CC(=O)NC1=CC=CC=C1O")
     score = synthetic_accessibility_score(mol)
     assert 1.0 <= score <= 10.0
+
+
+def test_morgan_tanimoto_identity() -> None:
+    similarity = morgan_tanimoto("CCO", "CCO")
+    assert similarity == pytest.approx(1.0)

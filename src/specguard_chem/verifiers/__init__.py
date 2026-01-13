@@ -8,6 +8,7 @@ from .properties import (
 from .alerts import pains_alerts, substructure_absent, available_alert_sets
 from .sa_score import synthetic_accessibility_score
 from .smiles import canonicalize_smiles, is_valid_smiles, parse_smiles
+from .similarity import morgan_tanimoto
 
 __all__ = [
     "PROPERTY_NAMES",
@@ -22,4 +23,5 @@ __all__ = [
     "canonicalize_smiles",
     "is_valid_smiles",
     "parse_smiles",
+    "morgan_tanimoto",
 ]

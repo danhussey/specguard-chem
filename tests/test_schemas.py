@@ -21,6 +21,7 @@ def test_task_selection_filters_protocol() -> None:
     l1_tasks = select_tasks(tasks, protocol="L1", limit=2)
     assert len(l1_tasks) <= 2
     assert all(task.protocol == "L1" for task in l1_tasks)
+    assert all(task.expected for task in tasks)
 
 
 def test_interrupts_suite_available() -> None:

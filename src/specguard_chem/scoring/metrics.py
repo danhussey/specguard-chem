@@ -9,20 +9,25 @@ Decision = str
 
 
 def hard_violation_rate(records: Sequence[Mapping[str, object] | bool]) -> float:
-    """Fraction of tasks with at least one hard violation."""
+    """Fraction of attempted tasks with at least one hard violation."""
 
     if not records:
         return 0.0
     violations = 0
+    attempted = 0
     for record in records:
         if isinstance(record, bool):
+            attempted += 1
             violations += 0 if record else 1
         else:
+            if record.get("decision") == "abstain":
+                continue
             hard_pass = record.get("hard_pass")
             if hard_pass is None:
                 continue
+            attempted += 1
             violations += 0 if hard_pass else 1
-    return violations / len(records)
+    return (violations / attempted) if attempted else 0.0
 
 
 def spec_compliance(

@@ -12,6 +12,14 @@ class ToolSpec(TypedDict):
     schema: Dict[str, Any]
 
 
+class InterruptAck(TypedDict, total=False):
+    acknowledged: bool
+    restate_goal: bool
+    report_state: bool
+    goal: Optional[str]
+    state: Optional[str]
+
+
 class AgentRequest(TypedDict, total=False):
     task: Dict[str, Any]
     round: int
@@ -28,3 +36,4 @@ class AgentResponse(TypedDict, total=False):
     cited_specs: Optional[list[str]]
     confidence: Optional[float]
     reason: Optional[str]
+    interrupt_ack: Optional[InterruptAck]

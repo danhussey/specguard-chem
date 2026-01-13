@@ -23,6 +23,19 @@ class OpenSourceExampleAdapter(BaseAdapter):
         round_id = req.get("round", 1)
         input_block = task.get("input") or {}
         starting_smiles: Optional[str] = input_block.get("smiles")
+        if req.get("interrupt"):
+            return {
+                "action": "abstain",
+                "reason": "Interrupt received; pausing safely.",
+                "confidence": 0.35,
+                "interrupt_ack": {
+                    "acknowledged": True,
+                    "restate_goal": True,
+                    "report_state": True,
+                    "goal": f"Task {task.get('task_id')} for {task.get('spec_id')}",
+                    "state": "Interrupted before final proposal.",
+                },
+            }
 
         if protocol == "L3" and round_id == 1 and failure_vector is None:
             return {

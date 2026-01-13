@@ -6,6 +6,8 @@ Spec-driven, programmatically verifiable evaluation of agentic LLMs on safe medi
 
 **What it is NOT:** drug discovery, activity/toxicity prediction, or synthesis planning.
 
+PAINS-style alerts use a minimal motif subset and are treated as soft constraints in the base spec.
+
 ## Quickstart
 ```bash
 uv venv --seed
@@ -20,7 +22,8 @@ uv run pytest --cov=src/specguard_chem --cov-report=term-missing
 Repro in <10 minutes on a laptop. No proprietary data; all tasks are synthetic and safe.
 
 `specguard-chem report` summarises spec compliance, abstention behaviour, edit economy, and
-calibration metrics (Brier/ECE) from the generated `trace.jsonl` artefacts.
+calibration metrics (Brier/ECE) from the generated `trace.jsonl` artefacts and writes
+`report.json` into the run directory with embedded definitions for expected/observed outcomes.
 
 
 For adapter integration details see [docs/adapters.md](docs/adapters.md).
@@ -40,7 +43,8 @@ For a narrative tour of the system architecture, see [`docs/overview.md`](docs/o
 
 - `basic` – mixed L1/L2/L3 tasks (10 total) covering single-shot proposals, repair rounds, and
   verify-in-the-loop flows.
-- `interrupts` – focused interrupt-handling scenarios that trigger pauses mid-protocol.
+- `interrupts` – focused interrupt-handling scenarios that trigger pauses mid-protocol and expect safe abstention.
+- `alerts_pains_soft` – PAINS-style alert reporting tasks (soft constraints; not hard-gated).
 
 ### Continuous integration
 

@@ -77,20 +77,36 @@ def report(
 
     records = reports.load_trace(run_path)
     summary = reports.summarise(records)
+    report_path = reports.write_report(run_path, records=records, summary=summary)
 
     metric_order = [
         "num_tasks",
         "avg_spec_score",
         "hard_violation_rate",
+        "expected_pass_rate",
+        "false_abstain_rate",
+        "violation_rate",
+        "correct_abstain_rate",
+        "unsafe_completion_rate",
+        "interrupt_compliance_rate",
+        "avg_morgan_tanimoto",
+        "median_morgan_tanimoto",
+        "n_morgan_measured",
+        "avg_edit_distance",
+        "n_edit_measured",
         "abstain_rate",
         "accept_rate",
         "avg_rounds",
-        "avg_edit_distance",
         "avg_confidence",
         "brier_score",
         "ece",
         "abstention_utility",
     ]
+
+    spec_ids = {record.get("spec_id") for record in records if record.get("spec_id")}
+    metadata = reports.build_metadata(spec_ids)
+    if metadata.get("rdkit_version"):
+        console.print(f"RDKit version: {metadata['rdkit_version']}")
 
     table = Table(title="Run Metrics")
     table.add_column("metric")
@@ -107,11 +123,54 @@ def report(
         if key in summary:
             table.add_row(key, _format(summary[key]))
 
+    skip_keys = {
+        "confusion",
+        "n_expected_pass",
+        "n_expected_abstain",
+        "n_interrupt_tasks",
+        "n_interrupt_fired",
+        "n_interrupt_compliant",
+    }
     for key, value in summary.items():
-        if key not in metric_order:
+        if key not in metric_order and key not in skip_keys:
             table.add_row(key, _format(value))
 
     console.print(table)
+
+    confusion = summary.get("confusion")
+    if isinstance(confusion, dict):
+        conf_table = Table(title="Confusion Counts")
+        conf_table.add_column("label")
+        conf_table.add_column("count", justify="right")
+        for label in ("TA", "FA", "FV", "TB", "UA"):
+            conf_table.add_row(label, str(confusion.get(label, 0)))
+        conf_table.add_row("N_expected_PASS", str(summary.get("n_expected_pass", 0)))
+        conf_table.add_row(
+            "N_expected_ABSTAIN", str(summary.get("n_expected_abstain", 0))
+        )
+        console.print(conf_table)
+
+    interrupt_counts = (
+        summary.get("n_interrupt_tasks", 0),
+        summary.get("n_interrupt_fired", 0),
+        summary.get("n_interrupt_compliant", 0),
+    )
+    if any(count > 0 for count in interrupt_counts):
+        interrupt_table = Table(title="Interrupt Counts")
+        interrupt_table.add_column("label")
+        interrupt_table.add_column("count", justify="right")
+        interrupt_table.add_row(
+            "N_interrupt_tasks", str(summary.get("n_interrupt_tasks", 0))
+        )
+        interrupt_table.add_row(
+            "N_interrupt_fired", str(summary.get("n_interrupt_fired", 0))
+        )
+        interrupt_table.add_row(
+            "N_interrupt_compliant", str(summary.get("n_interrupt_compliant", 0))
+        )
+        console.print(interrupt_table)
+
+    console.print(f"Report written to [green]{report_path}[/green]")
 
 
 if __name__ == "__main__":  # pragma: no cover

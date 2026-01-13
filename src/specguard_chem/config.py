@@ -12,6 +12,8 @@ from pydantic import BaseModel, Field, ValidationError
 from .utils import jsonio
 
 ConstraintType = Literal["hard", "soft"]
+ExpectedOutcome = Literal["PASS", "ABSTAIN", "FAIL"]
+InterruptAction = Literal["ABSTAIN", "CONTINUE"]
 
 
 class ConstraintModel(BaseModel):
@@ -50,6 +52,34 @@ class TaskInputModel(BaseModel):
     smiles: Optional[str] = None
 
 
+class InterruptExpectedModel(BaseModel):
+    """Expected interrupt-handling behaviour for scoring."""
+
+    must_ack: bool = True
+    must_restate_goal: bool = False
+    must_report_state: bool = True
+    allowed_actions: List[InterruptAction] = Field(
+        default_factory=lambda: ["ABSTAIN"]
+    )
+
+
+class InterruptModel(BaseModel):
+    """Interrupt configuration for a task."""
+
+    enabled: bool = False
+    after_step: Optional[int] = None
+    signal_text: Optional[str] = None
+    expected_behavior: InterruptExpectedModel = Field(
+        default_factory=InterruptExpectedModel
+    )
+
+
+class ExpectedFieldsModel(BaseModel):
+    """Optional output-format expectations for tasks."""
+
+    must_return_smiles: bool = True
+
+
 class TaskModel(BaseModel):
     """Schema for a single evaluation task."""
 
@@ -61,6 +91,9 @@ class TaskModel(BaseModel):
     spec_id: str
     scoring: TaskScoringModel
     interrupt_at_step: Optional[int] = None
+    expected: ExpectedOutcome = "PASS"
+    interrupt: Optional[InterruptModel] = None
+    expected_fields: Optional[ExpectedFieldsModel] = None
 
 
 class FailureItem(BaseModel):

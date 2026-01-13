@@ -64,6 +64,6 @@ Each step submits the current state (task, failure vector, interrupt) to the Cha
 ## Tips
 - Always fill `confidence` to enable calibration metrics.
 - Use failure vectors to adjust proposals in L2/L3 protocols.
-- Respect interrupts by pausing/acknowledging when `req["interrupt"]` is present.
+- Respect interrupts by pausing/acknowledging when `req["interrupt"]` is present and set `interrupt_ack` fields.
 
 Refer to `tests/test_process_adapter.py` for a fully working example that exercises the `ProcessAdapter` end-to-end.

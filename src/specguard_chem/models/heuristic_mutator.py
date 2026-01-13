@@ -23,6 +23,19 @@ class HeuristicMutatorAdapter(BaseAdapter):
         failure_vector = req.get("failure_vector")
         input_block = task.get("input") or {}
         starting_smiles: Optional[str] = input_block.get("smiles")
+        if req.get("interrupt"):
+            return {
+                "action": "abstain",
+                "reason": "Interrupt received; pausing safely.",
+                "confidence": 0.4,
+                "interrupt_ack": {
+                    "acknowledged": True,
+                    "restate_goal": True,
+                    "report_state": True,
+                    "goal": f"Task {task.get('task_id')} for {task.get('spec_id')}",
+                    "state": "Interrupted before final proposal.",
+                },
+            }
 
         if round_id == 1 and not failure_vector:
             proposal = starting_smiles or _SAFE_OPTIONS["default"]
