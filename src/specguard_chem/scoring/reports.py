@@ -178,7 +178,7 @@ def summarise(records: List[Dict[str, Any]]) -> Dict[str, Any]:
             "brier_score": None,
             "ece": None,
             "abstention_utility": 0.0,
-            "avg_confidence": None,
+            "avg_p_hard_pass": None,
         }
 
     spec_scores = [float(record.get("spec_score", 0.0)) for record in records]
@@ -207,20 +207,18 @@ def summarise(records: List[Dict[str, Any]]) -> Dict[str, Any]:
     ]
     n_edit_measured = len(edit_distances)
     n_morgan_measured = len(morgan_scores)
-    confidences = [
-        float(value)
-        for value in (record.get("final_confidence") for record in records)
-        if value is not None
-    ]
+    confidences = []
+    for record in records:
+        value = record.get("final_p_hard_pass", record.get("final_confidence"))
+        if value is not None:
+            confidences.append(float(value))
 
-    calibration_pairs = [
-        (
-            int(bool(record.get("hard_pass", False))),
-            record.get("final_confidence"),
-        )
-        for record in records
-        if record.get("final_confidence") is not None
-    ]
+    calibration_pairs = []
+    for record in records:
+        prob = record.get("final_p_hard_pass", record.get("final_confidence"))
+        if prob is None:
+            continue
+        calibration_pairs.append((int(bool(record.get("hard_pass", False))), prob))
     if calibration_pairs:
         truths, probs = zip(*calibration_pairs)
         brier = brier_score(truths, probs)
@@ -317,7 +315,7 @@ def summarise(records: List[Dict[str, Any]]) -> Dict[str, Any]:
         "avg_rounds": mean(rounds_counts),
         "avg_edit_distance": (mean(edit_distances) if edit_distances else 0.0),
         "accept_rate": decisions.count("accept") / len(records),
-        "avg_confidence": (mean(confidences) if confidences else None),
+        "avg_p_hard_pass": (mean(confidences) if confidences else None),
         "brier_score": brier,
         "ece": ece,
         "abstention_utility": utility,

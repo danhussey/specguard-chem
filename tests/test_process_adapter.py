@@ -26,7 +26,7 @@ else:
     payload = {
         "action": "propose",
         "smiles": "CC(=O)NC1=CC=CC=C1O",
-        "confidence": 0.6,
+        "p_hard_pass": 0.6,
     }
 
 sys.stdout.write(json.dumps(payload))

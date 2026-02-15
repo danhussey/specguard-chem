@@ -34,6 +34,7 @@ class AgentResponse(TypedDict, total=False):
     name: Optional[str]
     args: Optional[Dict[str, Any]]
     cited_specs: Optional[list[str]]
-    confidence: Optional[float]
+    p_hard_pass: Optional[float]
+    confidence: Optional[float]  # deprecated; kept for backward compatibility
     reason: Optional[str]
     interrupt_ack: Optional[InterruptAck]

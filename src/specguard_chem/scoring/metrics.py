@@ -41,7 +41,7 @@ def spec_compliance(
         total_weight += weight
         soft_total += score * weight
     soft_component = (soft_total / total_weight) if total_weight else 0.0
-    return (1.0 if hard_pass else 0.0) + lam * soft_component
+    return (1.0 if hard_pass else 0.0) * (1.0 + lam * soft_component)
 
 
 def abstention_utility(

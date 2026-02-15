@@ -18,7 +18,7 @@ def test_summarise_computes_extended_metrics(tmp_path: Path) -> None:
             "edit_distance": 2,
             "edit_morgan_tanimoto": 0.8,
             "decision": "accept",
-            "final_confidence": 0.8,
+            "final_p_hard_pass": 0.8,
             "expected": "PASS",
         },
         {
@@ -29,7 +29,7 @@ def test_summarise_computes_extended_metrics(tmp_path: Path) -> None:
             "edit_distance": None,
             "edit_morgan_tanimoto": None,
             "decision": "reject",
-            "final_confidence": 0.3,
+            "final_p_hard_pass": 0.3,
             "expected": "PASS",
         },
         {
@@ -40,7 +40,7 @@ def test_summarise_computes_extended_metrics(tmp_path: Path) -> None:
             "edit_distance": 1,
             "edit_morgan_tanimoto": 0.6,
             "decision": "abstain",
-            "final_confidence": None,
+            "final_p_hard_pass": None,
             "expected": "ABSTAIN",
         },
     ]
@@ -70,7 +70,7 @@ def test_summarise_computes_extended_metrics(tmp_path: Path) -> None:
     assert summary["avg_rounds"] == pytest.approx(4 / 3)
     assert summary["avg_edit_distance"] == pytest.approx((2 + 1) / 2)
     assert summary["accept_rate"] == pytest.approx(1 / 3)
-    assert summary["avg_confidence"] == pytest.approx((0.8 + 0.3) / 2)
+    assert summary["avg_p_hard_pass"] == pytest.approx((0.8 + 0.3) / 2)
     assert summary["brier_score"] == pytest.approx(0.065, abs=1e-6)
     assert summary["ece"] == pytest.approx(0.25, abs=1e-6)
     assert summary["abstention_utility"] < 0
@@ -91,7 +91,7 @@ def test_write_report_persists_summary(tmp_path: Path) -> None:
                     "rounds": [],
                     "edit_distance": 0,
                     "decision": "accept",
-                    "final_confidence": 0.9,
+                    "final_p_hard_pass": 0.9,
                 }
             )
             for _ in range(2)

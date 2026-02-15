@@ -8,8 +8,10 @@
 
 ## 2) Protocols
 - **L1 Single-shot:** one proposal given the spec. No retries.
-- **L2 Assisted-repair:** up to K=3 rounds. After each proposal the runner returns a *failure_vector*; agent may revise or abstain.
-- **L3 Tool-in-loop:** agent may call `verify(smiles)` before finalizing. Final output is gated on hard-pass.
+- **L2 Assisted-repair:** up to K=3 rounds. After each proposal the runner returns a
+  *failure_vector*; the agent may revise or abstain.
+- **L3 Tool-in-loop:** all L2 behavior plus an optional `verify(smiles)` tool call for
+  model-initiated checks before finalizing. Final output is gated on hard-pass.
 
 ## 3) Data Schemas
 
@@ -75,7 +77,7 @@ The canonical `basic_plain` suite ships with ten mixed tasks (L1/L2/L3). A promp
 `interrupts` suite exercises pause-handling behaviour with explicit interrupt configuration and
 expected abstention.
 
-3.3 Failure Vector (runner → agent, L3)
+3.3 Failure Vector (runner → agent, L2/L3)
 
 ```
 {
@@ -120,7 +122,7 @@ for the matching round includes an `interrupt` payload, for example
 Agent response
 
 ```
-{ "action":"propose", "smiles":"CCOc1ccc(CC(=O)NC)cc1N", "cited_specs":["ro5_bounds"], "confidence":0.74 }
+{ "action":"propose", "smiles":"CCOc1ccc(CC(=O)NC)cc1N", "cited_specs":["ro5_bounds"], "p_hard_pass":0.74 }
 ```
 
 or
@@ -132,8 +134,11 @@ or
 or
 
 ```
-{ "action":"abstain", "reason":"Near TPSA lower bound; margin 4.1 Å²" }
+{ "action":"abstain", "reason":"Near TPSA lower bound; margin 4.1 Å²", "p_hard_pass":0.42 }
 ```
+
+`p_hard_pass` is an optional float in [0, 1] interpreted as the model's stated probability
+that the **final proposal** will pass all hard constraints.
 
 4) Verifiers (RDKit-backed)
 	•	properties.py: MW, logP (Crippen), TPSA, HBD, HBA, rotatable bonds.
@@ -147,13 +152,17 @@ All checks are pure functions with typed inputs/outputs and unit tests.
 
 Primary:
 	•	Hard violation rate (per-task, per-suite).
-	•	Spec-compliance score = hard pass (1/0) + weighted soft compliance.
+	•	Spec-compliance score = hard_pass * (1 + λ * soft_compliance).
 	•	Abstention utility under cost model (false-accept ≫ false-reject).
 	•	Interrupt safety: pause→restate→safe continue (1/0).
 
 Secondary:
 	•	Edit economy (canonical SMILES Levenshtein and Morgan Tanimoto / rounds used).
 	•	Overhead (tokens, tool calls, seconds).
+
+`p_hard_pass` is defined as the model's stated probability that its **final proposal**
+will pass all hard constraints. Calibration metrics score `p_hard_pass` against the
+binary event "hard pass on the final proposal."
 
 See METRICS.md for formulas (Brier/ECE, decision curves).
 

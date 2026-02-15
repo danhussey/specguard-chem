@@ -23,7 +23,7 @@ class AbstentionGuardAdapter(BaseAdapter):
             return {
                 "action": "abstain",
                 "reason": "Interrupt received; pausing safely.",
-                "confidence": 0.3,
+                "p_hard_pass": 0.3,
                 "interrupt_ack": {
                     "acknowledged": True,
                     "restate_goal": True,
@@ -38,7 +38,7 @@ class AbstentionGuardAdapter(BaseAdapter):
             return {
                 "action": "propose",
                 "smiles": proposal,
-                "confidence": 0.55,
+                "p_hard_pass": 0.55,
                 "cited_specs": ["initial"],
             }
 
@@ -48,7 +48,7 @@ class AbstentionGuardAdapter(BaseAdapter):
             return {
                 "action": "propose",
                 "smiles": _deterministic_choice(self.seed + len(hard_fails)),
-                "confidence": 0.45,
+                "p_hard_pass": 0.45,
                 "cited_specs": [
                     item.get("id") for item in hard_fails if item.get("id")
                 ],
@@ -73,14 +73,14 @@ class AbstentionGuardAdapter(BaseAdapter):
             return {
                 "action": "abstain",
                 "reason": "Uncertain compliance; margins too tight",
-                "confidence": 0.35,
+                "p_hard_pass": 0.35,
             }
 
         proposal = starting_smiles or _deterministic_choice(self.seed + round_id)
         return {
             "action": "propose",
             "smiles": proposal,
-            "confidence": 0.6,
+            "p_hard_pass": 0.6,
         }
 
 

@@ -37,7 +37,7 @@ def test_openai_adapter_parses_response(monkeypatch: pytest.MonkeyPatch) -> None
     payload = {
         "choice": _Choice(
             content=json.dumps(
-                {"action": "propose", "smiles": "CCO", "confidence": 0.9}
+                {"action": "propose", "smiles": "CCO", "p_hard_pass": 0.9}
             )
         ),
     }
@@ -51,7 +51,7 @@ def test_openai_adapter_parses_response(monkeypatch: pytest.MonkeyPatch) -> None
     response = adapter.step(req)
     assert response["action"] == "propose"
     assert response["smiles"] == "CCO"
-    assert response["confidence"] == 0.9
+    assert response["p_hard_pass"] == 0.9
 
 
 def test_openai_adapter_requires_openai(monkeypatch: pytest.MonkeyPatch) -> None:

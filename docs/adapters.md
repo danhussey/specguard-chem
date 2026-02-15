@@ -5,8 +5,8 @@ This guide explains how to plug an external agent into SpecGuard-Chem by impleme
 ## Adapter interface recap
 
 Adapters subclass `specguard_chem.models.BaseAdapter` and implement `step(req: AgentRequest) -> AgentResponse`.
-- `AgentRequest` contains the task metadata, round index, optional failure vector (L3 only), available tools, and interrupt signals.
-- An `AgentResponse` must supply an `action` (`propose`, `tool_call`, or `abstain`). Optional fields include `smiles`, `confidence`, `reason`, etc.
+- `AgentRequest` contains the task metadata, round index, optional failure vector (L2/L3), available tools, and interrupt signals.
+- An `AgentResponse` must supply an `action` (`propose`, `tool_call`, or `abstain`). Optional fields include `smiles`, `p_hard_pass`, `reason`, etc.
 
 ## Options
 
@@ -32,7 +32,7 @@ req = json.load(sys.stdin)
 if req["round"] == 1:
     json.dump({"action": "tool_call", "name": "verify", "args": {"smiles": "CC"}}, sys.stdout)
 else:
-    json.dump({"action": "propose", "smiles": "CC(=O)NC1=CC=CC=C1O", "confidence": 0.7}, sys.stdout)
+    json.dump({"action": "propose", "smiles": "CC(=O)NC1=CC=CC=C1O", "p_hard_pass": 0.7}, sys.stdout)
 ```
 
 ### 3. Dynamic registration
@@ -62,8 +62,9 @@ Each step submits the current state (task, failure vector, interrupt) to the Cha
 
 
 ## Tips
-- Always fill `confidence` to enable calibration metrics.
-- Use failure vectors to adjust proposals in L3 protocols.
+- Always fill `p_hard_pass` (0–1) to enable calibration metrics; interpret it as the
+  probability the **final proposal** will pass all hard constraints.
+- Use failure vectors to adjust proposals in L2/L3 protocols.
 - Respect interrupts by pausing/acknowledging when `req["interrupt"]` is present and set `interrupt_ack` fields.
 
 Refer to `tests/test_process_adapter.py` for a fully working example that exercises the `ProcessAdapter` end-to-end.

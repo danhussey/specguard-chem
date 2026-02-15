@@ -62,18 +62,16 @@ Each task's `protocol` selects a runner policy.
 - No iterative repair
 - Used to measure "raw compliance" under the task prompt.
 
-### 4.2 L2 (multi-round, no verifier-driven repair)
+### 4.2 L2 (multi-round with runner feedback)
 - Max rounds: 3
-- Multi-round interaction is allowed, but verifier-driven repair feedback is not enabled.
-- Used to measure whether additional dialogue rounds improve compliance without explicit
-  machine feedback.
+- After each proposal, the runner returns a structured failure vector (hard fails,
+  soft misses, margins). The agent may revise or abstain.
+- Used to measure whether deterministic feedback improves compliance without tool calls.
 
-### 4.3 L3 (multi-round with verifier-driven repair)
+### 4.3 L3 (tool-in-loop + runner feedback)
 - Max rounds: 4
-- Verifier feedback is enabled. If a candidate fails hard constraints, the runner can
-  generate a structured failure vector (which constraints failed) and re-prompt the adapter
-  to correct the molecule within remaining rounds.
-- Used to measure the effect of "check-as-you-go / repair-until-pass" behavior.
+- All L2 behavior plus an optional `verify(smiles)` tool for model-initiated checks.
+- Used to measure "check-as-you-go / repair-until-pass" behavior with explicit tool calls.
 
 ## 5. Interrupt injection and scoring
 

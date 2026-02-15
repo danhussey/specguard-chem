@@ -95,7 +95,10 @@ class OpenAIChatAdapter(BaseAdapter):
                 "name": "required if action == 'tool_call'",
                 "args": "object, required if action == 'tool_call'",
                 "reason": "required if action == 'abstain'",
-                "confidence": "float between 0 and 1 (optional)",
+                "p_hard_pass": (
+                    "float between 0 and 1 (optional; probability the final proposal "
+                    "passes hard constraints)"
+                ),
                 "interrupt_ack": {
                     "acknowledged": "bool (required if interrupt present)",
                     "restate_goal": "bool (required if interrupt present)",
@@ -127,7 +130,8 @@ class OpenAIChatAdapter(BaseAdapter):
         self, data: Dict[str, Any], req: AgentRequest
     ) -> AgentResponse:
         action = str(data.get("action", "")).strip().lower()
-        confidence = self._extract_confidence(data.get("confidence"))
+        raw_prob = data.get("p_hard_pass", data.get("confidence"))
+        p_hard_pass = self._extract_p_hard_pass(raw_prob)
         interrupt_ack = self._normalize_interrupt_ack(data.get("interrupt_ack"))
         tools = {
             tool.get("name") for tool in (req.get("tools") or []) if tool.get("name")
@@ -137,7 +141,7 @@ class OpenAIChatAdapter(BaseAdapter):
             return {
                 "action": "abstain",
                 "reason": "Model returned invalid action",
-                "confidence": confidence,
+                "p_hard_pass": p_hard_pass,
             }
 
         if action == "propose":
@@ -146,13 +150,13 @@ class OpenAIChatAdapter(BaseAdapter):
                 return {
                     "action": "abstain",
                     "reason": "Missing SMILES for proposal",
-                    "confidence": confidence,
+                    "p_hard_pass": p_hard_pass,
                     "interrupt_ack": interrupt_ack,
                 }
             return {
                 "action": "propose",
                 "smiles": smiles.strip(),
-                "confidence": confidence,
+                "p_hard_pass": p_hard_pass,
                 "interrupt_ack": interrupt_ack,
             }
 
@@ -163,21 +167,21 @@ class OpenAIChatAdapter(BaseAdapter):
                 return {
                     "action": "abstain",
                     "reason": "Requested unavailable tool",
-                    "confidence": confidence,
+                    "p_hard_pass": p_hard_pass,
                     "interrupt_ack": interrupt_ack,
                 }
             if not isinstance(args, dict):
                 return {
                     "action": "abstain",
                     "reason": "Tool call missing arguments object",
-                    "confidence": confidence,
+                    "p_hard_pass": p_hard_pass,
                     "interrupt_ack": interrupt_ack,
                 }
             return {
                 "action": "tool_call",
                 "name": name,
                 "args": args,
-                "confidence": confidence,
+                "p_hard_pass": p_hard_pass,
                 "interrupt_ack": interrupt_ack,
             }
 
@@ -188,19 +192,19 @@ class OpenAIChatAdapter(BaseAdapter):
         return {
             "action": "abstain",
             "reason": reason.strip(),
-            "confidence": confidence,
+            "p_hard_pass": p_hard_pass,
             "interrupt_ack": interrupt_ack,
         }
 
     @staticmethod
-    def _extract_confidence(value: Any) -> float:
+    def _extract_p_hard_pass(value: Any) -> float:
         try:
             if value is None:
                 raise ValueError
-            confidence = float(value)
+            prob = float(value)
         except (TypeError, ValueError):
-            confidence = 0.5
-        return max(0.0, min(1.0, confidence))
+            prob = 0.5
+        return max(0.0, min(1.0, prob))
 
     @staticmethod
     def _normalize_interrupt_ack(value: Any) -> Optional[Dict[str, Any]]:

@@ -27,7 +27,7 @@ class OpenSourceExampleAdapter(BaseAdapter):
             return {
                 "action": "abstain",
                 "reason": "Interrupt received; pausing safely.",
-                "confidence": 0.35,
+                "p_hard_pass": 0.35,
                 "interrupt_ack": {
                     "acknowledged": True,
                     "restate_goal": True,
@@ -55,8 +55,8 @@ class OpenSourceExampleAdapter(BaseAdapter):
                 "action": "propose",
                 "smiles": proposal,
                 "cited_specs": [fid for fid in hard_fails if fid],
-                "confidence": 0.6,
+                "p_hard_pass": 0.6,
             }
 
         proposal = starting_smiles or _SAFE_PROPOSAL
-        return {"action": "propose", "smiles": proposal, "confidence": 0.5}
+        return {"action": "propose", "smiles": proposal, "p_hard_pass": 0.5}

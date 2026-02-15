@@ -22,7 +22,7 @@ uv run pytest --cov=src/specguard_chem --cov-report=term-missing
 Repro in <10 minutes on a laptop. No proprietary data; all tasks are synthetic and safe.
 
 `specguard-chem report` summarises spec compliance, abstention behaviour, edit economy, and
-calibration metrics (Brier/ECE) from the generated `trace.jsonl` artefacts and writes
+calibration metrics (Brier/ECE over `p_hard_pass`) from the generated `trace.jsonl` artefacts and writes
 `report.json` into the run directory with embedded definitions for expected/observed outcomes.
 
 
@@ -32,7 +32,7 @@ For a narrative tour of the system architecture, see [`docs/overview.md`](docs/o
 ### Included adapters
 
 - `heuristic` – deterministic mutator that iteratively repairs hard failures using the runner's
-  failure vector feedback in L3 protocols.
+  failure vector feedback in L2/L3 protocols.
 - `open_source_example` – demonstrates tool calls during L3 protocols.
 - `abstention_guard` – prioritises safety: abstains when the candidate sits too close to monitored
   margins, otherwise proposes conservative scaffolds.

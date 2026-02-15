@@ -97,7 +97,7 @@ def report(
         "abstain_rate",
         "accept_rate",
         "avg_rounds",
-        "avg_confidence",
+        "avg_p_hard_pass",
         "brier_score",
         "ece",
         "abstention_utility",

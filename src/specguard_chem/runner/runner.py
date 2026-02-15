@@ -39,7 +39,7 @@ class RoundLog:
     abstained: bool = False
     interrupt: bool = False
     interrupt_result: Optional[Dict[str, Any]] = None
-    confidence: Optional[float] = None
+    p_hard_pass: Optional[float] = None
 
     def to_dict(self) -> Dict[str, Any]:
         payload = asdict(self)
@@ -66,7 +66,7 @@ class RunRecord:
     interrupt_result: Optional[Dict[str, Any]]
     edit_distance: Optional[int]
     edit_morgan_tanimoto: Optional[float]
-    final_confidence: Optional[float]
+    final_p_hard_pass: Optional[float]
     decision: str
 
     def to_dict(self) -> Dict[str, Any]:
@@ -89,9 +89,19 @@ class RunRecord:
             "interrupt_result": self.interrupt_result,
             "edit_distance": self.edit_distance,
             "edit_morgan_tanimoto": self.edit_morgan_tanimoto,
-            "final_confidence": self.final_confidence,
+            "final_p_hard_pass": self.final_p_hard_pass,
             "decision": self.decision,
         }
+
+
+def _normalize_p_hard_pass(value: Any) -> Optional[float]:
+    if value is None:
+        return None
+    try:
+        prob = float(value)
+    except (TypeError, ValueError):
+        return None
+    return max(0.0, min(1.0, prob))
 
 
 class TaskRunner:
@@ -131,7 +141,7 @@ class TaskRunner:
         canonical_smiles: Optional[str] = None
         interrupt_triggered = False
         interrupt_result: Optional[Dict[str, Any]] = None
-        last_confidence: Optional[float] = None
+        last_p_hard_pass: Optional[float] = None
 
         for round_index in range(1, max_rounds + 1):
             interrupt_payload = self._interrupt_payload(
@@ -140,7 +150,10 @@ class TaskRunner:
             if interrupt_payload:
                 interrupt_triggered = True
             failure_payload = None
-            if task.protocol == "L3" and last_failure_vector is not None:
+            if (
+                task.protocol in {"L2", "L3"}
+                and last_failure_vector is not None
+            ):
                 failure_payload = last_failure_vector.model_dump(mode="json")
             request: AgentRequest = {
                 "task": task.model_dump(mode="json"),
@@ -152,7 +165,10 @@ class TaskRunner:
                 request["interrupt"] = interrupt_payload
             response = self.adapter.step(request)
             action = response.get("action", "propose")
-            response_conf = response.get("confidence")
+            response_prob = response.get("p_hard_pass")
+            if response_prob is None and response.get("confidence") is not None:
+                response_prob = response.get("confidence")
+            response_prob = _normalize_p_hard_pass(response_prob)
             interrupt_eval = (
                 evaluate_interrupt_response(response, task)
                 if interrupt_payload
@@ -178,16 +194,16 @@ class TaskRunner:
                         abstained=False,
                         interrupt=bool(interrupt_payload),
                         interrupt_result=interrupt_eval,
-                        confidence=response_conf,
+                        p_hard_pass=response_prob,
                     )
                 )
-                if task.protocol == "L3":
+                if task.protocol in {"L2", "L3"}:
                     last_failure_vector = failure_vector
                 continue
 
             if action == "abstain":
                 abstained = True
-                last_confidence = response_conf
+                last_p_hard_pass = response_prob
                 rounds.append(
                     RoundLog(
                         round_index=round_index,
@@ -199,7 +215,7 @@ class TaskRunner:
                         abstained=True,
                         interrupt=bool(interrupt_payload),
                         interrupt_result=interrupt_eval,
-                        confidence=response_conf,
+                        p_hard_pass=response_prob,
                     )
                 )
                 break
@@ -207,12 +223,12 @@ class TaskRunner:
             smiles = response.get("smiles", "") or ""
             evaluation = evaluator.evaluate(smiles)
             failure_vector = evaluation.build_failure_vector(round_index)
-            if task.protocol == "L3":
+            if task.protocol in {"L2", "L3"}:
                 last_failure_vector = failure_vector
             last_evaluation = evaluation
             final_smiles = smiles
             canonical_smiles = evaluation.canonical_smiles
-            last_confidence = response_conf
+            last_p_hard_pass = response_prob
             rounds.append(
                 RoundLog(
                     round_index=round_index,
@@ -224,7 +240,7 @@ class TaskRunner:
                     abstained=False,
                     interrupt=bool(interrupt_payload),
                     interrupt_result=interrupt_eval,
-                    confidence=response_conf,
+                    p_hard_pass=response_prob,
                 )
             )
             if evaluation.hard_pass:
@@ -275,7 +291,7 @@ class TaskRunner:
             interrupt_result=interrupt_result,
             edit_distance=edit_dist,
             edit_morgan_tanimoto=edit_morgan,
-            final_confidence=last_confidence,
+            final_p_hard_pass=last_p_hard_pass,
             decision=decision,
         )
 
@@ -385,18 +401,18 @@ def persist_run(
     jsonio.write_jsonl(trace_path, [record.to_dict() for record in records])
 
     leaderboard_rows: List[str] = [
-        "task_id	hard_pass	spec_score	decision	confidence	rounds	edit_distance"
+        "task_id	hard_pass	spec_score	decision	p_hard_pass	rounds	edit_distance"
     ]
     for record in records:
-        confidence = (
-            f"{record.final_confidence:.3f}"
-            if record.final_confidence is not None
+        p_hard_pass = (
+            f"{record.final_p_hard_pass:.3f}"
+            if record.final_p_hard_pass is not None
             else ""
         )
         edit_distance = record.edit_distance if record.edit_distance is not None else ""
         leaderboard_rows.append(
             f"{record.task_id}	{int(record.hard_pass)}	{record.spec_score:.3f}"
-            f"	{record.decision}	{confidence}	{len(record.rounds)}	{edit_distance}"
+            f"	{record.decision}	{p_hard_pass}	{len(record.rounds)}	{edit_distance}"
         )
     leaderboard_path.parent.mkdir(parents=True, exist_ok=True)
     leaderboard_path.write_text("\n".join(leaderboard_rows) + "\n", encoding="utf-8")

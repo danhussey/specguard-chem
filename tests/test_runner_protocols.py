@@ -27,8 +27,8 @@ class RecordingL2Adapter(BaseAdapter):
                 AgentResponse,
                 {"action": "propose", "smiles": input_smiles},
             )
-        # second round should not receive a failure vector and no interrupt signal
-        assert req.get("failure_vector") is None
+        # second round should receive a failure vector and no interrupt signal
+        assert req.get("failure_vector") is not None
         assert req.get("interrupt") is None
         return cast(
             AgentResponse,
@@ -40,7 +40,7 @@ class RecordingL2Adapter(BaseAdapter):
                     "restate_goal": True,
                     "report_state": True,
                 },
-                "confidence": 0.9,
+                "p_hard_pass": 0.9,
             },
         )
 
@@ -71,7 +71,7 @@ class ToolCallingAdapter(BaseAdapter):
             {
                 "action": "propose",
                 "smiles": "CC(=O)NC1=CC=CC=C1O",
-                "confidence": 0.75,
+                "p_hard_pass": 0.75,
             },
         )
 
@@ -86,14 +86,14 @@ def restore_adapters():
         adapters_module._ADAPTERS.update(original)  # type: ignore[attr-defined]
 
 
-def test_l2_runner_reuses_interrupt_without_failure_vector():
+def test_l2_runner_reuses_interrupt_with_failure_vector():
     register_adapter(RecordingL2Adapter)
     runner = TaskRunner(RecordingL2Adapter.name, seed=11)
     record = runner.run_suite("interrupts", protocol="L2", limit=1)[0]
 
     assert len(runner.adapter.requests) == 2
     second_request = runner.adapter.requests[1]
-    assert second_request["failure_vector"] is None
+    assert second_request["failure_vector"] is not None
     assert runner.adapter.requests[0]["interrupt"]["policy"] == "confirm_then_continue"
     assert runner.adapter.requests[1].get("interrupt") is None
 
