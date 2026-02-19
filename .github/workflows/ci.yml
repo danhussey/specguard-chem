@@ -23,3 +23,4 @@ jobs:
       - run: uv run specguard-chem report runs/ci_basic_plain
       - run: uv run specguard-chem run interrupts --model abstention_guard --run-path runs/ci_interrupts
       - run: uv run specguard-chem report runs/ci_interrupts
+      - run: uv run specguard-chem run-baselines --suite basic_plain --spec-split train --limit 1 --out-dir runs/ci_baselines
