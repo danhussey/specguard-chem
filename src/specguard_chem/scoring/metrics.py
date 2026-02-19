@@ -6,6 +6,7 @@ from typing import Iterable, Mapping, Sequence
 
 
 Decision = str
+ExpectedAction = str
 
 
 def hard_violation_rate(records: Sequence[Mapping[str, object] | bool]) -> float:
@@ -47,19 +48,35 @@ def spec_compliance(
 def abstention_utility(
     truths: Sequence[bool], decisions: Sequence[Decision], costs: Mapping[str, float]
 ) -> float:
-    """Compute negative expected loss under the abstention cost model."""
+    """Backward-compatible wrapper around the legacy truth/decision cost model."""
 
     penalties = 0.0
-    c_fa = costs.get("false_accept", 5.0)
-    c_fr = costs.get("false_reject", 1.0)
-    c_abstain = costs.get("abstain", 0.5)
+    false_accept = costs.get("false_accept", 5.0)
+    false_reject = costs.get("false_reject", 1.0)
+    abstain_cost = costs.get("abstain", 0.5)
     for truth, decision in zip(truths, decisions):
         if decision == "accept":
             if not truth:
-                penalties += c_fa
+                penalties += false_accept
         elif decision == "reject":
             if truth:
-                penalties += c_fr
-        else:  # treat everything else as abstain
-            penalties += c_abstain
+                penalties += false_reject
+        else:
+            penalties += abstain_cost
+    return -penalties
+
+
+def decision_utility(
+    expected_actions: Sequence[ExpectedAction],
+    final_decisions: Sequence[Decision],
+    costs: Mapping[ExpectedAction, Mapping[Decision, float]],
+) -> float:
+    """Compute negative expected loss from expected_action x final_decision costs."""
+
+    penalties = 0.0
+    for expected_action, final_decision in zip(expected_actions, final_decisions):
+        action_costs = costs.get(expected_action)
+        if action_costs is None:
+            continue
+        penalties += action_costs.get(final_decision, 0.0)
     return -penalties
