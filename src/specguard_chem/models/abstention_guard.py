@@ -43,6 +43,10 @@ class AbstentionGuardAdapter(BaseAdapter):
             }
 
         hard_fails = failure_vector.get("hard_fails", [])
+        if not hard_fails:
+            hard_fail_ids = failure_vector.get("hard_fail_ids", [])
+            if isinstance(hard_fail_ids, list):
+                hard_fails = [{"id": item} for item in hard_fail_ids]
         if hard_fails:
             # Hard gating still violated; fall back to conservative scaffold.
             return {
@@ -62,6 +66,10 @@ class AbstentionGuardAdapter(BaseAdapter):
             abs(item.get("delta", 0.0) or 0.0)
             for item in failure_vector.get("soft_misses", [])
         ]
+        if not soft_deltas:
+            soft_ids = failure_vector.get("soft_miss_ids", [])
+            if isinstance(soft_ids, list):
+                soft_deltas = [0.0 for _ in soft_ids]
         near_margin = any(
             value <= self.margin_threshold for value in margins if value is not None
         )

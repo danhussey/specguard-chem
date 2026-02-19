@@ -1,21 +1,31 @@
 from .properties import (
+    BOUNDS_TOLERANCE,
     PROPERTY_NAMES,
     check_property_bounds_all,
     check_property_bounds_any,
     compute_properties,
     margins_to_bounds,
 )
-from .alerts import pains_alerts, substructure_absent, available_alert_sets
+from .alerts import (
+    alert_counts_by_family,
+    alert_hits,
+    pains_alerts,
+    substructure_absent,
+    available_alert_sets,
+)
 from .sa_score import synthetic_accessibility_score
 from .smiles import canonicalize_smiles, is_valid_smiles, parse_smiles
-from .similarity import morgan_tanimoto
+from .similarity import brics_fragment_edit_distance, morgan_tanimoto
 
 __all__ = [
     "PROPERTY_NAMES",
+    "BOUNDS_TOLERANCE",
     "check_property_bounds_all",
     "check_property_bounds_any",
     "compute_properties",
     "margins_to_bounds",
+    "alert_hits",
+    "alert_counts_by_family",
     "pains_alerts",
     "substructure_absent",
     "available_alert_sets",
@@ -24,4 +34,5 @@ __all__ = [
     "is_valid_smiles",
     "parse_smiles",
     "morgan_tanimoto",
+    "brics_fragment_edit_distance",
 ]

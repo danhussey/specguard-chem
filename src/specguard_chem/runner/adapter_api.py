@@ -22,6 +22,7 @@ class InterruptAck(TypedDict, total=False):
 
 class AgentRequest(TypedDict, total=False):
     task: Dict[str, Any]
+    spec: Dict[str, Any]
     round: int
     tools: list[ToolSpec]
     failure_vector: Optional[Dict[str, Any]]
@@ -38,3 +39,8 @@ class AgentResponse(TypedDict, total=False):
     confidence: Optional[float]  # deprecated; kept for backward compatibility
     reason: Optional[str]
     interrupt_ack: Optional[InterruptAck]
+    schema_error: Optional[bool]
+    schema_error_type: Optional[str]
+    normalized_action: Optional[str]
+    invalid_action: Optional[bool]
+    invalid_tool_call: Optional[bool]

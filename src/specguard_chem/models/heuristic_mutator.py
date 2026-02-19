@@ -60,12 +60,22 @@ class HeuristicMutatorAdapter(BaseAdapter):
         if not failure_vector:
             return starting_smiles or _SAFE_OPTIONS["default"], ["fallback_default"]
 
+        hard_fail_ids = failure_vector.get("hard_fail_ids")
+        if isinstance(hard_fail_ids, list):
+            hard_ids = [str(item) for item in hard_fail_ids if item]
+        else:
+            hard_ids = [item.get("id") for item in failure_vector.get("hard_fails", [])]
+
+        soft_miss_ids = failure_vector.get("soft_miss_ids")
+        if isinstance(soft_miss_ids, list):
+            soft_ids = [str(item) for item in soft_miss_ids if item]
+        else:
+            soft_ids = [item.get("id") for item in failure_vector.get("soft_misses", [])]
+
         margins = {
             item.get("id"): item.get("distance_to_bound")
             for item in failure_vector.get("margins", [])
         }
-        hard_ids = [item.get("id") for item in failure_vector.get("hard_fails", [])]
-        soft_ids = [item.get("id") for item in failure_vector.get("soft_misses", [])]
         cited: list[str] = [cid for cid in hard_ids + soft_ids if cid]
 
         if "pains_block" in hard_ids:

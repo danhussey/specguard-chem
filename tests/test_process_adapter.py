@@ -15,6 +15,8 @@ import sys
 
 
 request = json.load(sys.stdin)
+if "spec" not in request:
+    raise SystemExit("missing spec object in request")
 
 if request["round"] == 1:
     payload = {

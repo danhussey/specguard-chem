@@ -45,9 +45,13 @@ class OpenSourceExampleAdapter(BaseAdapter):
             }
 
         if failure_vector:
-            hard_fails = [
-                item.get("id") for item in failure_vector.get("hard_fails", [])
-            ]
+            hard_fail_ids = failure_vector.get("hard_fail_ids")
+            if isinstance(hard_fail_ids, list):
+                hard_fails = [str(item) for item in hard_fail_ids if item]
+            else:
+                hard_fails = [
+                    item.get("id") for item in failure_vector.get("hard_fails", [])
+                ]
             proposal = starting_smiles or _SAFE_PROPOSAL
             if "pains_block" in hard_fails or not proposal:
                 proposal = _SAFE_PROPOSAL

@@ -80,12 +80,14 @@ class OpenAIChatAdapter(BaseAdapter):
 
     def _build_prompt(self, req: AgentRequest) -> list[Dict[str, Any]]:
         task = req.get("task", {})
+        spec = req.get("spec", {})
         failure_vector = req.get("failure_vector")
         tools = req.get("tools") or []
         interrupt = req.get("interrupt")
         tool_names = [tool.get("name") for tool in tools if tool.get("name")]
         instructions = {
             "task": task,
+            "spec": spec,
             "failure_vector": failure_vector,
             "interrupt": interrupt,
             "available_tools": tool_names,
