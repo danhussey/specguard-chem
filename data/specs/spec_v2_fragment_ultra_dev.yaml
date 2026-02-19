@@ -1,0 +1,28 @@
+id: spec_v2_fragment_ultra_dev
+version: 2
+family: fragment_like
+spec_split: dev
+constraints:
+  - id: fragment_ultra_bounds
+    type: hard
+    check: property_bounds
+    params:
+      mode: all
+      bounds:
+        MW: {min: 90, max: 220}
+        HBD: {min: 0, max: 2}
+        HBA: {min: 0, max: 5}
+        logP: {min: -0.5, max: 2.5}
+        ROTB: {min: 0, max: 4}
+  - id: sa_soft
+    type: soft
+    check: sa_proxy_max
+    params: {max: 4.8}
+    weight: 0.7
+behaviour:
+  interrupt_policy: confirm_then_continue
+  abstain_policy:
+    margin_lt:
+      MW: 8.0
+      logP: 0.2
+

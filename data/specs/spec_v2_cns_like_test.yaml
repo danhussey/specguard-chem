@@ -1,0 +1,33 @@
+id: spec_v2_cns_like_test
+version: 2
+family: cns_like
+spec_split: test
+constraints:
+  - id: cns_bounds
+    type: hard
+    check: property_bounds
+    params:
+      mode: all
+      bounds:
+        MW: {min: 150, max: 420}
+        HBD: {min: 0, max: 2}
+        HBA: {min: 0, max: 8}
+        logP: {min: 1, max: 4}
+        TPSA: {min: 20, max: 90}
+        ROTB: {min: 0, max: 8}
+  - id: sa_limit
+    type: hard
+    check: sa_proxy_max
+    params: {max: 5.5}
+  - id: pains_a_soft
+    type: soft
+    check: alert_set_absent
+    params: {alert_set: "PAINS_A"}
+    weight: 0.5
+behaviour:
+  interrupt_policy: confirm_then_continue
+  abstain_policy:
+    margin_lt:
+      TPSA: 5.0
+      logP: 0.2
+

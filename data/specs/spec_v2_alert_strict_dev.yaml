@@ -1,0 +1,42 @@
+id: spec_v2_alert_strict_dev
+version: 2
+family: alerts_strict
+spec_split: dev
+constraints:
+  - id: broad_druglike_bounds
+    type: hard
+    check: property_bounds
+    params:
+      mode: all
+      bounds:
+        MW: {min: 100, max: 520}
+        HBD: {min: 0, max: 5}
+        HBA: {min: 0, max: 10}
+        logP: {min: -1, max: 5}
+        ROTB: {min: 0, max: 10}
+  - id: pains_a_block
+    type: hard
+    check: alert_set_absent
+    params: {alert_set: "PAINS_A"}
+  - id: pains_b_block
+    type: hard
+    check: alert_set_absent
+    params: {alert_set: "PAINS_B"}
+  - id: brenk_block
+    type: hard
+    check: alert_set_absent
+    params: {alert_set: "BRENK"}
+  - id: tpsa_soft_window
+    type: soft
+    check: property_bounds
+    params:
+      mode: any
+      bounds:
+        TPSA: {min: 25, max: 140}
+    weight: 0.5
+behaviour:
+  interrupt_policy: confirm_then_continue
+  abstain_policy:
+    margin_lt:
+      TPSA: 6.0
+      MW: 12.0

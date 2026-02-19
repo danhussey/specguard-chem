@@ -1,0 +1,31 @@
+id: spec_v2_sa_strict_test
+version: 2
+family: sa_proxy
+spec_split: test
+constraints:
+  - id: sa_strict_bounds
+    type: hard
+    check: property_bounds
+    params:
+      mode: all
+      bounds:
+        MW: {min: 110, max: 500}
+        HBD: {min: 0, max: 5}
+        HBA: {min: 0, max: 10}
+        logP: {min: -1, max: 5}
+        ROTB: {min: 0, max: 9}
+  - id: sa_cap_strict
+    type: hard
+    check: sa_proxy_max
+    params: {max: 4.5}
+  - id: brenk_soft_absent
+    type: soft
+    check: alert_set_absent
+    params: {alert_set: "BRENK"}
+    weight: 0.6
+behaviour:
+  interrupt_policy: confirm_then_continue
+  abstain_policy:
+    margin_lt:
+      MW: 10.0
+      logP: 0.2

@@ -1,0 +1,32 @@
+id: spec_v2_sa_relaxed_dev
+version: 2
+family: sa_proxy
+spec_split: dev
+constraints:
+  - id: sa_relaxed_bounds
+    type: hard
+    check: property_bounds
+    params:
+      mode: all
+      bounds:
+        MW: {min: 100, max: 520}
+        HBD: {min: 0, max: 5}
+        HBA: {min: 0, max: 11}
+        logP: {min: -1, max: 5}
+        ROTB: {min: 0, max: 10}
+  - id: sa_cap_relaxed
+    type: hard
+    check: sa_proxy_max
+    params: {max: 6.0}
+  - id: acid_soft_absent
+    type: soft
+    check: substructure_absent
+    params: {smarts_id: "carboxylic_acid"}
+    weight: 0.5
+behaviour:
+  interrupt_policy: confirm_then_continue
+  abstain_policy:
+    margin_lt:
+      MW: 10.0
+      logP: 0.2
+
