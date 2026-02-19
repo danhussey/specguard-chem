@@ -1,55 +1,90 @@
 # SpecGuard-Chem
-[![CI](https://img.shields.io/github/actions/workflow/status/danhussey/specguard-chem/ci.yml?label=CI)](https://github.com/danhussey/specguard-chem/actions/workflows/ci.yml) ![Coverage](https://img.shields.io/badge/coverage-84%25-brightgreen) 
+[![CI](https://img.shields.io/github/actions/workflow/status/danhussey/specguard-chem/ci.yml?label=CI)](https://github.com/danhussey/specguard-chem/actions/workflows/ci.yml) ![Coverage](https://img.shields.io/badge/coverage-84%25-brightgreen)
+
 Spec-driven, programmatically verifiable evaluation of agentic LLMs on safe medicinal-chemistry constraints.
 
-**What it is:** a small, model-agnostic test rig. Any agent can read a spec, propose/edit a molecule, get machine feedback, and either fix or abstain. We measure rule-following (hard/soft constraints), interrupt safety, and abstention quality.
+**What it is:** a model-agnostic benchmark harness for rule-following under explicit specs. Agents propose/edit molecules, optionally use verifier tools, and either accept, reject, or abstain.
 
 **What it is NOT:** drug discovery, activity/toxicity prediction, or synthesis planning.
 
-PAINS-style alerts use a minimal motif subset and are treated as soft constraints in the base spec.
+Alert checks support expanded deterministic families (`PAINS_A/B/C`, `BRENK`).
 
 ## Quickstart
 ```bash
 uv venv --seed
 source .venv/bin/activate
 uv pip install -e .[dev]
-specguard-chem run --suite basic_plain --protocol L1 --model heuristic
-specguard-chem run --suite basic_plain --protocol L3 --model open_source_example
-specguard-chem report --run-path runs/2025-01-01_basic_plain_L3/
+
+specguard-chem run basic_plain --protocol L1 --model heuristic --run-path runs/demo_basic_l1
+specguard-chem run basic_plain --protocol L3 --model open_source_example --run-path runs/demo_basic_l3
+specguard-chem report runs/demo_basic_l3
+
 uv run pytest --cov=src/specguard_chem --cov-report=term-missing
 ```
 
-Repro in <10 minutes on a laptop. No proprietary data; all tasks are synthetic and safe.
+`specguard-chem run` also supports `--spec-split train|dev|test` for held-out spec evaluation.
 
-`specguard-chem report` summarises spec compliance, abstention behaviour, edit economy, and
-calibration metrics (Brier/ECE over `p_hard_pass`) from the generated `trace.jsonl` artefacts and writes
-`report.json` into the run directory with embedded definitions for expected/observed outcomes.
+`specguard-chem report` reads `trace.jsonl` from a run directory and writes `report.json` with:
+- decision-level confusion and utility
+- budget-first efficiency (`pass_at_steps`, step/tool economy)
+- calibration and risk/cost curves from `p_hard_pass`
+- hard/soft separation and gaming-resistance metrics
+- schema/error rates and dataset-version hashes/IDs
 
+## Dataset Tooling
+Deterministic benchmark generation/validation is built in:
 
-For adapter integration details see [docs/adapters.md](docs/adapters.md).
-For a narrative tour of the system architecture, see [`docs/overview.md`](docs/overview.md).
+```bash
+specguard-chem build-corpus --output data/corpus.parquet --seed 7
+specguard-chem generate-tasks --corpus data/corpus.parquet --output tasks/suites/generated_v1.jsonl --target-tasks 1000 --seed 7
+specguard-chem validate-dataset tasks/suites/generated_v1.jsonl
+```
 
-### Included adapters
+Boundary semantics are inclusive with explicit floating tolerance (`BOUNDS_TOLERANCE = 1e-6`).
 
-- `heuristic` – deterministic mutator that iteratively repairs hard failures using the runner's
-  failure vector feedback in L2/L3 protocols.
-- `open_source_example` – demonstrates tool calls during L3 protocols.
-- `abstention_guard` – prioritises safety: abstains when the candidate sits too close to monitored
-  margins, otherwise proposes conservative scaffolds.
-- `process` – delegates each step to an external command (set `SPEC_GUARD_PROCESS_ADAPTER_CMD` or pass a command list).
-- `openai_chat` – calls the OpenAI Chat Completions API; set `OPENAI_API_KEY` or inject a client.
+## Baselines
+Run the baseline matrix:
 
-### Task suites
+```bash
+specguard-chem run-baselines --suite basic_plain --spec-split train --limit 5
+```
 
-- `basic_plain` – mixed L1/L2/L3 tasks (10 total) with plain prompts covering single-shot proposals,
-  repair rounds, and verify-in-the-loop flows.
-- `basic_checklist` – prompt-variant of `basic_plain` that asks for a checklist-first response.
-- `repair_ladder_plain` – small repair-focused suite with plain prompts.
-- `repair_ladder_checklist` – prompt-variant of `repair_ladder_plain` with checklist-first prompts.
-- `interrupts` – focused interrupt-handling scenarios that trigger pauses mid-protocol and expect safe abstention.
-- `alerts_pains_soft` – PAINS-style alert reporting tasks (soft constraints; not hard-gated).
+This emits one run per baseline (`heuristic_non_tool_l2`, `heuristic_tool_l3`, `abstention_guard_l2`) and writes `baseline_summary.json`.
 
-### Continuous integration
+Compare one or more baseline batches:
 
-The GitHub Actions workflow runs linting, coverage collection (published as a `coverage.xml`
-artifact), and smoke evaluations on both `basic_plain` and `interrupts` suites using the built-in adapters.
+```bash
+specguard-chem compare-baselines runs/baselines -o runs/baseline_compare.json
+```
+
+Stratify aggregate rows with `--group-by` (fields: `name,model,protocol,suite,spec_split,source`):
+
+```bash
+specguard-chem compare-baselines runs/baselines --group-by name,spec_split -o runs/baseline_compare_by_split.json
+```
+
+## Included Adapters
+- `heuristic`: deterministic mutator using failure-vector feedback in L2/L3.
+- `open_source_example`: tool-using baseline for L3.
+- `abstention_guard`: conservative abstention-heavy baseline.
+- `process`: delegates each step to an external command (`SPEC_GUARD_PROCESS_ADAPTER_CMD`).
+- `openai_chat`: OpenAI Chat Completions-backed adapter (`OPENAI_API_KEY`).
+
+See `docs/adapters.md` for integration details.
+
+## Included Task Suites
+- `basic_plain` (10): mixed L1/L2/L3 tasks.
+- `basic_checklist` (10): checklist prompt variant of `basic_plain`.
+- `repair_ladder_plain` (3): repair-focused tasks.
+- `repair_ladder_checklist` (3): checklist variant of repair ladder.
+- `interrupts` (3): interrupt handling with abstention-oriented behavior.
+- `interrupt_strict` (3): stricter interrupt compliance requirements.
+- `interrupt_resume` (3): interrupt acknowledge + resume-token echo + continue.
+- `alerts_pains_soft` (4): alert-focused soft-constraint tasks.
+- `smiles_invariance` (4): equivalent-SMILES invariance checks.
+- `boundary_precision` (3): near-boundary precision/tolerance checks.
+
+## Continuous Integration
+CI runs lint/tests, coverage, smoke runs (`run` + `report`), and baseline smoke (`run-baselines`).
+
+For architecture details see `docs/overview.md`. For formulas see `METRICS.md`. For scope guardrails see `SAFETY.md`.
