@@ -1,43 +1,32 @@
 # Adapter Integration Guide
 
-This guide explains how to plug an external agent into SpecGuard-Chem by implementing the adapter interface.
+This guide explains how to connect an external agent to SpecGuard-Chem.
 
-## Adapter interface recap
+## 1) Interface
+Adapters subclass `specguard_chem.models.BaseAdapter` and implement:
 
-Adapters subclass `specguard_chem.models.BaseAdapter` and implement `step(req: AgentRequest) -> AgentResponse`.
-- `AgentRequest` contains the task metadata, round index, optional failure vector (L2/L3), available tools, and interrupt signals.
-- An `AgentResponse` must supply an `action` (`propose`, `tool_call`, or `abstain`). Optional fields include `smiles`, `p_hard_pass`, `reason`, etc.
+- `step(req: AgentRequest) -> AgentResponse`
 
-## Options
+`AgentRequest` fields:
+- `task`: full task payload
+- `spec`: full resolved spec object (always present)
+- `round`: 1-based round index
+- `tools`: available tools for this protocol (`verify` only in L3)
+- `failure_vector`: `None`, coarse feedback, or full feedback depending on protocol state
+- `interrupt`: optional interrupt payload (includes `resume_token` for resume tasks)
 
-### 1. Python subclasses
+`AgentResponse.action` must be one of:
+- `propose`
+- `tool_call`
+- `abstain`
 
-Create a subclass in `specguard_chem/models/your_adapter.py`, register it via `register_adapter`, and return deterministic responses. Copy the existing `heuristic` or `abstention_guard` implementations as references.
+## 2) Feedback Semantics by Protocol
+- `L1`: no feedback loop.
+- `L2`: coarse feedback only.
+- `L3`: coarse feedback on proposal rounds; full vector only after explicit `verify(smiles)` tool call.
 
-### 2. External process adapter
-
-For agents implemented in another language or running behind a CLI, use the built-in [`ProcessAdapter`](../src/specguard_chem/models/process_adapter.py):
-
-```bash
-export SPEC_GUARD_PROCESS_ADAPTER_CMD="python path/to/agent_bridge.py"
-specguard-chem run --suite basic_plain --model process
-```
-
-The bridge script receives the request JSON on STDIN and must emit a single JSON object to STDOUT. Example handler:
-
-```python
-import json, sys
-
-req = json.load(sys.stdin)
-if req["round"] == 1:
-    json.dump({"action": "tool_call", "name": "verify", "args": {"smiles": "CC"}}, sys.stdout)
-else:
-    json.dump({"action": "propose", "smiles": "CC(=O)NC1=CC=CC=C1O", "p_hard_pass": 0.7}, sys.stdout)
-```
-
-### 3. Dynamic registration
-
-If you cannot modify the registry, call `register_adapter` during your harness bootstrap:
+## 3) Python Adapter Registration
+Create `specguard_chem/models/your_adapter.py`, subclass `BaseAdapter`, then register via `register_adapter`.
 
 ```python
 from specguard_chem.models import register_adapter
@@ -46,25 +35,73 @@ from my_agent import MyAdapter
 register_adapter(MyAdapter)
 ```
 
-After registration you can refer to the adapter via its `name` attribute in CLI runs.
+After registration, use the adapter name with CLI `--model`.
 
-### 4. OpenAI Chat adapter
+## 4) External Process Adapter
+Use built-in `ProcessAdapter` when your agent runs as a separate process/language.
 
-If your agent already speaks to the OpenAI API you can reuse that work with the `openai_chat` adapter:
+```bash
+export SPEC_GUARD_PROCESS_ADAPTER_CMD="python path/to/agent_bridge.py"
+specguard-chem run basic_plain --model process
+```
 
+Bridge behavior:
+- read one JSON request from `stdin`
+- write one JSON response to `stdout`
+
+Example:
+
+```python
+import json, sys
+
+req = json.load(sys.stdin)
+
+if req["tools"]:
+    # L3 example: request a verifier call first
+    json.dump(
+        {"action": "tool_call", "name": "verify", "args": {"smiles": "CC"}},
+        sys.stdout,
+    )
+else:
+    json.dump(
+        {"action": "propose", "smiles": "CC(=O)NC1=CC=CC=C1O", "p_hard_pass": 0.7},
+        sys.stdout,
+    )
+```
+
+## 5) OpenAI Adapter
 ```bash
 pip install specguard-chem[providers]
 export OPENAI_API_KEY=sk-...
-specguard-chem run --suite basic_plain --model openai_chat --limit 3
+specguard-chem run basic_plain --model openai_chat --limit 3
 ```
 
-Each step submits the current state (task, failure vector, interrupt) to the Chat Completions API and expects a JSON response. You may customise the OpenAI model, temperature, or provide a preconfigured `OpenAI` client when instantiating the adapter programmatically.
+## 6) Interrupt and Resume Requirements
+When `req["interrupt"]` is present:
+- acknowledge interrupt
+- restate goal if required
+- report state if required
+- if `resume_token` is present, echo it in `interrupt_ack.resume_token`
+- choose an action allowed by `interrupt.expected_behavior.allowed_actions`
 
+Example response fragment:
 
-## Tips
-- Always fill `p_hard_pass` (0–1) to enable calibration metrics; interpret it as the
-  probability the **final proposal** will pass all hard constraints.
-- Use failure vectors to adjust proposals in L2/L3 protocols.
-- Respect interrupts by pausing/acknowledging when `req["interrupt"]` is present and set `interrupt_ack` fields.
+```json
+{
+  "action": "propose",
+  "smiles": "CCO",
+  "interrupt_ack": {
+    "acknowledged": true,
+    "restate_goal": true,
+    "report_state": true,
+    "resume_token": "<token-from-request>"
+  }
+}
+```
 
-Refer to `tests/test_process_adapter.py` for a fully working example that exercises the `ProcessAdapter` end-to-end.
+## 7) Robustness Expectations
+- Always emit valid JSON with a supported action.
+- Provide `p_hard_pass` (`0..1`) for calibration/curve metrics.
+- Handle schema normalization behavior: malformed outputs are converted to abstain and counted as schema/invalid-action/tool-call errors.
+
+See `tests/test_process_adapter.py` for an end-to-end process-adapter example.
