@@ -2,6 +2,8 @@ from __future__ import annotations
 
 """Adapter that proxies runner requests to the OpenAI Chat Completions API."""
 
+from datetime import datetime, timezone
+import hashlib
 import json
 import os
 from typing import Any, Dict, Optional
@@ -28,6 +30,8 @@ class OpenAIChatAdapter(BaseAdapter):
     """Minimal adapter that calls the OpenAI Chat Completions API per runner step."""
 
     name = "openai_chat"
+    track = "external"
+    is_external = True
 
     def __init__(
         self,
@@ -35,8 +39,10 @@ class OpenAIChatAdapter(BaseAdapter):
         seed: int = 0,
         model: str = DEFAULT_MODEL,
         temperature: float = 0.2,
+        top_p: float = 1.0,
         max_tokens: int = 512,
         system_prompt: str = DEFAULT_SYSTEM_PROMPT,
+        policy: str = "default",
         client: Optional[OpenAI] = None,
     ) -> None:
         super().__init__(seed=seed)
@@ -53,15 +59,49 @@ class OpenAIChatAdapter(BaseAdapter):
         self.client = client
         self.model = model
         self.temperature = temperature
+        self.top_p = top_p
         self.max_tokens = max_tokens
         self.system_prompt = system_prompt
+        self.policy = policy
+
+    def model_metadata(self) -> Dict[str, Any]:
+        prompt_template_hash = hashlib.sha256(
+            f"{self.system_prompt}|{self.policy}".encode("utf-8")
+        ).hexdigest()
+        return {
+            "provider": "openai",
+            "adapter_name": self.name,
+            "model_id": self.model,
+            "temperature": self.temperature,
+            "top_p": self.top_p,
+            "prompt_template_hash": prompt_template_hash,
+            "policy": self.policy,
+            "timestamp_utc": datetime.now(timezone.utc).isoformat(),
+            "track": self.track,
+            "is_external": self.is_external,
+        }
 
     def step(self, req: AgentRequest) -> AgentResponse:
+        policy_response = self._policy_pre_step(req)
+        if policy_response is not None:
+            self._record_step_artifacts(
+                {
+                    "raw_model_output": json.dumps(
+                        policy_response,
+                        sort_keys=True,
+                        separators=(",", ":"),
+                    ),
+                    "model_metadata": self.model_metadata(),
+                }
+            )
+            return policy_response
+
         prompt = self._build_prompt(req)
         response = self.client.chat.completions.create(
             model=self.model,
             messages=prompt,
             temperature=self.temperature,
+            top_p=self.top_p,
             max_tokens=self.max_tokens,
         )
         message = response.choices[0].message.content
@@ -76,7 +116,40 @@ class OpenAIChatAdapter(BaseAdapter):
             ) from exc
         if not isinstance(data, dict):  # pragma: no cover - defensive
             raise RuntimeError("OpenAI response JSON must be an object")
-        return self._normalize_response(data, req)
+        normalized = self._normalize_response(data, req)
+        self._record_step_artifacts(
+            {
+                "raw_model_output": message,
+                "model_metadata": self.model_metadata(),
+            }
+        )
+        return normalized
+
+    def _policy_pre_step(self, req: AgentRequest) -> Optional[AgentResponse]:
+        if self.policy != "l3_verify_tooling":
+            return None
+        task = req.get("task") or {}
+        protocol = str(task.get("protocol") or "L1")
+        if protocol != "L3":
+            return None
+        tools = req.get("tools") or []
+        verify_available = any(
+            isinstance(tool, dict) and tool.get("name") == "verify" for tool in tools
+        )
+        if not verify_available:
+            return None
+        round_id = int(req.get("round") or 1)
+        if round_id != 1:
+            return None
+        input_smiles = (task.get("input") or {}).get("smiles")
+        if not isinstance(input_smiles, str) or not input_smiles:
+            return None
+        return {
+            "action": "tool_call",
+            "name": "verify",
+            "args": {"smiles": input_smiles},
+            "p_hard_pass": 0.5,
+        }
 
     def _build_prompt(self, req: AgentRequest) -> list[Dict[str, Any]]:
         task = req.get("task", {})
@@ -123,6 +196,23 @@ class OpenAIChatAdapter(BaseAdapter):
                 "If interrupt is present, include interrupt_ack and do not claim completion.",
             ],
         }
+        if self.policy == "l3_verify_tooling":
+            instructions["rules"].extend(
+                [
+                    (
+                        "For L3 tasks with verify available, call verify(input_smiles) before "
+                        "any proposal whenever possible."
+                    ),
+                    (
+                        "Avoid finalising an L3 candidate without checking margins from "
+                        "verify feedback."
+                    ),
+                    (
+                        "Set p_hard_pass monotonically with minimum signed hard margin "
+                        "(larger margin => higher confidence)."
+                    ),
+                ]
+            )
         return [
             {"role": "system", "content": self.system_prompt},
             {"role": "user", "content": json.dumps(instructions)},

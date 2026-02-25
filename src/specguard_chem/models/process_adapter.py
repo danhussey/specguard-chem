@@ -2,10 +2,11 @@ from __future__ import annotations
 
 """Adapter that delegates reasoning to an external process."""
 
+from datetime import datetime, timezone
 import json
 import os
 import subprocess
-from typing import Sequence
+from typing import Any, Dict, Sequence
 
 from .base_adapter import BaseAdapter
 from ..runner.adapter_api import AgentRequest, AgentResponse
@@ -17,6 +18,8 @@ class ProcessAdapter(BaseAdapter):
     """Spawn an external command for every runner step."""
 
     name = "process"
+    track = "external"
+    is_external = True
 
     def __init__(self, *, seed: int = 0, command: Sequence[str] | None = None) -> None:
         super().__init__(seed=seed)
@@ -45,8 +48,9 @@ class ProcessAdapter(BaseAdapter):
                 "External adapter command failed with code "
                 f"{proc.returncode}: {stderr_text}"
             )
+        raw_output = proc.stdout.decode("utf-8")
         try:
-            data = json.loads(proc.stdout.decode("utf-8"))
+            data = json.loads(raw_output)
         except json.JSONDecodeError as exc:  # pragma: no cover - defensive
             raise RuntimeError("External adapter returned invalid JSON") from exc
         if not isinstance(data, dict):  # pragma: no cover - defensive
@@ -59,7 +63,23 @@ class ProcessAdapter(BaseAdapter):
         except (TypeError, ValueError):
             prob = 0.5
         data["p_hard_pass"] = max(0.0, min(1.0, prob))
+        self._record_step_artifacts(
+            {
+                "raw_model_output": raw_output,
+                "model_metadata": self.model_metadata(),
+            }
+        )
         return data  # type: ignore[return-value]
+
+    def model_metadata(self) -> Dict[str, Any]:
+        return {
+            "provider": "process",
+            "adapter_name": self.name,
+            "command": list(self.command),
+            "timestamp_utc": datetime.now(timezone.utc).isoformat(),
+            "track": self.track,
+            "is_external": self.is_external,
+        }
 
 
 __all__ = ["ProcessAdapter", "DEFAULT_ENV_VAR"]

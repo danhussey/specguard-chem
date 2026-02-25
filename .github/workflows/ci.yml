@@ -24,18 +24,53 @@ jobs:
       - run: uv run specguard-chem run interrupts --model abstention_guard --run-path runs/ci_interrupts
       - run: uv run specguard-chem report runs/ci_interrupts
       - run: uv run specguard-chem run-baselines --suite basic_plain --spec-split train --limit 1 --out-dir runs/ci_baselines
-      - run: uv run specguard-chem freeze-benchmark --benchmark-id sgchem_v0.1 --out benchmarks/releases/ci_a --target-tasks 50 --seed 7
-      - run: uv run specguard-chem freeze-benchmark --benchmark-id sgchem_v0.1 --out benchmarks/releases/ci_b --target-tasks 50 --seed 7
+      - run: uv run specguard-chem freeze-benchmark --benchmark-id sgchem_v0.3 --out benchmarks/releases/ci_a --target-tasks 50 --seed 7
+      - run: uv run specguard-chem freeze-benchmark --benchmark-id sgchem_v0.3 --out benchmarks/releases/ci_b --target-tasks 50 --seed 7
       - run: diff benchmarks/releases/ci_a/checksums/sha256sums.txt benchmarks/releases/ci_b/checksums/sha256sums.txt
       - run: |
           cat > baselines/ci_paper_baselines.yaml <<'YAML'
           baselines:
             - name: heuristic
               model: heuristic
-            - name: corpus_search
-              model: corpus_search
+            - name: verify_first
+              model: verify_first
           YAML
       - run: uv run specguard-chem run-benchmark --benchmark benchmarks/releases/ci_a --split test --baselines baselines/ci_paper_baselines.yaml --out runs/ci_paper_sweep --limit 25 --seed 7
+      - run: uv run python - <<'PY'
+import json
+from pathlib import Path
+report = json.loads(Path("runs/ci_paper_sweep/verify_first/report.json").read_text())
+value = float(report["summary"]["avg_verify_calls_used"])
+if value <= 0.0:
+    raise SystemExit("avg_verify_calls_used must be > 0 for verify_first in CI smoke")
+PY
+      - run: |
+          cat > /tmp/ci_process_adapter.py <<'PY'
+          import json
+          import sys
+
+          req = json.load(sys.stdin)
+          task = req.get("task") or {}
+          smiles = ((task.get("input") or {}).get("smiles")) or "CC(=O)NC1=CC=CC=C1O"
+          if req.get("tools") and any((t or {}).get("name") == "verify" for t in req.get("tools") or []):
+              if int(req.get("round") or 1) == 1:
+                  payload = {"action": "tool_call", "name": "verify", "args": {"smiles": smiles}, "p_hard_pass": 0.5}
+              else:
+                  payload = {"action": "propose", "smiles": smiles, "p_hard_pass": 0.7}
+          else:
+              payload = {"action": "propose", "smiles": smiles, "p_hard_pass": 0.6}
+          sys.stdout.write(json.dumps(payload))
+          PY
+      - run: |
+          cat > baselines/ci_external_baselines.yaml <<'YAML'
+          baselines:
+            - name: process_snapshot
+              model: process
+              track: external
+          YAML
+      - run: SPEC_GUARD_PROCESS_ADAPTER_CMD="uv run python /tmp/ci_process_adapter.py" uv run specguard-chem run-benchmark --benchmark benchmarks/releases/ci_a --split test --baselines baselines/ci_external_baselines.yaml --out runs/ci_external_live --allow-external --cache-dir runs/ci_external_live/cache --limit 10 --seed 7
+      - run: uv run specguard-chem run-benchmark --benchmark benchmarks/releases/ci_a --split test --baselines baselines/ci_external_baselines.yaml --out runs/ci_external_replay --replay-cache runs/ci_external_live/cache --limit 10 --seed 7
+      - run: diff runs/ci_external_live/aggregate.json runs/ci_external_replay/aggregate.json
       - run: uv run python scripts/make_paper_figures.py --runs runs/ci_paper_sweep --out paper/ci_smoke
       - run: test -f paper/ci_smoke/figures/pass_at_budget.png
       - run: test -f paper/ci_smoke/tables/topline_summary.csv

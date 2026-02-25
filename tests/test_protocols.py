@@ -65,3 +65,102 @@ def test_failure_vector_alert_constraint_includes_hit_details() -> None:
     assert constraint_result.hit_count is not None
     assert constraint_result.hit_count >= 1
     assert len(constraint_result.hits) == constraint_result.hit_count
+
+
+def test_similarity_min_to_input_contextual_check_and_margin() -> None:
+    spec = SpecModel.model_validate(
+        {
+            "id": "spec_similarity",
+            "version": 2,
+            "constraints": [
+                {
+                    "id": "input_similarity_guard",
+                    "type": "hard",
+                    "check": "similarity_min_to_input",
+                    "params": {"min": 0.7, "fp": "morgan", "radius": 2, "nBits": 2048},
+                }
+            ],
+            "behaviour": {"interrupt_policy": "confirm_then_continue"},
+        }
+    )
+    with_context = ConstraintEvaluator(spec, input_smiles="CCO")
+    pass_result = with_context.evaluate("CCO")
+    fail_result = with_context.evaluate("c1ccccc1")
+    missing_context = ConstraintEvaluator(spec).evaluate("CCO")
+
+    assert pass_result.hard_pass is True
+    assert fail_result.hard_pass is False
+    assert missing_context.hard_pass is False
+
+    pass_margin = pass_result.build_failure_vector(round_id=1).margins
+    assert any(item.id == "similarity_to_input" for item in pass_margin)
+    fail_margin = fail_result.build_failure_vector(round_id=1).margins
+    similarity_margin = next(
+        item.distance_to_bound for item in fail_margin if item.id == "similarity_to_input"
+    )
+    assert similarity_margin is not None
+    assert similarity_margin < 0
+
+
+def test_equivalent_to_input_policy_variants() -> None:
+    spec = SpecModel.model_validate(
+        {
+            "id": "spec_equiv",
+            "version": 2,
+            "constraints": [
+                {
+                    "id": "same_identity",
+                    "type": "hard",
+                    "check": "equivalent_to_input",
+                    "params": {"policy": "strict_inchi"},
+                }
+            ],
+            "behaviour": {"interrupt_policy": "confirm_then_continue"},
+        }
+    )
+    strict_eval = ConstraintEvaluator(spec, input_smiles="CCN(CC)CC")
+    strict_pass = strict_eval.evaluate("CCN(CC)CC")
+    strict_fail = strict_eval.evaluate("CC[NH+](CC)CC")
+    assert strict_pass.hard_pass is True
+    assert strict_fail.hard_pass is False
+
+    charge_relaxed_spec = SpecModel.model_validate(
+        {
+            "id": "spec_equiv_charge",
+            "version": 2,
+            "constraints": [
+                {
+                    "id": "same_identity_charge_relaxed",
+                    "type": "hard",
+                    "check": "equivalent_to_input",
+                    "params": {
+                        "policy": "strict_inchi",
+                        "charge_invariant": True,
+                    },
+                }
+            ],
+            "behaviour": {"interrupt_policy": "confirm_then_continue"},
+        }
+    )
+    charge_eval = ConstraintEvaluator(charge_relaxed_spec, input_smiles="CCN(CC)CC")
+    assert charge_eval.evaluate("CC[NH+](CC)CC").hard_pass is True
+
+    no_stereo_spec = SpecModel.model_validate(
+        {
+            "id": "spec_equiv_no_stereo",
+            "version": 2,
+            "constraints": [
+                {
+                    "id": "same_identity_no_stereo",
+                    "type": "hard",
+                    "check": "equivalent_to_input",
+                    "params": {"policy": "no_stereo_inchi"},
+                }
+            ],
+            "behaviour": {"interrupt_policy": "confirm_then_continue"},
+        }
+    )
+    no_stereo_eval = ConstraintEvaluator(
+        no_stereo_spec, input_smiles="C[C@H](O)Cl"
+    )
+    assert no_stereo_eval.evaluate("CC(O)Cl").hard_pass is True

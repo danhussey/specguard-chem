@@ -8,10 +8,10 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping
 
 from ..benchmark.effective_spec import build_effective_spec
-from ..config import PATHS, ProjectPaths, TaskModel, load_spec
+from ..config import PATHS, ProjectPaths, SpecModel, TaskModel, load_spec
 from ..runner.protocols import ConstraintEvaluator
 from ..utils import jsonio
-from ..verifiers import canonicalize_smiles
+from ..verifiers import equivalent_smiles
 
 
 def _hard_violation_units(result: Any) -> int:
@@ -79,6 +79,7 @@ def validate_dataset_records(
     near_miss_margin_band: float = 5.0,
     boundary_margin_band: float = 1.0,
     repair_start_hard_fail_threshold: float = 0.70,
+    require_invariance_subfamilies: bool = False,
     min_counts: Mapping[str, int] | None = None,
 ) -> Dict[str, Any]:
     """Validate generated task invariants and evidence blocks."""
@@ -92,6 +93,7 @@ def validate_dataset_records(
             "smiles_invariance": 1,
             "boundary_precision": 1,
             "interrupt_resume": 1,
+            "tool_forced_l3": 1,
         }
 
     parsed_tasks: List[TaskModel] = []
@@ -112,14 +114,17 @@ def validate_dataset_records(
         )
 
     family_counts: Dict[str, int] = defaultdict(int)
-    spec_cache: Dict[tuple[str, str], ConstraintEvaluator] = {}
-    invariance_groups: Dict[tuple[str, str, str], List[TaskModel]] = defaultdict(list)
+    protocol_counts: Counter[str] = Counter()
+    spec_cache: Dict[tuple[str, str], SpecModel] = {}
+    invariance_groups: Dict[tuple[str, str], List[TaskModel]] = defaultdict(list)
+    invariance_subfamilies: Counter[str] = Counter()
     repair_total = 0
     repair_hard_fail_starts = 0
 
     for task in parsed_tasks:
         family = task.task_family or "unspecified"
         family_counts[family] += 1
+        protocol_counts[task.protocol] += 1
         task_constraints_payload = (
             task.task_constraints.model_dump(mode="json")
             if task.task_constraints is not None
@@ -139,8 +144,11 @@ def validate_dataset_records(
         if cache_key not in spec_cache:
             base_spec = load_spec(task.spec_id, paths=paths)
             effective_spec = build_effective_spec(base_spec, task.task_constraints)
-            spec_cache[cache_key] = ConstraintEvaluator(effective_spec)
-        evaluator = spec_cache[cache_key]
+            spec_cache[cache_key] = effective_spec
+        evaluator = ConstraintEvaluator(
+            spec_cache[cache_key],
+            input_smiles=task.input.smiles,
+        )
 
         if task.expected_action == "ACCEPT":
             evidence = task.evidence
@@ -151,6 +159,34 @@ def validate_dataset_records(
                 witness_result = evaluator.evaluate(witness)
                 if not witness_result.hard_pass:
                     errors.append(f"{task.task_id}: witness does not hard-pass spec")
+                equivalent_checks = [
+                    constraint
+                    for constraint in spec_cache[cache_key].constraints
+                    if constraint.check == "equivalent_to_input"
+                ]
+                for equivalent_check in equivalent_checks:
+                    if not task.input.smiles:
+                        errors.append(
+                            f"{task.task_id}: equivalent_to_input requires input.smiles context"
+                        )
+                        continue
+                    params = equivalent_check.params
+                    eq_ok, _meta = equivalent_smiles(
+                        task.input.smiles,
+                        witness,
+                        require_stereo=bool(params.get("require_stereo", True)),
+                        tautomer_invariant=bool(
+                            params.get("tautomer_invariant", False)
+                        ),
+                        charge_invariant=bool(params.get("charge_invariant", False)),
+                        normalize=str(params.get("normalize", "rdkit_cleanup")),
+                        key=str(params.get("key", "inchi_key")),
+                    )
+                    if not eq_ok:
+                        errors.append(
+                            f"{task.task_id}: witness fails equivalent_to_input policy "
+                            f"{params.get('policy')}"
+                        )
 
             if family in {"repair_near_miss", "repair_multi_violation"}:
                 repair_total += 1
@@ -187,7 +223,18 @@ def validate_dataset_records(
                     errors.append(f"{task.task_id}: smiles_invariance task missing evidence")
                 else:
                     group_id = evidence.invariance_group_id
+                    subfamily = str(evidence.invariance_subfamily or "unspecified")
+                    invariance_subfamilies[subfamily] += 1
                     canonical = evidence.invariance_canonical_smiles
+                    policy = evidence.invariance_equivalence_policy
+                    equivalence_params = next(
+                        (
+                            constraint.params
+                            for constraint in spec_cache[cache_key].constraints
+                            if constraint.check == "equivalent_to_input"
+                        ),
+                        None,
+                    )
                     if not group_id:
                         errors.append(
                             f"{task.task_id}: smiles_invariance task missing invariance_group_id"
@@ -201,19 +248,59 @@ def validate_dataset_records(
                             f"{task.task_id}: smiles_invariance task missing input.smiles"
                         )
                     else:
-                        input_canonical = canonicalize_smiles(task.input.smiles)
-                        if canonical and input_canonical != canonical:
-                            errors.append(
-                                f"{task.task_id}: input SMILES is not equivalent to invariance canonical"
+                        if canonical and policy and isinstance(equivalence_params, dict):
+                            eq_ok, _meta = equivalent_smiles(
+                                task.input.smiles,
+                                canonical,
+                                require_stereo=bool(
+                                    equivalence_params.get("require_stereo", True)
+                                ),
+                                tautomer_invariant=bool(
+                                    equivalence_params.get(
+                                        "tautomer_invariant", False
+                                    )
+                                ),
+                                charge_invariant=bool(
+                                    equivalence_params.get("charge_invariant", False)
+                                ),
+                                normalize=str(
+                                    equivalence_params.get("normalize", "rdkit_cleanup")
+                                ),
+                                key=str(equivalence_params.get("key", "inchi_key")),
                             )
-                    if witness and canonicalize_smiles(witness) != canonical:
-                        errors.append(
-                            f"{task.task_id}: witness does not match invariance canonical"
+                            if not eq_ok:
+                                errors.append(
+                                    f"{task.task_id}: input is not equivalent to canonical under policy {policy}"
+                                )
+                    if (
+                        witness
+                        and canonical
+                        and policy
+                        and isinstance(equivalence_params, dict)
+                    ):
+                        eq_ok, _meta = equivalent_smiles(
+                            witness,
+                            canonical,
+                            require_stereo=bool(
+                                equivalence_params.get("require_stereo", True)
+                            ),
+                            tautomer_invariant=bool(
+                                equivalence_params.get("tautomer_invariant", False)
+                            ),
+                            charge_invariant=bool(
+                                equivalence_params.get("charge_invariant", False)
+                            ),
+                            normalize=str(
+                                equivalence_params.get("normalize", "rdkit_cleanup")
+                            ),
+                            key=str(equivalence_params.get("key", "inchi_key")),
                         )
+                        if not eq_ok:
+                            errors.append(
+                                f"{task.task_id}: witness not equivalent to canonical under policy {policy}"
+                            )
                     if group_id:
-                        invariance_groups[
-                            (task.spec_id, task_constraints_key, group_id)
-                        ].append(task)
+                        invariance_groups[(task.spec_id, group_id)].append(task)
             elif family == "boundary_precision":
                 if not evidence:
                     errors.append(f"{task.task_id}: boundary_precision task missing evidence")
@@ -245,16 +332,14 @@ def validate_dataset_records(
                                 errors.append(
                                     f"{task.task_id}: boundary_property mismatch (evidence={boundary_property}, observed={nearest[0]})"
                                 )
-                            if boundary_side and nearest[1] != boundary_side:
-                                errors.append(
-                                    f"{task.task_id}: boundary_side mismatch (evidence={boundary_side}, observed={nearest[1]})"
-                                )
                             if (
                                 boundary_distance is not None
-                                and abs(nearest[2] - boundary_distance) > 1e-6
+                                and nearest[2]
+                                > max(float(boundary_distance), float(boundary_margin_band))
+                                + 1e-6
                             ):
                                 errors.append(
-                                    f"{task.task_id}: boundary_distance mismatch (evidence={boundary_distance:.6f}, observed={nearest[2]:.6f})"
+                                    f"{task.task_id}: boundary_distance too large (evidence={boundary_distance:.6f}, observed={nearest[2]:.6f})"
                                 )
 
         if task.expected_action == "ABSTAIN":
@@ -267,46 +352,27 @@ def validate_dataset_records(
                     f"{task.task_id}: contradiction_proof present but not contradictory"
                 )
 
-    for (spec_id, task_constraints_key, group_id), tasks_in_group in invariance_groups.items():
+    for (spec_id, group_id), tasks_in_group in invariance_groups.items():
         if len(tasks_in_group) < 2:
             errors.append(
                 f"invariance group {group_id} ({spec_id}) must contain at least two tasks"
             )
             continue
-        evaluator = spec_cache.get((spec_id, task_constraints_key))
-        if evaluator is None:
-            evaluator = ConstraintEvaluator(load_spec(spec_id, paths=paths))
-        base_task = tasks_in_group[0]
-        if not base_task.input.smiles:
-            errors.append(f"{base_task.task_id}: invariance base task missing input.smiles")
-            continue
-        base_result = evaluator.evaluate(base_task.input.smiles)
-        for candidate_task in tasks_in_group[1:]:
+        for candidate_task in tasks_in_group:
             if not candidate_task.input.smiles:
                 errors.append(
                     f"{candidate_task.task_id}: invariance task missing input.smiles"
                 )
-                continue
-            candidate_result = evaluator.evaluate(candidate_task.input.smiles)
-            if candidate_result.hard_pass != base_result.hard_pass:
-                errors.append(
-                    f"{candidate_task.task_id}: invariance hard_pass mismatch within group {group_id}"
-                )
-            if candidate_result.alerts != base_result.alerts:
-                errors.append(
-                    f"{candidate_task.task_id}: invariance alert mismatch within group {group_id}"
-                )
-            for prop_name, base_value in base_result.properties.items():
-                candidate_value = candidate_result.properties.get(prop_name)
-                if candidate_value is None or abs(candidate_value - base_value) > 1e-9:
-                    errors.append(
-                        f"{candidate_task.task_id}: invariance property mismatch for {prop_name}"
-                    )
 
     for family, min_count in min_counts.items():
         if family_counts.get(family, 0) < min_count:
             errors.append(
                 f"distribution sanity failed: {family} has {family_counts.get(family, 0)} < {min_count}"
+            )
+    for protocol in ("L1", "L2", "L3"):
+        if protocol_counts.get(protocol, 0) <= 0:
+            errors.append(
+                f"distribution sanity failed: protocol {protocol} has 0 tasks"
             )
 
     repair_start_hard_fail_rate = (
@@ -317,6 +383,13 @@ def validate_dataset_records(
             "distribution sanity failed: repair start hard-fail rate "
             f"{repair_start_hard_fail_rate:.3f} < {repair_start_hard_fail_threshold:.3f}"
         )
+    if require_invariance_subfamilies and family_counts.get("smiles_invariance", 0) > 0:
+        for required_subfamily in ("stereo", "tautomer", "charge", "aromatic"):
+            if invariance_subfamilies.get(required_subfamily, 0) <= 0:
+                errors.append(
+                    "distribution sanity failed: smiles_invariance missing subfamily "
+                    f"'{required_subfamily}'"
+                )
 
     return {
         "valid": len(errors) == 0,
@@ -324,6 +397,7 @@ def validate_dataset_records(
         "num_errors": len(errors),
         "errors": errors,
         "family_counts": dict(sorted(family_counts.items())),
+        "invariance_subfamily_counts": dict(sorted(invariance_subfamilies.items())),
         "repair_start_hard_fail_rate": repair_start_hard_fail_rate,
         "repair_start_hard_fail_threshold": repair_start_hard_fail_threshold,
     }
@@ -336,6 +410,7 @@ def validate_dataset_file(
     near_miss_margin_band: float = 5.0,
     boundary_margin_band: float = 1.0,
     repair_start_hard_fail_threshold: float = 0.70,
+    require_invariance_subfamilies: bool = False,
     min_counts: Mapping[str, int] | None = None,
 ) -> Dict[str, Any]:
     records = jsonio.read_jsonl(path)
@@ -345,5 +420,6 @@ def validate_dataset_file(
         near_miss_margin_band=near_miss_margin_band,
         boundary_margin_band=boundary_margin_band,
         repair_start_hard_fail_threshold=repair_start_hard_fail_threshold,
+        require_invariance_subfamilies=require_invariance_subfamilies,
         min_counts=min_counts,
     )

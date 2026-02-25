@@ -1,9 +1,16 @@
 baselines:
   - name: heuristic
     model: heuristic
+    track: closed_book
   - name: abstention_guard
     model: abstention_guard
-  - name: corpus_search
-    model: corpus_search
+    track: closed_book
+  - name: verify_first
+    model: verify_first
+    track: closed_book
   - name: local_mutation
     model: local_mutation
+    track: closed_book
+  - name: corpus_search
+    model: corpus_search
+    track: retrieval

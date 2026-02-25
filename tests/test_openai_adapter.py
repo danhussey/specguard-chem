@@ -110,3 +110,22 @@ def test_openai_adapter_tool_validation(monkeypatch: pytest.MonkeyPatch) -> None
     reason = response["reason"]
     assert isinstance(reason, str)
     assert "unavailable" in reason.lower()
+
+
+def test_openai_adapter_l3_verify_policy_calls_verify_first() -> None:
+    payload = {
+        "choice": _Choice(content=json.dumps({"action": "abstain", "reason": "unused"})),
+    }
+    adapter = OpenAIChatAdapter(client=_FakeClient(payload), policy="l3_verify_tooling")
+    req: AgentRequest = {
+        "task": {
+            "protocol": "L3",
+            "input": {"smiles": "CCO"},
+        },
+        "round": 1,
+        "tools": [{"name": "verify", "schema": {"smiles": "string"}}],
+        "failure_vector": None,
+    }
+    response = adapter.step(req)
+    assert response["action"] == "tool_call"
+    assert response["name"] == "verify"

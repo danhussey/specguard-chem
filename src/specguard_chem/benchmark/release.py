@@ -173,6 +173,8 @@ def validate_release_directory(
     repair_start_hard_fail_threshold: float = 0.70,
     near_miss_margin_band: float = 5.0,
     boundary_margin_band: float = 1.0,
+    min_tool_forced_l3_test_share: float = 0.10,
+    require_test_invariance_subfamilies: bool = True,
     min_counts: Mapping[str, int] | None = None,
 ) -> Dict[str, Any]:
     tasks_by_split = {
@@ -188,6 +190,7 @@ def validate_release_directory(
         near_miss_margin_band=near_miss_margin_band,
         boundary_margin_band=boundary_margin_band,
         repair_start_hard_fail_threshold=repair_start_hard_fail_threshold,
+        require_invariance_subfamilies=True,
         min_counts=min_counts,
     )
     split_counts = {split: len(tasks_by_split[split]) for split in RELEASE_SPLITS}
@@ -195,6 +198,53 @@ def validate_release_directory(
     result["nonempty_splits"] = sorted(
         split for split, count in split_counts.items() if count > 0
     )
+
+    test_rows = tasks_by_split.get("test", [])
+    test_total = len(test_rows)
+    family_counts_test: Counter[str] = Counter(
+        str(row.get("task_family") or "unspecified") for row in test_rows
+    )
+    protocol_counts_test: Counter[str] = Counter(
+        str(row.get("protocol") or "unknown") for row in test_rows
+    )
+    tool_forced_test = int(family_counts_test.get("tool_forced_l3", 0))
+    tool_forced_share = (tool_forced_test / test_total) if test_total else 0.0
+    test_invariance_subfamilies: Counter[str] = Counter(
+        str((row.get("evidence") or {}).get("invariance_subfamily") or "unspecified")
+        for row in test_rows
+        if str(row.get("task_family") or "") == "smiles_invariance"
+    )
+    result["test_family_counts"] = dict(sorted(family_counts_test.items()))
+    result["test_protocol_counts"] = dict(sorted(protocol_counts_test.items()))
+    result["test_invariance_subfamily_counts"] = dict(
+        sorted(test_invariance_subfamilies.items())
+    )
+    result["tool_forced_l3_test_share"] = tool_forced_share
+    result["min_tool_forced_l3_test_share"] = min_tool_forced_l3_test_share
+    result["require_test_invariance_subfamilies"] = require_test_invariance_subfamilies
+
+    test_errors: List[str] = []
+    if family_counts_test.get("tool_forced_l3", 0) <= 0:
+        test_errors.append("test split missing required task family 'tool_forced_l3'")
+    if tool_forced_share < min_tool_forced_l3_test_share:
+        test_errors.append(
+            "test split tool_forced_l3 share "
+            f"{tool_forced_share:.3f} < {min_tool_forced_l3_test_share:.3f}"
+        )
+    if require_test_invariance_subfamilies:
+        required_subfamilies = ("aromatic", "stereo", "tautomer", "charge")
+        for subfamily in required_subfamilies:
+            if test_invariance_subfamilies.get(subfamily, 0) <= 0:
+                test_errors.append(
+                    "test split missing invariance subfamily "
+                    f"'{subfamily}' in smiles_invariance tasks"
+                )
+    if test_errors:
+        errors = list(result.get("errors", []))
+        errors.extend(test_errors)
+        result["errors"] = errors
+        result["num_errors"] = len(errors)
+        result["valid"] = False
     return result
 
 
@@ -208,6 +258,7 @@ def freeze_benchmark_release(
     near_miss_margin_band: float = 5.0,
     boundary_margin_band: float = 1.0,
     repair_start_hard_fail_threshold: float = 0.70,
+    min_tool_forced_l3_test_share: float = 0.10,
 ) -> Dict[str, Any]:
     out_dir.mkdir(parents=True, exist_ok=True)
     spec_ids = list_available_specs(paths=paths)
@@ -258,6 +309,7 @@ def freeze_benchmark_release(
         repair_start_hard_fail_threshold=repair_start_hard_fail_threshold,
         near_miss_margin_band=near_miss_margin_band,
         boundary_margin_band=boundary_margin_band,
+        min_tool_forced_l3_test_share=min_tool_forced_l3_test_share,
     )
     if not validation.get("valid", False):
         first_errors = validation.get("errors", [])[:10]
@@ -281,8 +333,9 @@ def freeze_benchmark_release(
             "suite_mix": dict(sorted(counts.get("by_suite", {}).items())),
             "near_miss_margin_band": near_miss_margin_band,
             "boundary_margin_band": boundary_margin_band,
-            "repair_start_hard_fail_threshold": repair_start_hard_fail_threshold,
-        },
+                "repair_start_hard_fail_threshold": repair_start_hard_fail_threshold,
+                "min_tool_forced_l3_test_share": min_tool_forced_l3_test_share,
+            },
         "counts": counts,
         "spec_catalog": {
             "path": "specs/spec_catalog.json",

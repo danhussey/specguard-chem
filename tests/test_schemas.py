@@ -200,3 +200,26 @@ def test_migrate_v1_to_v2_preserves_evaluation_behavior() -> None:
     assert result_migrated.hard_pass == result_expected.hard_pass
     assert result_migrated.property_margins == result_expected.property_margins
     assert result_migrated.alerts == result_expected.alerts
+
+
+def test_equivalent_to_input_policy_defaults_are_materialized() -> None:
+    spec = SpecModel.model_validate(
+        {
+            "id": "spec_equiv_defaults",
+            "version": 2,
+            "constraints": [
+                {
+                    "id": "same_identity",
+                    "type": "hard",
+                    "check": "equivalent_to_input",
+                    "params": {"policy": "tautomer_canonical_no_stereo_inchi"},
+                }
+            ],
+            "behaviour": {"interrupt_policy": "confirm_then_continue"},
+        }
+    )
+    params = spec.constraints[0].params
+    assert params["policy"] == "tautomer_canonical_no_stereo_inchi"
+    assert params["require_stereo"] is False
+    assert params["tautomer_invariant"] is True
+    assert params["normalize"] == "rdkit_cleanup_plus_tautomer_canon"

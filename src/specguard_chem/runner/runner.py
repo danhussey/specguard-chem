@@ -8,6 +8,7 @@ from dataclasses import dataclass, asdict
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Optional
+import subprocess
 
 from ..config import (
     FailureVector,
@@ -21,7 +22,7 @@ from ..config import (
     select_tasks,
 )
 from ..benchmark import build_effective_spec
-from ..models import get_adapter
+from ..models import build_adapter, get_adapter_class
 from ..scoring.metrics import spec_compliance
 from ..utils import jsonio
 from ..utils.edit_distance import levenshtein
@@ -69,6 +70,7 @@ class RunRecord:
     spec_id: str
     task_family: Optional[str]
     invariance_group_id: Optional[str]
+    invariance_subfamily: Optional[str]
     boundary_property: Optional[str]
     boundary_distance: Optional[float]
     interrupt_expected: bool
@@ -116,6 +118,7 @@ class RunRecord:
             "spec_id": self.spec_id,
             "task_family": self.task_family,
             "invariance_group_id": self.invariance_group_id,
+            "invariance_subfamily": self.invariance_subfamily,
             "boundary_property": self.boundary_property,
             "boundary_distance": self.boundary_distance,
             "interrupt_expected": self.interrupt_expected,
@@ -326,9 +329,48 @@ def normalize_agent_response(
 class TaskRunner:
     MAX_ROUNDS = {"L1": 1, "L2": 3, "L3": 4}
 
-    def __init__(self, model_name: str, *, seed: int = 7):
-        self.adapter = get_adapter(model_name, seed=seed)
+    def __init__(
+        self,
+        model_name: str,
+        *,
+        seed: int = 7,
+        adapter_kwargs: Optional[Dict[str, Any]] = None,
+        allow_external: bool = False,
+        cache_dir: Optional[Path] = None,
+        replay_cache: Optional[Path] = None,
+    ):
+        self.model_name = model_name
         self.seed = seed
+        self.adapter_kwargs = dict(adapter_kwargs or {})
+        self.allow_external = allow_external
+        self.cache_dir = cache_dir
+        self.replay_cache = replay_cache
+        self.adapter_class = get_adapter_class(model_name)
+        self.adapter_track = str(getattr(self.adapter_class, "track", "closed_book"))
+        self.adapter_is_external = bool(
+            getattr(self.adapter_class, "is_external", False)
+        )
+        if self.adapter_is_external and not self.allow_external and replay_cache is None:
+            raise RuntimeError(
+                f"Adapter '{self.model_name}' is external. "
+                "Pass --allow-external or provide --replay-cache."
+            )
+        self.adapter = None
+        if replay_cache is None or not self.adapter_is_external:
+            self.adapter = build_adapter(model_name, seed=seed, **self.adapter_kwargs)
+        else:
+            try:
+                self.adapter = build_adapter(
+                    model_name, seed=seed, **self.adapter_kwargs
+                )
+            except Exception:
+                self.adapter = None
+        self._git_commit = self._resolve_git_commit()
+        self._replay_records: Dict[str, Dict[str, Any]] = {}
+        if replay_cache is not None:
+            self._replay_records = self._load_replay_cache(replay_cache)
+        if self.cache_dir is not None:
+            self.cache_dir.mkdir(parents=True, exist_ok=True)
 
     def run_suite(
         self,
@@ -374,13 +416,140 @@ class TaskRunner:
         for task in tasks:
             base_spec = spec_loader(task.spec_id)
             effective_spec = build_effective_spec(base_spec, task.task_constraints)
-            evaluator = ConstraintEvaluator(effective_spec)
-            results.append(self._run_task(task, evaluator))
+            evaluator = ConstraintEvaluator(
+                effective_spec,
+                input_smiles=task.input.smiles,
+            )
+            results.append(
+                self._run_task(
+                    task,
+                    evaluator,
+                    base_spec=base_spec,
+                    effective_spec=effective_spec,
+                )
+            )
         if run_dir is not None:
             persist_run(results, run_dir, suite=suite, protocol=protocol)
         return results
 
-    def _run_task(self, task: TaskModel, evaluator: ConstraintEvaluator) -> RunRecord:
+    @staticmethod
+    def _resolve_git_commit() -> Optional[str]:
+        try:
+            result = subprocess.run(
+                ["git", "rev-parse", "HEAD"],
+                check=False,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+                text=True,
+            )
+        except OSError:
+            return None
+        commit = result.stdout.strip()
+        return commit or None
+
+    @staticmethod
+    def _resolve_cache_path(path: Path) -> Path:
+        if path.suffix == ".jsonl":
+            return path
+        return path / "cache.jsonl"
+
+    def _load_replay_cache(self, path: Path) -> Dict[str, Dict[str, Any]]:
+        cache_path = self._resolve_cache_path(path)
+        if not cache_path.exists():
+            raise FileNotFoundError(f"Replay cache not found at {cache_path}")
+        records = jsonio.read_jsonl(cache_path)
+        replay: Dict[str, Dict[str, Any]] = {}
+        for entry in records:
+            cache_key = entry.get("cache_key")
+            if not isinstance(cache_key, str) or not cache_key:
+                continue
+            if not isinstance(entry, dict):
+                continue
+            replay[cache_key] = entry
+        return replay
+
+    def _append_cache_record(self, entry: Dict[str, Any]) -> None:
+        if self.cache_dir is None:
+            return
+        cache_path = self._resolve_cache_path(self.cache_dir)
+        cache_path.parent.mkdir(parents=True, exist_ok=True)
+        rendered = json.dumps(entry, sort_keys=True, ensure_ascii=True)
+        with cache_path.open("a", encoding="utf-8") as handle:
+            handle.write(rendered + "\n")
+
+    def _build_cache_key(self, payload: Dict[str, Any]) -> str:
+        return _hash_json_payload(payload)
+
+    def _invoke_adapter(
+        self,
+        request: AgentRequest,
+        *,
+        cache_request: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        cache_key = self._build_cache_key(cache_request)
+        if self.replay_cache is not None:
+            replay_entry = self._replay_records.get(cache_key)
+            if replay_entry is None:
+                raise RuntimeError(
+                    f"Replay cache miss for adapter={self.model_name} key={cache_key}"
+                )
+            parsed = replay_entry.get("parsed_adapter_response")
+            if not isinstance(parsed, dict):
+                raise RuntimeError(
+                    f"Replay cache entry for key={cache_key} missing parsed_adapter_response"
+                )
+            return parsed
+
+        if self.adapter is None:
+            self.adapter = build_adapter(
+                self.model_name, seed=self.seed, **self.adapter_kwargs
+            )
+        if self.adapter_is_external and not self.allow_external:
+            raise RuntimeError(
+                f"Adapter '{self.model_name}' is external; rerun with --allow-external."
+            )
+
+        raw_response = self.adapter.step(request)
+        if not isinstance(raw_response, dict):
+            raw_response = {}
+        artifacts = (
+            self.adapter.consume_step_artifacts()
+            if hasattr(self.adapter, "consume_step_artifacts")
+            else {}
+        )
+        if not isinstance(artifacts, dict):
+            artifacts = {}
+        raw_output = artifacts.get("raw_model_output")
+        if not isinstance(raw_output, str):
+            raw_output = json.dumps(raw_response, sort_keys=True, ensure_ascii=True)
+        model_metadata = artifacts.get("model_metadata")
+        if not isinstance(model_metadata, dict):
+            if hasattr(self.adapter, "model_metadata"):
+                model_metadata = self.adapter.model_metadata()
+            else:
+                model_metadata = {}
+        model_metadata = dict(model_metadata)
+        model_metadata.setdefault("git_commit", self._git_commit)
+        model_metadata.setdefault("adapter_name", self.model_name)
+        self._append_cache_record(
+            {
+                "cache_key": cache_key,
+                "adapter_request": cache_request,
+                "raw_model_output": raw_output,
+                "parsed_adapter_response": raw_response,
+                "model_metadata": model_metadata,
+            }
+        )
+        return raw_response
+
+    def _run_task(
+        self,
+        task: TaskModel,
+        evaluator: ConstraintEvaluator,
+        *,
+        base_spec: Optional[SpecModel] = None,
+        effective_spec: Optional[SpecModel] = None,
+    ) -> RunRecord:
         budgets = task.budgets or default_task_budgets(task.protocol)
         rounds: List[RoundLog] = []
         next_feedback: Optional[Dict[str, Any]] = None
@@ -401,8 +570,11 @@ class TaskRunner:
         schema_error_types: set[str] = set()
         invalid_action = False
         invalid_tool_call = False
-        spec_payload = evaluator.spec.model_dump(mode="json")
-        spec_sha256 = _hash_json_payload(spec_payload)
+        base_spec_payload = (base_spec or evaluator.spec).model_dump(mode="json")
+        effective_spec_payload = (effective_spec or evaluator.spec).model_dump(mode="json")
+        spec_payload = effective_spec_payload
+        spec_sha256 = _hash_json_payload(base_spec_payload)
+        effective_spec_sha256 = _hash_json_payload(effective_spec_payload)
         tool_specs = self._tool_spec(task.protocol)
         tool_names = {tool["name"] for tool in tool_specs}
         round_index = 1
@@ -437,7 +609,19 @@ class TaskRunner:
             }
             if interrupt_payload:
                 request["interrupt"] = interrupt_payload
-            raw_response = self.adapter.step(request)
+            cache_request = {
+                "task_id": task.task_id,
+                "spec_sha256": effective_spec_sha256,
+                "round": round_index,
+                "tools": tool_specs,
+                "failure_vector": failure_payload,
+                "interrupt": interrupt_payload,
+                "request": request,
+            }
+            raw_response = self._invoke_adapter(
+                request,
+                cache_request=cache_request,
+            )
             response = normalize_agent_response(raw_response, allowed_tools=tool_names)
             steps_used += 1
             action = response.get("action", "propose")
@@ -737,6 +921,15 @@ class TaskRunner:
             spec_id=task.spec_id,
             task_family=task.task_family,
             invariance_group_id=(evidence.invariance_group_id if evidence else None),
+            invariance_subfamily=(
+                (
+                    evidence.invariance_subfamily
+                    if getattr(evidence, "invariance_subfamily", None)
+                    else evidence.invariance_variant_label
+                )
+                if evidence
+                else None
+            ),
             boundary_property=(evidence.boundary_property if evidence else None),
             boundary_distance=(evidence.boundary_distance if evidence else None),
             interrupt_expected=bool(
@@ -767,7 +960,7 @@ class TaskRunner:
             final_p_hard_pass=last_p_hard_pass,
             decision=decision,
             spec_sha256=spec_sha256,
-            effective_spec_sha256=spec_sha256,
+            effective_spec_sha256=effective_spec_sha256,
             schema_error=schema_error,
             schema_error_types=sorted(schema_error_types),
             invalid_action=invalid_action,

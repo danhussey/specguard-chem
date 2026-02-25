@@ -23,7 +23,9 @@ from ..verifiers import (
     check_property_bounds_all,
     check_property_bounds_any,
     compute_properties,
+    equivalent_smiles,
     margins_to_bounds,
+    morgan_tanimoto,
     parse_smiles,
     synthetic_accessibility_score,
 )
@@ -149,8 +151,13 @@ class EvaluationResult:
 class ConstraintEvaluator:
     """Evaluate specs against SMILES strings."""
 
-    def __init__(self, spec: SpecModel):
+    def __init__(self, spec: SpecModel, *, input_smiles: Optional[str] = None):
         self.spec = spec
+        self.input_smiles = (
+            canonicalize_smiles(input_smiles)
+            if isinstance(input_smiles, str) and input_smiles
+            else None
+        )
 
     def evaluate(self, smiles: str) -> EvaluationResult:
         canonical = canonicalize_smiles(smiles) if smiles else None
@@ -292,6 +299,108 @@ class ConstraintEvaluator:
                     passed=passed,
                     detail=detail,
                     info={"value": sa_score, "max": max_value},
+                )
+            elif constraint.check == "similarity_min_to_input":
+                reference_smiles = self.input_smiles
+                min_similarity = float(constraint.params.get("min", 0.0))
+                radius = int(constraint.params.get("radius", 2))
+                n_bits = int(constraint.params.get("nBits", 2048))
+                if not reference_smiles:
+                    passed = False
+                    signed_margin = -min_similarity
+                    detail = "Missing input.smiles context for similarity_min_to_input check"
+                    similarity_value = None
+                else:
+                    similarity_value = morgan_tanimoto(
+                        reference_smiles,
+                        canonical or smiles,
+                        radius=radius,
+                        n_bits=n_bits,
+                    )
+                    if similarity_value is None:
+                        passed = False
+                        signed_margin = -min_similarity
+                        detail = "Unable to compute candidate/input similarity"
+                    else:
+                        signed_margin = float(similarity_value) - min_similarity
+                        passed = signed_margin >= 0.0
+                        detail = (
+                            None
+                            if passed
+                            else (
+                                f"similarity={float(similarity_value):.3f} below "
+                                f"minimum={min_similarity:.3f}"
+                            )
+                        )
+                self._update_margins(
+                    property_margins,
+                    {"similarity_to_input": float(signed_margin)},
+                )
+                outcome = ConstraintOutcome(
+                    constraint=constraint,
+                    passed=passed,
+                    detail=detail,
+                    info={
+                        "reference_smiles": reference_smiles,
+                        "value": similarity_value,
+                        "min": min_similarity,
+                        "signed_margin": float(signed_margin),
+                    },
+                )
+            elif constraint.check == "equivalent_to_input":
+                reference_smiles = self.input_smiles
+                policy = str(constraint.params.get("policy", "strict_inchi"))
+                require_stereo = bool(constraint.params.get("require_stereo", True))
+                tautomer_invariant = bool(
+                    constraint.params.get("tautomer_invariant", False)
+                )
+                charge_invariant = bool(
+                    constraint.params.get("charge_invariant", False)
+                )
+                normalize = str(constraint.params.get("normalize", "rdkit_cleanup"))
+                key = str(constraint.params.get("key", "inchi_key"))
+                if not reference_smiles:
+                    passed = False
+                    signed_margin = -1.0
+                    detail = "Missing input.smiles context for equivalent_to_input check"
+                    eq_meta: Dict[str, Any] = {}
+                else:
+                    passed, eq_meta = equivalent_smiles(
+                        reference_smiles,
+                        canonical or smiles,
+                        require_stereo=require_stereo,
+                        tautomer_invariant=tautomer_invariant,
+                        charge_invariant=charge_invariant,
+                        normalize=normalize,
+                        key=key,
+                    )
+                    signed_margin = 1.0 if passed else -1.0
+                    detail = (
+                        None
+                        if passed
+                        else (
+                            "Candidate is not equivalent to input under "
+                            f"policy={policy}"
+                        )
+                    )
+                self._update_margins(
+                    property_margins,
+                    {"equivalent_to_input": float(signed_margin)},
+                )
+                outcome = ConstraintOutcome(
+                    constraint=constraint,
+                    passed=passed,
+                    detail=detail,
+                    info={
+                        "policy": policy,
+                        "require_stereo": require_stereo,
+                        "tautomer_invariant": tautomer_invariant,
+                        "charge_invariant": charge_invariant,
+                        "normalize": normalize,
+                        "key": key,
+                        "signed_margin": float(signed_margin),
+                        **eq_meta,
+                    },
                 )
             else:  # pragma: no cover - guarded by strict schema
                 raise NotImplementedError(f"Unsupported check '{constraint.check}'")

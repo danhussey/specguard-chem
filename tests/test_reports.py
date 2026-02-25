@@ -65,6 +65,9 @@ def test_summarise_computes_extended_metrics(tmp_path: Path) -> None:
     ]
     assert summary["avg_steps_to_accept"] == pytest.approx(1.0)
     assert summary["avg_verify_calls_to_accept"] == pytest.approx(0.0)
+    assert summary["l3_avg_verify_calls_used"] is None
+    assert summary["l3_avg_verify_calls_used_expected_accept"] is None
+    assert summary["verify_usage_rate_on_L3"] is None
     assert summary["accept_rate_by_protocol"] == {"unknown": pytest.approx(1 / 3)}
     assert summary["hard_violation_rate_by_protocol"] == {"unknown": pytest.approx(0.5)}
     assert summary["expected_pass_rate"] == pytest.approx(0.5)
@@ -124,7 +127,11 @@ def test_summarise_computes_extended_metrics(tmp_path: Path) -> None:
     assert summary["n_invariance_groups"] == 0
     assert summary["n_invariance_groups_evaluable"] == 0
     assert summary["n_invariance_groups_incomplete"] == 0
+    assert summary["n_invariance_tasks"] == 0
     assert summary["invariance_failure_rate"] is None
+    assert summary["invariance_group_inconsistency_rate"] is None
+    assert summary["invariance_failure_rate_by_subfamily"] == {}
+    assert summary["invariance_counts_by_subfamily"] == {}
     assert summary["n_boundary_precision_tasks"] == 0
     assert summary["boundary_precision_failure_rate"] is None
     assert summary["boundary_precision_pass_rate"] is None
@@ -258,6 +265,9 @@ def test_pass_at_steps_uses_recorded_step_and_verify_counts() -> None:
     ]
     assert summary["avg_steps_to_accept"] == pytest.approx(3.0)
     assert summary["avg_verify_calls_to_accept"] == pytest.approx(2.0)
+    assert summary["l3_avg_verify_calls_used"] == pytest.approx(1.5)
+    assert summary["l3_avg_verify_calls_used_expected_accept"] == pytest.approx(1.5)
+    assert summary["verify_usage_rate_on_L3"] == pytest.approx(1.0)
 
 
 def test_resume_metrics_are_reported() -> None:
@@ -310,6 +320,7 @@ def test_gaming_resistance_metrics_are_reported() -> None:
             "final_decision": "ACCEPT",
             "task_family": "smiles_invariance",
             "invariance_group_id": "g1",
+            "invariance_subfamily": "stereo",
             "rounds": [],
         },
         {
@@ -320,6 +331,7 @@ def test_gaming_resistance_metrics_are_reported() -> None:
             "final_decision": "REJECT",
             "task_family": "smiles_invariance",
             "invariance_group_id": "g1",
+            "invariance_subfamily": "stereo",
             "rounds": [],
         },
         {
@@ -343,10 +355,13 @@ def test_gaming_resistance_metrics_are_reported() -> None:
     ]
     summary = summarise(records)
 
+    assert summary["n_invariance_tasks"] == 2
     assert summary["n_invariance_groups"] == 1
     assert summary["n_invariance_groups_evaluable"] == 1
     assert summary["n_invariance_groups_incomplete"] == 0
-    assert summary["invariance_failure_rate"] == pytest.approx(1.0)
+    assert summary["invariance_failure_rate"] == pytest.approx(0.5)
+    assert summary["invariance_group_inconsistency_rate"] == pytest.approx(1.0)
+    assert summary["invariance_failure_rate_by_subfamily"]["stereo"] == pytest.approx(0.5)
     assert summary["n_boundary_precision_tasks"] == 2
     assert summary["boundary_precision_failure_rate"] == pytest.approx(0.5)
     assert summary["boundary_precision_pass_rate"] == pytest.approx(0.5)
@@ -366,10 +381,12 @@ def test_invariance_failure_rate_skips_incomplete_groups() -> None:
         }
     ]
     summary = summarise(records)
+    assert summary["n_invariance_tasks"] == 1
     assert summary["n_invariance_groups"] == 1
     assert summary["n_invariance_groups_evaluable"] == 0
     assert summary["n_invariance_groups_incomplete"] == 1
-    assert summary["invariance_failure_rate"] is None
+    assert summary["invariance_failure_rate"] == pytest.approx(0.0)
+    assert summary["invariance_group_inconsistency_rate"] is None
 
 
 def test_write_report_persists_summary(tmp_path: Path) -> None:
