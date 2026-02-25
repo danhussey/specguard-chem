@@ -174,6 +174,7 @@ def validate_release_directory(
     near_miss_margin_band: float = 5.0,
     boundary_margin_band: float = 1.0,
     min_tool_forced_l3_test_share: float = 0.10,
+    require_test_invariance_subfamilies: bool = True,
     min_counts: Mapping[str, int] | None = None,
 ) -> Dict[str, Any]:
     tasks_by_split = {
@@ -189,6 +190,7 @@ def validate_release_directory(
         near_miss_margin_band=near_miss_margin_band,
         boundary_margin_band=boundary_margin_band,
         repair_start_hard_fail_threshold=repair_start_hard_fail_threshold,
+        require_invariance_subfamilies=True,
         min_counts=min_counts,
     )
     split_counts = {split: len(tasks_by_split[split]) for split in RELEASE_SPLITS}
@@ -207,10 +209,19 @@ def validate_release_directory(
     )
     tool_forced_test = int(family_counts_test.get("tool_forced_l3", 0))
     tool_forced_share = (tool_forced_test / test_total) if test_total else 0.0
+    test_invariance_subfamilies: Counter[str] = Counter(
+        str((row.get("evidence") or {}).get("invariance_subfamily") or "unspecified")
+        for row in test_rows
+        if str(row.get("task_family") or "") == "smiles_invariance"
+    )
     result["test_family_counts"] = dict(sorted(family_counts_test.items()))
     result["test_protocol_counts"] = dict(sorted(protocol_counts_test.items()))
+    result["test_invariance_subfamily_counts"] = dict(
+        sorted(test_invariance_subfamilies.items())
+    )
     result["tool_forced_l3_test_share"] = tool_forced_share
     result["min_tool_forced_l3_test_share"] = min_tool_forced_l3_test_share
+    result["require_test_invariance_subfamilies"] = require_test_invariance_subfamilies
 
     test_errors: List[str] = []
     if family_counts_test.get("tool_forced_l3", 0) <= 0:
@@ -220,6 +231,14 @@ def validate_release_directory(
             "test split tool_forced_l3 share "
             f"{tool_forced_share:.3f} < {min_tool_forced_l3_test_share:.3f}"
         )
+    if require_test_invariance_subfamilies:
+        required_subfamilies = ("aromatic", "stereo", "tautomer", "charge")
+        for subfamily in required_subfamilies:
+            if test_invariance_subfamilies.get(subfamily, 0) <= 0:
+                test_errors.append(
+                    "test split missing invariance subfamily "
+                    f"'{subfamily}' in smiles_invariance tasks"
+                )
     if test_errors:
         errors = list(result.get("errors", []))
         errors.extend(test_errors)

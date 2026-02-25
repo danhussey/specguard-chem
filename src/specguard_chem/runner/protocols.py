@@ -23,6 +23,7 @@ from ..verifiers import (
     check_property_bounds_all,
     check_property_bounds_any,
     compute_properties,
+    equivalent_smiles,
     margins_to_bounds,
     morgan_tanimoto,
     parse_smiles,
@@ -344,6 +345,61 @@ class ConstraintEvaluator:
                         "value": similarity_value,
                         "min": min_similarity,
                         "signed_margin": float(signed_margin),
+                    },
+                )
+            elif constraint.check == "equivalent_to_input":
+                reference_smiles = self.input_smiles
+                policy = str(constraint.params.get("policy", "strict_inchi"))
+                require_stereo = bool(constraint.params.get("require_stereo", True))
+                tautomer_invariant = bool(
+                    constraint.params.get("tautomer_invariant", False)
+                )
+                charge_invariant = bool(
+                    constraint.params.get("charge_invariant", False)
+                )
+                normalize = str(constraint.params.get("normalize", "rdkit_cleanup"))
+                key = str(constraint.params.get("key", "inchi_key"))
+                if not reference_smiles:
+                    passed = False
+                    signed_margin = -1.0
+                    detail = "Missing input.smiles context for equivalent_to_input check"
+                    eq_meta: Dict[str, Any] = {}
+                else:
+                    passed, eq_meta = equivalent_smiles(
+                        reference_smiles,
+                        canonical or smiles,
+                        require_stereo=require_stereo,
+                        tautomer_invariant=tautomer_invariant,
+                        charge_invariant=charge_invariant,
+                        normalize=normalize,
+                        key=key,
+                    )
+                    signed_margin = 1.0 if passed else -1.0
+                    detail = (
+                        None
+                        if passed
+                        else (
+                            "Candidate is not equivalent to input under "
+                            f"policy={policy}"
+                        )
+                    )
+                self._update_margins(
+                    property_margins,
+                    {"equivalent_to_input": float(signed_margin)},
+                )
+                outcome = ConstraintOutcome(
+                    constraint=constraint,
+                    passed=passed,
+                    detail=detail,
+                    info={
+                        "policy": policy,
+                        "require_stereo": require_stereo,
+                        "tautomer_invariant": tautomer_invariant,
+                        "charge_invariant": charge_invariant,
+                        "normalize": normalize,
+                        "key": key,
+                        "signed_margin": float(signed_margin),
+                        **eq_meta,
                     },
                 )
             else:  # pragma: no cover - guarded by strict schema

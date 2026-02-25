@@ -1,52 +1,87 @@
-# BENCHMARK_CARD — SpecGuard-Chem sgchem_v0.2
+# BENCHMARK_CARD — SpecGuard-Chem sgchem_v0.3
 
 ## Problem Definition
-SpecGuard-Chem measures solver-agnostic compliance with structured medicinal-chemistry-style constraints under explicit interaction budgets. A task is defined by structured JSON objects (`task`, `spec`); prompts are optional metadata.
+SpecGuard-Chem measures solver-agnostic structured spec compliance under strict interaction budgets. Canonical benchmark inputs are structured `task` + `spec` JSON objects. Prompts are optional rendering.
+
+## Tracks (Reported Separately)
+- `closed_book` (primary): no retrieval, no external/API dependency.
+- `retrieval`: retrieval-enabled baselines (`corpus_search`) reported as an upper-bound track.
+- `external` (optional snapshot): API/process baselines with cache+replay support.
 
 ## What Is Measured
-- Pass@budget (`pass_at_steps`, `avg_steps_to_accept`, `avg_verify_calls_to_accept`)
-- Verifier-call economy and budget adherence
-- Edit economy (`edit_distance`, BRICS final/trajectory edit costs)
-- Abstention utility and utility sensitivity
-- Calibration (`brier_score`, `ece`, reliability behavior via `p_hard_pass`)
-- Interrupt/resume robustness (`resume_success_rate`, `avg_extra_steps_after_interrupt`)
-- Gaming resistance (`invariance_failure_rate`, `boundary_precision_failure_rate`)
-- Tool-gating behavior in L3 (`avg_verify_calls_used`, suite-level outcomes)
+- Pass@budget (`pass_at_steps`, `pass_at_1`, `pass_at_3`)
+- Verifier/tool economy (`avg_verify_calls_used`, `l3_avg_verify_calls_used`, `verify_usage_rate_on_L3`)
+- Edit economy (SMILES edit distance + BRICS final/trajectory costs)
+- Abstention utility + sensitivity
+- Calibration (`brier_score`, `ece`, reliability/risk-coverage behavior)
+- Interrupt/resume (`resume_success_rate`, `avg_extra_steps_after_interrupt`)
+- Gaming resistance:
+  - boundary precision failures
+  - adversarial invariance failures by subfamily (`stereo`, `tautomer`, `charge`, `aromatic`)
+- Bootstrap 95% CIs in aggregate and paper tables.
 
-`corpus_search` is reported as a retrieval-track baseline (upper bound), not the primary closed-book score.
+## Invariance Policy (Explicit)
+`equivalent_to_input` hard check supports policy presets:
+- `strict_inchi`
+- `no_stereo_inchi`
+- `tautomer_canonical_inchi`
+- `tautomer_canonical_no_stereo_inchi`
 
-Formulas and metric definitions are in [`METRICS.md`](/Users/danielhussey/Code/specguard-chem/METRICS.md).
+Additional switches (`charge_invariant`, `normalize`, `key`) are explicit in task constraints.
 
 ## What Is Not Claimed
-- No drug discovery performance claims
-- No activity, toxicity, or efficacy prediction
-- No synthesis planning feasibility claims
+- No drug-discovery performance claim
+- No activity/efficacy/toxicity claim
+- No synthesis-feasibility claim
 
 ## Label Credibility Policy
-- `expected_action=ACCEPT`: requires `feasible_witness_smiles` that hard-passes the effective spec.
-- `expected_action=ABSTAIN`: requires contradiction proof; bounds contradictions are machine-checkable.
-- Dataset invariants are hard-gated during release creation.
+- `expected_action=ACCEPT`: requires witness molecule that hard-passes the effective spec.
+- `expected_action=ABSTAIN`: requires machine-checkable contradiction proof (bounds contradiction minimum).
+- Release creation is hard-gated by dataset invariants.
 
-## Reproducibility Commands
-1. Freeze release
+## Repro Commands
+1. Freeze benchmark
 ```bash
 specguard-chem freeze-benchmark \
-  --benchmark-id sgchem_v0.2 \
-  --out benchmarks/releases/sgchem_v0.2 \
+  --benchmark-id sgchem_v0.3 \
+  --out benchmarks/releases/sgchem_v0.3 \
   --target-tasks 1000 \
   --seed 7
 ```
-2. Run baseline sweep
+
+2. Closed-book + retrieval sweep
 ```bash
 specguard-chem run-benchmark \
-  --benchmark benchmarks/releases/sgchem_v0.2 \
+  --benchmark benchmarks/releases/sgchem_v0.3 \
   --split test \
   --baselines baselines/paper_baselines.yaml \
-  --out runs/paper_sweeps/sgchem_v0.2_test
+  --out runs/paper_sweeps/sgchem_v0.3_test
 ```
-3. Generate paper artifacts
+
+3. External sweep with cache (optional)
 ```bash
-uv run python scripts/make_paper_figures.py \
-  --runs runs/paper_sweeps/sgchem_v0.2_test \
+specguard-chem run-benchmark \
+  --benchmark benchmarks/releases/sgchem_v0.3 \
+  --split test \
+  --baselines baselines/external_baselines.yaml \
+  --out runs/paper_sweeps/sgchem_v0.3_external \
+  --allow-external \
+  --cache-dir runs/paper_sweeps/sgchem_v0.3_external/cache
+```
+
+4. Offline replay of external sweep
+```bash
+specguard-chem run-benchmark \
+  --benchmark benchmarks/releases/sgchem_v0.3 \
+  --split test \
+  --baselines baselines/external_baselines.yaml \
+  --out runs/paper_sweeps/sgchem_v0.3_external_replay \
+  --replay-cache runs/paper_sweeps/sgchem_v0.3_external/cache
+```
+
+5. Paper outputs
+```bash
+specguard-chem paper-figures \
+  --runs runs/paper_sweeps/sgchem_v0.3_test \
   --out paper
 ```

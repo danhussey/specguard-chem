@@ -15,6 +15,7 @@ from .base_adapter import BaseAdapter
 
 class CorpusSearchAdapter(BaseAdapter):
     name = "corpus_search"
+    track = "retrieval"
 
     def __init__(self, *, seed: int = 0) -> None:
         super().__init__(seed=seed)

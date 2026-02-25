@@ -42,7 +42,7 @@ Use built-in `ProcessAdapter` when your agent runs as a separate process/languag
 
 ```bash
 export SPEC_GUARD_PROCESS_ADAPTER_CMD="python path/to/agent_bridge.py"
-specguard-chem run basic_plain --model process
+specguard-chem run basic_plain --model process --allow-external
 ```
 
 Bridge behavior:
@@ -73,10 +73,36 @@ else:
 ```bash
 pip install specguard-chem[providers]
 export OPENAI_API_KEY=sk-...
-specguard-chem run basic_plain --model openai_chat --limit 3
+specguard-chem run basic_plain --model openai_chat --allow-external --limit 3
 ```
 
-## 6) Interrupt and Resume Requirements
+`openai_chat_verify_l3` is a policy variant that enforces verify-first behavior on L3 rounds.
+
+## 6) Cache + Replay for External Baselines
+External sweeps can be frozen into request/response caches and replayed offline:
+
+```bash
+specguard-chem run-benchmark \
+  --benchmark benchmarks/releases/sgchem_v0.3 \
+  --split test \
+  --baselines baselines/external_baselines.yaml \
+  --out runs/paper_sweeps/sgchem_v0.3_external \
+  --allow-external \
+  --cache-dir runs/paper_sweeps/sgchem_v0.3_external/cache
+```
+
+Replay (no external calls):
+
+```bash
+specguard-chem run-benchmark \
+  --benchmark benchmarks/releases/sgchem_v0.3 \
+  --split test \
+  --baselines baselines/external_baselines.yaml \
+  --out runs/paper_sweeps/sgchem_v0.3_external_replay \
+  --replay-cache runs/paper_sweeps/sgchem_v0.3_external/cache
+```
+
+## 7) Interrupt and Resume Requirements
 When `req["interrupt"]` is present:
 - acknowledge interrupt
 - restate goal if required
@@ -99,7 +125,7 @@ Example response fragment:
 }
 ```
 
-## 7) Robustness Expectations
+## 8) Robustness Expectations
 - Always emit valid JSON with a supported action.
 - Provide `p_hard_pass` (`0..1`) for calibration/curve metrics.
 - Handle schema normalization behavior: malformed outputs are converted to abstain and counted as schema/invalid-action/tool-call errors.

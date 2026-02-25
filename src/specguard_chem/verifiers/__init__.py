@@ -16,6 +16,7 @@ from .alerts import (
 from .sa_score import synthetic_accessibility_score
 from .smiles import canonicalize_smiles, is_valid_smiles, parse_smiles
 from .similarity import brics_fragment_edit_distance, morgan_tanimoto
+from .equivalence import equivalent_smiles, equivalence_key
 
 __all__ = [
     "PROPERTY_NAMES",
@@ -35,4 +36,6 @@ __all__ = [
     "parse_smiles",
     "morgan_tanimoto",
     "brics_fragment_edit_distance",
+    "equivalent_smiles",
+    "equivalence_key",
 ]

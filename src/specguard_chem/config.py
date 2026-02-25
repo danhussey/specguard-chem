@@ -24,7 +24,20 @@ SpecCheck = Literal[
     "substructure_absent",
     "sa_proxy_max",
     "similarity_min_to_input",
+    "equivalent_to_input",
 ]
+EquivalencePolicy = Literal[
+    "strict_inchi",
+    "no_stereo_inchi",
+    "tautomer_canonical_inchi",
+    "tautomer_canonical_no_stereo_inchi",
+]
+EquivalenceNormalize = Literal[
+    "none",
+    "rdkit_cleanup",
+    "rdkit_cleanup_plus_tautomer_canon",
+]
+EquivalenceKey = Literal["inchi_key", "canonical_smiles_after_normalization"]
 
 
 def legacy_expected_to_action(expected: ExpectedOutcome) -> ExpectedAction:
@@ -147,6 +160,66 @@ class SimilarityMinToInputParamsModel(BaseModel):
     nBits: int = Field(default=2048, ge=128, le=8192)
 
 
+_EQUIVALENCE_POLICY_DEFAULTS: Dict[str, Dict[str, Any]] = {
+    "strict_inchi": {
+        "require_stereo": True,
+        "tautomer_invariant": False,
+        "charge_invariant": False,
+        "normalize": "rdkit_cleanup",
+        "key": "inchi_key",
+    },
+    "no_stereo_inchi": {
+        "require_stereo": False,
+        "tautomer_invariant": False,
+        "charge_invariant": False,
+        "normalize": "rdkit_cleanup",
+        "key": "inchi_key",
+    },
+    "tautomer_canonical_inchi": {
+        "require_stereo": True,
+        "tautomer_invariant": True,
+        "charge_invariant": False,
+        "normalize": "rdkit_cleanup_plus_tautomer_canon",
+        "key": "inchi_key",
+    },
+    "tautomer_canonical_no_stereo_inchi": {
+        "require_stereo": False,
+        "tautomer_invariant": True,
+        "charge_invariant": False,
+        "normalize": "rdkit_cleanup_plus_tautomer_canon",
+        "key": "inchi_key",
+    },
+}
+
+
+class EquivalentToInputParamsModel(BaseModel):
+    """Parameter schema for equivalent_to_input checks."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy: EquivalencePolicy = "strict_inchi"
+    require_stereo: bool = True
+    tautomer_invariant: bool = False
+    charge_invariant: bool = False
+    normalize: EquivalenceNormalize = "rdkit_cleanup"
+    key: EquivalenceKey = "inchi_key"
+
+    @model_validator(mode="before")
+    @classmethod
+    def _apply_policy_defaults(cls, data: Any) -> Any:
+        if not isinstance(data, dict):
+            raise ValueError("equivalent_to_input params must be an object")
+        payload = dict(data)
+        policy = payload.get("policy", "strict_inchi")
+        defaults = _EQUIVALENCE_POLICY_DEFAULTS.get(str(policy))
+        if defaults is None:
+            raise ValueError(f"Unsupported equivalent_to_input policy '{policy}'")
+        for key, value in defaults.items():
+            payload.setdefault(key, value)
+        payload["policy"] = policy
+        return payload
+
+
 class ConstraintModel(BaseModel):
     """Represents a single strict v2 constraint entry."""
 
@@ -185,6 +258,11 @@ class ConstraintModel(BaseModel):
 
         if self.check == "similarity_min_to_input":
             parsed = SimilarityMinToInputParamsModel.model_validate(self.params)
+            self.params = parsed.model_dump(mode="json")
+            return self
+
+        if self.check == "equivalent_to_input":
+            parsed = EquivalentToInputParamsModel.model_validate(self.params)
             self.params = parsed.model_dump(mode="json")
             return self
 
@@ -245,6 +323,8 @@ class TaskEvidenceModel(BaseModel):
     contradiction_proof: Optional[Dict[str, Any]] = None
     budget_infeasible_note: Optional[str] = None
     invariance_group_id: Optional[str] = None
+    invariance_subfamily: Optional[str] = None
+    invariance_equivalence_policy: Optional[EquivalencePolicy] = None
     invariance_canonical_smiles: Optional[str] = None
     invariance_variant_label: Optional[str] = None
     boundary_property: Optional[str] = None

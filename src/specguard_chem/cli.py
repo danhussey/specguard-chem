@@ -336,10 +336,10 @@ def validate_dataset(
 @app.command("freeze-benchmark")
 def freeze_benchmark(
     benchmark_id: str = typer.Option(
-        "sgchem_v0.2", "--benchmark-id", help="Benchmark release identifier."
+        "sgchem_v0.3", "--benchmark-id", help="Benchmark release identifier."
     ),
     out: Path = typer.Option(
-        Path("benchmarks/releases/sgchem_v0.2"),
+        Path("benchmarks/releases/sgchem_v0.3"),
         "--out",
         help="Output release directory.",
     ),
@@ -412,13 +412,33 @@ def run_benchmark(
         help="Baseline matrix YAML file.",
     ),
     out: Path = typer.Option(
-        Path("runs/paper_sweeps/sgchem_v0.2_test"),
+        Path("runs/paper_sweeps/sgchem_v0.3_test"),
         "--out",
         help="Output directory for sweep artifacts.",
     ),
     seed: int = typer.Option(7, "--seed", help="Deterministic seed for baselines."),
     limit: Optional[int] = typer.Option(
         None, "--limit", help="Optional cap on number of tasks per baseline."
+    ),
+    allow_external: bool = typer.Option(
+        False,
+        "--allow-external",
+        help="Allow live external adapter calls (API/process baselines).",
+    ),
+    cache_dir: Optional[Path] = typer.Option(
+        None,
+        "--cache-dir",
+        help="Optional cache directory root; step request/response caches are written per baseline.",
+    ),
+    replay_cache: Optional[Path] = typer.Option(
+        None,
+        "--replay-cache",
+        help="Replay from previously cached step outputs instead of live model/process calls.",
+    ),
+    n_bootstrap: int = typer.Option(
+        400,
+        "--n-bootstrap",
+        help="Number of bootstrap resamples for CI estimation in aggregate.json.",
     ),
 ) -> None:
     if not benchmark.exists():
@@ -438,6 +458,10 @@ def run_benchmark(
             out_dir=out,
             seed=seed,
             limit=limit,
+            allow_external=allow_external,
+            cache_dir=cache_dir,
+            replay_cache=replay_cache,
+            n_bootstrap=n_bootstrap,
         )
     except Exception as exc:
         console.print(f"[red]run-benchmark failed:[/red] {exc}")
@@ -446,6 +470,7 @@ def run_benchmark(
     table = Table(title="Benchmark Sweep")
     table.add_column("baseline")
     table.add_column("model")
+    table.add_column("track")
     table.add_column("protocol")
     table.add_column("num_tasks", justify="right")
     table.add_column("accept_rate", justify="right")
@@ -455,12 +480,26 @@ def run_benchmark(
         table.add_row(
             str(row.get("name")),
             str(row.get("model")),
+            str(row.get("track") or "closed_book"),
             str(row.get("protocol") or "mixed"),
             str(metrics.get("num_tasks", 0)),
             _metric_str(metrics.get("accept_rate")),
             _metric_str(metrics.get("hard_violation_rate")),
         )
     console.print(table)
+    skipped = aggregate.get("skipped_baselines", [])
+    if skipped:
+        skipped_table = Table(title="Skipped Optional Baselines")
+        skipped_table.add_column("baseline")
+        skipped_table.add_column("track")
+        skipped_table.add_column("reason")
+        for row in skipped:
+            skipped_table.add_row(
+                str(row.get("name")),
+                str(row.get("track")),
+                str(row.get("reason")),
+            )
+        console.print(skipped_table)
     console.print(f"Aggregate written to [green]{out / 'aggregate.json'}[/green]")
 
 
@@ -515,12 +554,17 @@ def run(
         None, "--run-path", help="Directory to store run artefacts."
     ),
     seed: int = typer.Option(7, "--seed", help="Deterministic seed for adapters."),
+    allow_external: bool = typer.Option(
+        False,
+        "--allow-external",
+        help="Allow external adapter calls (API/process).",
+    ),
 ) -> None:
     if suite not in list_available_suites():
         console.print(f"[red]Unknown suite[/red]: {suite}")
         raise typer.Exit(code=1)
 
-    runner = TaskRunner(model, seed=seed)
+    runner = TaskRunner(model, seed=seed, allow_external=allow_external)
     timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
     suffix = f"{suite}_{protocol or 'mixed'}_{spec_split or 'all'}"
     run_dir = run_path or Path("runs") / f"{timestamp}_{suffix}"

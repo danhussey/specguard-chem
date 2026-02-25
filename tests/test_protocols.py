@@ -100,3 +100,67 @@ def test_similarity_min_to_input_contextual_check_and_margin() -> None:
     )
     assert similarity_margin is not None
     assert similarity_margin < 0
+
+
+def test_equivalent_to_input_policy_variants() -> None:
+    spec = SpecModel.model_validate(
+        {
+            "id": "spec_equiv",
+            "version": 2,
+            "constraints": [
+                {
+                    "id": "same_identity",
+                    "type": "hard",
+                    "check": "equivalent_to_input",
+                    "params": {"policy": "strict_inchi"},
+                }
+            ],
+            "behaviour": {"interrupt_policy": "confirm_then_continue"},
+        }
+    )
+    strict_eval = ConstraintEvaluator(spec, input_smiles="CCN(CC)CC")
+    strict_pass = strict_eval.evaluate("CCN(CC)CC")
+    strict_fail = strict_eval.evaluate("CC[NH+](CC)CC")
+    assert strict_pass.hard_pass is True
+    assert strict_fail.hard_pass is False
+
+    charge_relaxed_spec = SpecModel.model_validate(
+        {
+            "id": "spec_equiv_charge",
+            "version": 2,
+            "constraints": [
+                {
+                    "id": "same_identity_charge_relaxed",
+                    "type": "hard",
+                    "check": "equivalent_to_input",
+                    "params": {
+                        "policy": "strict_inchi",
+                        "charge_invariant": True,
+                    },
+                }
+            ],
+            "behaviour": {"interrupt_policy": "confirm_then_continue"},
+        }
+    )
+    charge_eval = ConstraintEvaluator(charge_relaxed_spec, input_smiles="CCN(CC)CC")
+    assert charge_eval.evaluate("CC[NH+](CC)CC").hard_pass is True
+
+    no_stereo_spec = SpecModel.model_validate(
+        {
+            "id": "spec_equiv_no_stereo",
+            "version": 2,
+            "constraints": [
+                {
+                    "id": "same_identity_no_stereo",
+                    "type": "hard",
+                    "check": "equivalent_to_input",
+                    "params": {"policy": "no_stereo_inchi"},
+                }
+            ],
+            "behaviour": {"interrupt_policy": "confirm_then_continue"},
+        }
+    )
+    no_stereo_eval = ConstraintEvaluator(
+        no_stereo_spec, input_smiles="C[C@H](O)Cl"
+    )
+    assert no_stereo_eval.evaluate("CC(O)Cl").hard_pass is True

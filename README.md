@@ -65,32 +65,55 @@ Stratify aggregate rows with `--group-by` (fields: `name,model,protocol,suite,sp
 specguard-chem compare-baselines runs/baselines --group-by name,spec_split -o runs/baseline_compare_by_split.json
 ```
 
-## Frozen Benchmark Release (sgchem_v0.2)
+## Frozen Benchmark Release (sgchem_v0.3)
 Create a deterministic frozen release artifact:
 
 ```bash
 specguard-chem freeze-benchmark \
-  --benchmark-id sgchem_v0.2 \
-  --out benchmarks/releases/sgchem_v0.2 \
+  --benchmark-id sgchem_v0.3 \
+  --out benchmarks/releases/sgchem_v0.3 \
   --target-tasks 1000 \
   --seed 7
 ```
 
-Run benchmark sweeps over frozen TEST split:
+Run the primary paper sweep (track-separated: closed-book + retrieval):
 
 ```bash
 specguard-chem run-benchmark \
-  --benchmark benchmarks/releases/sgchem_v0.2 \
+  --benchmark benchmarks/releases/sgchem_v0.3 \
   --split test \
   --baselines baselines/paper_baselines.yaml \
-  --out runs/paper_sweeps/sgchem_v0.2_test
+  --out runs/paper_sweeps/sgchem_v0.3_test
 ```
 
-Generate paper figures/tables:
+Run external/LLM snapshot baselines with cache capture (optional):
 
 ```bash
-uv run python scripts/make_paper_figures.py \
-  --runs runs/paper_sweeps/sgchem_v0.2_test \
+specguard-chem run-benchmark \
+  --benchmark benchmarks/releases/sgchem_v0.3 \
+  --split test \
+  --baselines baselines/external_baselines.yaml \
+  --out runs/paper_sweeps/sgchem_v0.3_external \
+  --allow-external \
+  --cache-dir runs/paper_sweeps/sgchem_v0.3_external/cache
+```
+
+Replay external baselines offline from cache:
+
+```bash
+specguard-chem run-benchmark \
+  --benchmark benchmarks/releases/sgchem_v0.3 \
+  --split test \
+  --baselines baselines/external_baselines.yaml \
+  --out runs/paper_sweeps/sgchem_v0.3_external_replay \
+  --replay-cache runs/paper_sweeps/sgchem_v0.3_external/cache
+```
+
+Generate paper figures/tables (track-separated leaderboards + CI columns):
+
+```bash
+specguard-chem paper-figures \
+  --runs runs/paper_sweeps/sgchem_v0.3_test \
   --out paper
 ```
 
@@ -99,12 +122,18 @@ uv run python scripts/make_paper_figures.py \
 - `open_source_example`: tool-using baseline for L3.
 - `abstention_guard`: conservative abstention-heavy baseline.
 - `verify_first`: L3 baseline that explicitly calls `verify()` before proposing.
-- `corpus_search`: deterministic corpus retrieval baseline (non-LLM, retrieval track/upper bound).
+- `corpus_search`: deterministic corpus retrieval baseline (retrieval-track upper bound).
 - `local_mutation`: deterministic local mutation hill-climb baseline (non-LLM).
-- `process`: delegates each step to an external command (`SPEC_GUARD_PROCESS_ADAPTER_CMD`).
-- `openai_chat`: OpenAI Chat Completions-backed adapter (`OPENAI_API_KEY`).
+- `process`: external command adapter (`SPEC_GUARD_PROCESS_ADAPTER_CMD`), cache/replay compatible.
+- `openai_chat`: OpenAI Chat Completions adapter (`OPENAI_API_KEY`).
+- `openai_chat_verify_l3`: OpenAI adapter with an L3 verify-first policy template.
 
 See `docs/adapters.md` for integration details.
+
+### Tracks
+- `closed_book`: no retrieval, no external calls (primary leaderboard).
+- `retrieval`: retrieval-allowed baselines (`corpus_search`) reported separately as upper bound.
+- `external`: API/process snapshot baselines; optional and replayable from cache.
 
 ## Included Task Suites
 - `basic_plain` (10): mixed L1/L2/L3 tasks.
@@ -115,7 +144,7 @@ See `docs/adapters.md` for integration details.
 - `interrupt_strict` (3): stricter interrupt compliance requirements.
 - `interrupt_resume` (3): interrupt acknowledge + resume-token echo + continue.
 - `alerts_pains_soft` (4): alert-focused soft-constraint tasks.
-- `smiles_invariance` (4): equivalent-SMILES invariance checks.
+- `smiles_invariance` (4+): adversarial invariance families (stereo/tautomer/charge/aromatic) with explicit equivalence policies.
 - `boundary_precision` (3): near-boundary precision/tolerance checks.
 
 ## Continuous Integration

@@ -29,6 +29,9 @@ From run traces:
 - `avg_steps_to_accept`
 - `avg_verify_calls_to_accept`
 - `avg_steps_used`, `avg_proposals_used`, `avg_verify_calls_used`
+- `l3_avg_verify_calls_used`
+- `l3_avg_verify_calls_used_expected_accept`
+- `verify_usage_rate_on_L3`
 - `accept_rate_by_protocol`
 - `hard_violation_rate_by_protocol`
 
@@ -85,19 +88,41 @@ Trajectory metrics (summed over propose rounds):
 Measured-count fields are included for each aggregate.
 
 ## 9) Gaming Resistance / Invariance
+- `n_invariance_tasks`
 - `n_invariance_groups`, `n_invariance_groups_evaluable`, `n_invariance_groups_incomplete`
 - `invariance_failure_rate`
+- `invariance_group_inconsistency_rate` (legacy-style group inconsistency)
+- `invariance_failure_rate_by_subfamily`
+- `invariance_counts_by_subfamily`
 - `n_boundary_precision_tasks`
 - `boundary_precision_failure_rate`, `boundary_precision_pass_rate`
 
-## 10) Robustness Observability
+Identity preservation uses explicit `equivalent_to_input` policies:
+- `strict_inchi`
+- `no_stereo_inchi`
+- `tautomer_canonical_inchi`
+- `tautomer_canonical_no_stereo_inchi`
+
+Task constraints may further specify `charge_invariant`, `normalize`, and `key`.
+
+## 10) Bootstrap Confidence Intervals
+`aggregate.json` includes bootstrap 95% CI blocks (`mean`, `ci_low`, `ci_high`) for:
+- `pass_at_1`, `pass_at_3`
+- `hard_violation_rate`
+- `abstention_utility`
+- `boundary_precision_failure_rate`
+- `resume_success_rate`
+- `avg_extra_steps_after_interrupt`
+- per-step pass curve (`pass_at_steps`)
+
+## 11) Robustness Observability
 Invalid adapter outputs are tracked explicitly:
 - `n_agent_outputs`
 - `schema_error_rate`
 - `invalid_action_rate`
 - `invalid_tool_call_rate`
 
-## 11) Slices + Metadata
+## 12) Slices + Metadata
 Per-slice aggregates:
 - `spec_family_breakdown`
 - `spec_split_breakdown`

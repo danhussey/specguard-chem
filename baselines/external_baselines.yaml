@@ -1,0 +1,22 @@
+baselines:
+  - name: process_snapshot
+    model: process
+    track: external
+    optional: false
+  - name: openai_chat_snapshot
+    model: openai_chat
+    track: external
+    optional: true
+    adapter_kwargs:
+      model: gpt-4o-mini
+      temperature: 0.2
+      top_p: 1.0
+  - name: openai_chat_verify_l3
+    model: openai_chat_verify_l3
+    track: external
+    optional: true
+    protocol: L3
+    adapter_kwargs:
+      model: gpt-4o-mini
+      temperature: 0.2
+      top_p: 1.0

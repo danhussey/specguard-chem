@@ -82,6 +82,11 @@ REPORT_DEFINITIONS = {
         "avg_verify_calls_to_accept_denominator": (
             "accepted tasks with expected_action=ACCEPT"
         ),
+        "verify_usage_rate_on_L3_denominator": "tasks with protocol=L3",
+        "l3_avg_verify_calls_used_denominator": "tasks with protocol=L3",
+        "l3_avg_verify_calls_used_expected_accept_denominator": (
+            "tasks with protocol=L3 and expected_action=ACCEPT"
+        ),
     },
     "aggregates": {
         "edit_distance": (
@@ -136,10 +141,16 @@ REPORT_DEFINITIONS = {
     },
     "gaming_resistance": {
         "invariance_failure_rate": (
-            "Fraction of SMILES-invariance groups with inconsistent final decisions across equivalent forms."
+            "Fraction of invariance tasks that fail to ACCEPT under identity-preservation constraints."
+        ),
+        "invariance_group_inconsistency_rate": (
+            "Legacy group-level inconsistency rate across invariance groups with >=2 variants."
+        ),
+        "invariance_failure_rate_by_subfamily": (
+            "Per-subfamily invariance failure rates (stereo/tautomer/charge/aromatic)."
         ),
         "invariance_failure_rate_denominator": (
-            "invariance groups with at least two observed variants"
+            "invariance tasks"
         ),
         "boundary_precision_failure_rate": (
             "Fraction of boundary-precision tasks that fail to accept a hard-passing molecule."
@@ -644,30 +655,61 @@ def _gaming_resistance_metrics(
     records: List[Dict[str, Any]], final_decisions: List[str]
 ) -> Dict[str, Any]:
     invariance_groups: Dict[str, List[str]] = {}
+    invariance_task_indices: List[int] = []
+    invariance_failures = 0
+    invariance_by_subfamily: Dict[str, Dict[str, int]] = {}
     for index, record in enumerate(records):
-        if record.get("task_family") != "smiles_invariance":
+        task_family = str(record.get("task_family") or "")
+        if task_family != "smiles_invariance":
             continue
+        invariance_task_indices.append(index)
+        final_decision = final_decisions[index]
+        if final_decision != "ACCEPT":
+            invariance_failures += 1
+        subfamily = str(record.get("invariance_subfamily") or "unspecified")
+        bucket = invariance_by_subfamily.setdefault(
+            subfamily, {"n_tasks": 0, "n_failures": 0}
+        )
+        bucket["n_tasks"] += 1
+        if final_decision != "ACCEPT":
+            bucket["n_failures"] += 1
         group_id = record.get("invariance_group_id")
         if not isinstance(group_id, str) or not group_id:
             continue
-        invariance_groups.setdefault(group_id, []).append(final_decisions[index])
+        invariance_groups.setdefault(group_id, []).append(final_decision)
 
+    n_invariance_tasks = len(invariance_task_indices)
     n_invariance_groups = len(invariance_groups)
     n_invariance_groups_incomplete = 0
     n_invariance_groups_evaluable = 0
-    invariance_failures = 0
+    invariance_group_inconsistencies = 0
     for decisions in invariance_groups.values():
         if len(decisions) < 2:
             n_invariance_groups_incomplete += 1
             continue
         n_invariance_groups_evaluable += 1
         if len(set(decisions)) > 1:
-            invariance_failures += 1
+            invariance_group_inconsistencies += 1
     invariance_failure_rate = (
-        invariance_failures / n_invariance_groups_evaluable
+        invariance_failures / n_invariance_tasks
+        if n_invariance_tasks
+        else None
+    )
+    invariance_group_inconsistency_rate = (
+        invariance_group_inconsistencies / n_invariance_groups_evaluable
         if n_invariance_groups_evaluable
         else None
     )
+    invariance_failure_rate_by_subfamily = {
+        subfamily: (
+            bucket["n_failures"] / bucket["n_tasks"] if bucket["n_tasks"] else None
+        )
+        for subfamily, bucket in sorted(invariance_by_subfamily.items())
+    }
+    invariance_counts_by_subfamily = {
+        subfamily: dict(bucket)
+        for subfamily, bucket in sorted(invariance_by_subfamily.items())
+    }
 
     boundary_indices = [
         index
@@ -690,10 +732,14 @@ def _gaming_resistance_metrics(
     )
 
     return {
+        "n_invariance_tasks": n_invariance_tasks,
         "n_invariance_groups": n_invariance_groups,
         "n_invariance_groups_evaluable": n_invariance_groups_evaluable,
         "n_invariance_groups_incomplete": n_invariance_groups_incomplete,
         "invariance_failure_rate": invariance_failure_rate,
+        "invariance_group_inconsistency_rate": invariance_group_inconsistency_rate,
+        "invariance_failure_rate_by_subfamily": invariance_failure_rate_by_subfamily,
+        "invariance_counts_by_subfamily": invariance_counts_by_subfamily,
         "n_boundary_precision_tasks": n_boundary_precision_tasks,
         "boundary_precision_failure_rate": boundary_precision_failure_rate,
         "boundary_precision_pass_rate": boundary_precision_pass_rate,
@@ -709,6 +755,9 @@ def summarise(records: List[Dict[str, Any]]) -> Dict[str, Any]:
             "pass_at_steps": [],
             "avg_steps_to_accept": None,
             "avg_verify_calls_to_accept": None,
+            "l3_avg_verify_calls_used": None,
+            "l3_avg_verify_calls_used_expected_accept": None,
+            "verify_usage_rate_on_L3": None,
             "accept_rate_by_protocol": {},
             "hard_violation_rate_by_protocol": {},
             "expected_pass_rate": 0.0,
@@ -760,10 +809,14 @@ def summarise(records: List[Dict[str, Any]]) -> Dict[str, Any]:
             "utility_sensitivity": [],
             "soft_compliance_rate_given_hard_pass": None,
             "weighted_soft_score_given_hard_pass": None,
+            "n_invariance_tasks": 0,
             "n_invariance_groups": 0,
             "n_invariance_groups_evaluable": 0,
             "n_invariance_groups_incomplete": 0,
             "invariance_failure_rate": None,
+            "invariance_group_inconsistency_rate": None,
+            "invariance_failure_rate_by_subfamily": {},
+            "invariance_counts_by_subfamily": {},
             "n_boundary_precision_tasks": 0,
             "boundary_precision_failure_rate": None,
             "boundary_precision_pass_rate": None,
@@ -949,6 +1002,28 @@ def summarise(records: List[Dict[str, Any]]) -> Dict[str, Any]:
         mean(accepted_feasible_verify_calls) if accepted_feasible_verify_calls else None
     )
 
+    l3_indices = [
+        index
+        for index, record in enumerate(records)
+        if str(record.get("protocol", "unknown")) == "L3"
+    ]
+    l3_verify_counts = [verify_counts[index] for index in l3_indices]
+    l3_avg_verify_calls_used = (
+        mean(l3_verify_counts) if l3_verify_counts else None
+    )
+    verify_usage_rate_on_l3 = (
+        sum(1 for value in l3_verify_counts if value > 0) / len(l3_verify_counts)
+        if l3_verify_counts
+        else None
+    )
+    l3_accept_indices = [
+        index for index in l3_indices if expected_actions[index] == "ACCEPT"
+    ]
+    l3_accept_verify_counts = [verify_counts[index] for index in l3_accept_indices]
+    l3_avg_verify_calls_used_expected_accept = (
+        mean(l3_accept_verify_counts) if l3_accept_verify_counts else None
+    )
+
     protocols = sorted({str(record.get("protocol", "unknown")) for record in records})
     accept_rate_by_protocol: Dict[str, float] = {}
     hard_violation_rate_by_protocol: Dict[str, float] = {}
@@ -1042,6 +1117,9 @@ def summarise(records: List[Dict[str, Any]]) -> Dict[str, Any]:
         "pass_at_steps": pass_at_steps,
         "avg_steps_to_accept": avg_steps_to_accept,
         "avg_verify_calls_to_accept": avg_verify_calls_to_accept,
+        "l3_avg_verify_calls_used": l3_avg_verify_calls_used,
+        "l3_avg_verify_calls_used_expected_accept": l3_avg_verify_calls_used_expected_accept,
+        "verify_usage_rate_on_L3": verify_usage_rate_on_l3,
         "accept_rate_by_protocol": accept_rate_by_protocol,
         "hard_violation_rate_by_protocol": hard_violation_rate_by_protocol,
         "expected_pass_rate": expected_pass_rate,
@@ -1116,6 +1194,7 @@ def summarise(records: List[Dict[str, Any]]) -> Dict[str, Any]:
         "utility_sensitivity": utility_sensitivity,
         "soft_compliance_rate_given_hard_pass": soft_compliance_rate_given_hard_pass,
         "weighted_soft_score_given_hard_pass": weighted_soft_score_given_hard_pass,
+        "n_invariance_tasks": gaming_metrics["n_invariance_tasks"],
         "n_invariance_groups": gaming_metrics["n_invariance_groups"],
         "n_invariance_groups_evaluable": gaming_metrics[
             "n_invariance_groups_evaluable"
@@ -1124,6 +1203,15 @@ def summarise(records: List[Dict[str, Any]]) -> Dict[str, Any]:
             "n_invariance_groups_incomplete"
         ],
         "invariance_failure_rate": gaming_metrics["invariance_failure_rate"],
+        "invariance_group_inconsistency_rate": gaming_metrics[
+            "invariance_group_inconsistency_rate"
+        ],
+        "invariance_failure_rate_by_subfamily": gaming_metrics[
+            "invariance_failure_rate_by_subfamily"
+        ],
+        "invariance_counts_by_subfamily": gaming_metrics[
+            "invariance_counts_by_subfamily"
+        ],
         "n_boundary_precision_tasks": gaming_metrics["n_boundary_precision_tasks"],
         "boundary_precision_failure_rate": gaming_metrics[
             "boundary_precision_failure_rate"
