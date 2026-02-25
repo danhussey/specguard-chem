@@ -23,6 +23,7 @@ SpecCheck = Literal[
     "substructure_present",
     "substructure_absent",
     "sa_proxy_max",
+    "similarity_min_to_input",
 ]
 
 
@@ -135,6 +136,17 @@ class SAProxyMaxParamsModel(BaseModel):
     max: float
 
 
+class SimilarityMinToInputParamsModel(BaseModel):
+    """Parameter schema for similarity_min_to_input checks."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    min: float = Field(ge=0.0, le=1.0)
+    fp: Literal["morgan"] = "morgan"
+    radius: int = Field(default=2, ge=1, le=4)
+    nBits: int = Field(default=2048, ge=128, le=8192)
+
+
 class ConstraintModel(BaseModel):
     """Represents a single strict v2 constraint entry."""
 
@@ -168,6 +180,11 @@ class ConstraintModel(BaseModel):
 
         if self.check == "sa_proxy_max":
             parsed = SAProxyMaxParamsModel.model_validate(self.params)
+            self.params = parsed.model_dump(mode="json")
+            return self
+
+        if self.check == "similarity_min_to_input":
+            parsed = SimilarityMinToInputParamsModel.model_validate(self.params)
             self.params = parsed.model_dump(mode="json")
             return self
 

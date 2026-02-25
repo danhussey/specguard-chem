@@ -280,6 +280,11 @@ def validate_dataset(
         "--repair-start-hard-fail-threshold",
         help="Minimum required fraction of repair tasks that start hard-failing.",
     ),
+    min_tool_forced_l3_test_share: float = typer.Option(
+        0.10,
+        "--min-tool-forced-l3-test-share",
+        help="Minimum required fraction of tool_forced_l3 tasks in TEST split for release directories.",
+    ),
 ) -> None:
     if not dataset_path.exists():
         console.print(f"[red]Dataset path not found:[/red] {dataset_path}")
@@ -293,6 +298,7 @@ def validate_dataset(
             near_miss_margin_band=near_miss_margin_band,
             boundary_margin_band=boundary_margin_band,
             repair_start_hard_fail_threshold=repair_start_hard_fail_threshold,
+            min_tool_forced_l3_test_share=min_tool_forced_l3_test_share,
         )
     else:
         result = validate_dataset_file(
@@ -330,10 +336,10 @@ def validate_dataset(
 @app.command("freeze-benchmark")
 def freeze_benchmark(
     benchmark_id: str = typer.Option(
-        "sgchem_v0.1", "--benchmark-id", help="Benchmark release identifier."
+        "sgchem_v0.2", "--benchmark-id", help="Benchmark release identifier."
     ),
     out: Path = typer.Option(
-        Path("benchmarks/releases/sgchem_v0.1"),
+        Path("benchmarks/releases/sgchem_v0.2"),
         "--out",
         help="Output release directory.",
     ),
@@ -356,6 +362,11 @@ def freeze_benchmark(
         "--repair-start-hard-fail-threshold",
         help="Minimum required fraction of repair tasks that start hard-failing.",
     ),
+    min_tool_forced_l3_test_share: float = typer.Option(
+        0.10,
+        "--min-tool-forced-l3-test-share",
+        help="Minimum required fraction of tool_forced_l3 tasks in TEST split.",
+    ),
 ) -> None:
     from .benchmark.release import freeze_benchmark_release
 
@@ -368,6 +379,7 @@ def freeze_benchmark(
             near_miss_margin_band=near_miss_margin_band,
             boundary_margin_band=boundary_margin_band,
             repair_start_hard_fail_threshold=repair_start_hard_fail_threshold,
+            min_tool_forced_l3_test_share=min_tool_forced_l3_test_share,
         )
     except Exception as exc:
         console.print(f"[red]freeze-benchmark failed:[/red] {exc}")
@@ -400,7 +412,7 @@ def run_benchmark(
         help="Baseline matrix YAML file.",
     ),
     out: Path = typer.Option(
-        Path("runs/paper_sweeps/sgchem_v0.1_test"),
+        Path("runs/paper_sweeps/sgchem_v0.2_test"),
         "--out",
         help="Output directory for sweep artifacts.",
     ),

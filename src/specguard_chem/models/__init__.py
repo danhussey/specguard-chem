@@ -12,6 +12,7 @@ from .process_adapter import ProcessAdapter
 from .openai_adapter import OpenAIChatAdapter
 from .corpus_search import CorpusSearchAdapter
 from .local_mutation import LocalMutationAdapter
+from .verify_first import VerifyFirstAdapter
 
 _ADAPTERS: Dict[str, Type[BaseAdapter]] = {
     HeuristicMutatorAdapter.name: HeuristicMutatorAdapter,
@@ -21,6 +22,7 @@ _ADAPTERS: Dict[str, Type[BaseAdapter]] = {
     OpenAIChatAdapter.name: OpenAIChatAdapter,
     CorpusSearchAdapter.name: CorpusSearchAdapter,
     LocalMutationAdapter.name: LocalMutationAdapter,
+    VerifyFirstAdapter.name: VerifyFirstAdapter,
 }
 
 

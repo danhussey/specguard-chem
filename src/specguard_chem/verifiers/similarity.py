@@ -4,10 +4,13 @@ from __future__ import annotations
 
 from typing import Optional
 
-from rdkit import DataStructs
+from rdkit import DataStructs, RDLogger
 from rdkit.Chem import AllChem, BRICS, MolToSmiles
 
 from .smiles import parse_smiles
+
+# RDKit emits a deprecation warning on each legacy Morgan fingerprint call.
+RDLogger.DisableLog("rdApp.warning")
 
 
 def morgan_tanimoto(

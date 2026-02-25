@@ -65,3 +65,38 @@ def test_failure_vector_alert_constraint_includes_hit_details() -> None:
     assert constraint_result.hit_count is not None
     assert constraint_result.hit_count >= 1
     assert len(constraint_result.hits) == constraint_result.hit_count
+
+
+def test_similarity_min_to_input_contextual_check_and_margin() -> None:
+    spec = SpecModel.model_validate(
+        {
+            "id": "spec_similarity",
+            "version": 2,
+            "constraints": [
+                {
+                    "id": "input_similarity_guard",
+                    "type": "hard",
+                    "check": "similarity_min_to_input",
+                    "params": {"min": 0.7, "fp": "morgan", "radius": 2, "nBits": 2048},
+                }
+            ],
+            "behaviour": {"interrupt_policy": "confirm_then_continue"},
+        }
+    )
+    with_context = ConstraintEvaluator(spec, input_smiles="CCO")
+    pass_result = with_context.evaluate("CCO")
+    fail_result = with_context.evaluate("c1ccccc1")
+    missing_context = ConstraintEvaluator(spec).evaluate("CCO")
+
+    assert pass_result.hard_pass is True
+    assert fail_result.hard_pass is False
+    assert missing_context.hard_pass is False
+
+    pass_margin = pass_result.build_failure_vector(round_id=1).margins
+    assert any(item.id == "similarity_to_input" for item in pass_margin)
+    fail_margin = fail_result.build_failure_vector(round_id=1).margins
+    similarity_margin = next(
+        item.distance_to_bound for item in fail_margin if item.id == "similarity_to_input"
+    )
+    assert similarity_margin is not None
+    assert similarity_margin < 0

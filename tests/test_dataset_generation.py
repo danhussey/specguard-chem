@@ -55,6 +55,7 @@ def test_generate_tasks_and_validate_invariants() -> None:
     assert result["family_counts"]["contradiction_abstain"] > 0
     assert result["family_counts"]["smiles_invariance"] > 0
     assert result["family_counts"]["boundary_precision"] > 0
+    assert result["family_counts"]["tool_forced_l3"] > 0
 
 
 def test_validator_detects_bad_witness() -> None:

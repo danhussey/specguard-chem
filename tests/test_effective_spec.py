@@ -66,5 +66,5 @@ def test_runner_applies_task_constraints_into_effective_spec():
     ids = {constraint["id"] for constraint in spec_payload["constraints"]}
     assert "task_sa_cap" in ids
     assert len(record.effective_spec_sha256) == 64
-    assert record.spec_sha256 == record.effective_spec_sha256
-
+    assert len(record.spec_sha256) == 64
+    assert record.spec_sha256 != record.effective_spec_sha256

@@ -89,7 +89,8 @@ class LocalMutationAdapter(BaseAdapter):
         if not isinstance(spec_payload, dict):
             return {"action": "abstain", "reason": "Missing structured spec payload."}
         spec = SpecModel.model_validate(spec_payload)
-        evaluator = ConstraintEvaluator(spec)
+        input_smiles = (task.get("input") or {}).get("smiles")
+        evaluator = ConstraintEvaluator(spec, input_smiles=input_smiles)
 
         interrupt = req.get("interrupt") or {}
         proposal = self._search(task=task, evaluator=evaluator, round_index=int(req.get("round", 1)))
@@ -161,4 +162,3 @@ class LocalMutationAdapter(BaseAdapter):
         if candidate.edit_cost != incumbent.edit_cost:
             return candidate.edit_cost < incumbent.edit_cost
         return candidate.smiles < incumbent.smiles
-

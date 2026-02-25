@@ -374,13 +374,30 @@ class TaskRunner:
         for task in tasks:
             base_spec = spec_loader(task.spec_id)
             effective_spec = build_effective_spec(base_spec, task.task_constraints)
-            evaluator = ConstraintEvaluator(effective_spec)
-            results.append(self._run_task(task, evaluator))
+            evaluator = ConstraintEvaluator(
+                effective_spec,
+                input_smiles=task.input.smiles,
+            )
+            results.append(
+                self._run_task(
+                    task,
+                    evaluator,
+                    base_spec=base_spec,
+                    effective_spec=effective_spec,
+                )
+            )
         if run_dir is not None:
             persist_run(results, run_dir, suite=suite, protocol=protocol)
         return results
 
-    def _run_task(self, task: TaskModel, evaluator: ConstraintEvaluator) -> RunRecord:
+    def _run_task(
+        self,
+        task: TaskModel,
+        evaluator: ConstraintEvaluator,
+        *,
+        base_spec: Optional[SpecModel] = None,
+        effective_spec: Optional[SpecModel] = None,
+    ) -> RunRecord:
         budgets = task.budgets or default_task_budgets(task.protocol)
         rounds: List[RoundLog] = []
         next_feedback: Optional[Dict[str, Any]] = None
@@ -401,8 +418,11 @@ class TaskRunner:
         schema_error_types: set[str] = set()
         invalid_action = False
         invalid_tool_call = False
-        spec_payload = evaluator.spec.model_dump(mode="json")
-        spec_sha256 = _hash_json_payload(spec_payload)
+        base_spec_payload = (base_spec or evaluator.spec).model_dump(mode="json")
+        effective_spec_payload = (effective_spec or evaluator.spec).model_dump(mode="json")
+        spec_payload = effective_spec_payload
+        spec_sha256 = _hash_json_payload(base_spec_payload)
+        effective_spec_sha256 = _hash_json_payload(effective_spec_payload)
         tool_specs = self._tool_spec(task.protocol)
         tool_names = {tool["name"] for tool in tool_specs}
         round_index = 1
@@ -767,7 +787,7 @@ class TaskRunner:
             final_p_hard_pass=last_p_hard_pass,
             decision=decision,
             spec_sha256=spec_sha256,
-            effective_spec_sha256=spec_sha256,
+            effective_spec_sha256=effective_spec_sha256,
             schema_error=schema_error,
             schema_error_types=sorted(schema_error_types),
             invalid_action=invalid_action,

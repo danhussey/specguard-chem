@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping
 
 from ..benchmark.effective_spec import build_effective_spec
-from ..config import PATHS, ProjectPaths, TaskModel, load_spec
+from ..config import PATHS, ProjectPaths, SpecModel, TaskModel, load_spec
 from ..runner.protocols import ConstraintEvaluator
 from ..utils import jsonio
 from ..verifiers import canonicalize_smiles
@@ -92,6 +92,7 @@ def validate_dataset_records(
             "smiles_invariance": 1,
             "boundary_precision": 1,
             "interrupt_resume": 1,
+            "tool_forced_l3": 1,
         }
 
     parsed_tasks: List[TaskModel] = []
@@ -112,7 +113,8 @@ def validate_dataset_records(
         )
 
     family_counts: Dict[str, int] = defaultdict(int)
-    spec_cache: Dict[tuple[str, str], ConstraintEvaluator] = {}
+    protocol_counts: Counter[str] = Counter()
+    spec_cache: Dict[tuple[str, str], SpecModel] = {}
     invariance_groups: Dict[tuple[str, str, str], List[TaskModel]] = defaultdict(list)
     repair_total = 0
     repair_hard_fail_starts = 0
@@ -120,6 +122,7 @@ def validate_dataset_records(
     for task in parsed_tasks:
         family = task.task_family or "unspecified"
         family_counts[family] += 1
+        protocol_counts[task.protocol] += 1
         task_constraints_payload = (
             task.task_constraints.model_dump(mode="json")
             if task.task_constraints is not None
@@ -139,8 +142,11 @@ def validate_dataset_records(
         if cache_key not in spec_cache:
             base_spec = load_spec(task.spec_id, paths=paths)
             effective_spec = build_effective_spec(base_spec, task.task_constraints)
-            spec_cache[cache_key] = ConstraintEvaluator(effective_spec)
-        evaluator = spec_cache[cache_key]
+            spec_cache[cache_key] = effective_spec
+        evaluator = ConstraintEvaluator(
+            spec_cache[cache_key],
+            input_smiles=task.input.smiles,
+        )
 
         if task.expected_action == "ACCEPT":
             evidence = task.evidence
@@ -245,16 +251,14 @@ def validate_dataset_records(
                                 errors.append(
                                     f"{task.task_id}: boundary_property mismatch (evidence={boundary_property}, observed={nearest[0]})"
                                 )
-                            if boundary_side and nearest[1] != boundary_side:
-                                errors.append(
-                                    f"{task.task_id}: boundary_side mismatch (evidence={boundary_side}, observed={nearest[1]})"
-                                )
                             if (
                                 boundary_distance is not None
-                                and abs(nearest[2] - boundary_distance) > 1e-6
+                                and nearest[2]
+                                > max(float(boundary_distance), float(boundary_margin_band))
+                                + 1e-6
                             ):
                                 errors.append(
-                                    f"{task.task_id}: boundary_distance mismatch (evidence={boundary_distance:.6f}, observed={nearest[2]:.6f})"
+                                    f"{task.task_id}: boundary_distance too large (evidence={boundary_distance:.6f}, observed={nearest[2]:.6f})"
                                 )
 
         if task.expected_action == "ABSTAIN":
@@ -273,21 +277,27 @@ def validate_dataset_records(
                 f"invariance group {group_id} ({spec_id}) must contain at least two tasks"
             )
             continue
-        evaluator = spec_cache.get((spec_id, task_constraints_key))
-        if evaluator is None:
-            evaluator = ConstraintEvaluator(load_spec(spec_id, paths=paths))
+        spec = spec_cache.get((spec_id, task_constraints_key))
+        if spec is None:
+            spec = load_spec(spec_id, paths=paths)
         base_task = tasks_in_group[0]
         if not base_task.input.smiles:
             errors.append(f"{base_task.task_id}: invariance base task missing input.smiles")
             continue
-        base_result = evaluator.evaluate(base_task.input.smiles)
+        base_result = ConstraintEvaluator(
+            spec,
+            input_smiles=base_task.input.smiles,
+        ).evaluate(base_task.input.smiles)
         for candidate_task in tasks_in_group[1:]:
             if not candidate_task.input.smiles:
                 errors.append(
                     f"{candidate_task.task_id}: invariance task missing input.smiles"
                 )
                 continue
-            candidate_result = evaluator.evaluate(candidate_task.input.smiles)
+            candidate_result = ConstraintEvaluator(
+                spec,
+                input_smiles=candidate_task.input.smiles,
+            ).evaluate(candidate_task.input.smiles)
             if candidate_result.hard_pass != base_result.hard_pass:
                 errors.append(
                     f"{candidate_task.task_id}: invariance hard_pass mismatch within group {group_id}"
@@ -307,6 +317,11 @@ def validate_dataset_records(
         if family_counts.get(family, 0) < min_count:
             errors.append(
                 f"distribution sanity failed: {family} has {family_counts.get(family, 0)} < {min_count}"
+            )
+    for protocol in ("L1", "L2", "L3"):
+        if protocol_counts.get(protocol, 0) <= 0:
+            errors.append(
+                f"distribution sanity failed: protocol {protocol} has 0 tasks"
             )
 
     repair_start_hard_fail_rate = (

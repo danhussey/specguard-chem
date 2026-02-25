@@ -3,6 +3,8 @@ baselines:
     model: heuristic
   - name: abstention_guard
     model: abstention_guard
+  - name: verify_first
+    model: verify_first
   - name: corpus_search
     model: corpus_search
   - name: local_mutation

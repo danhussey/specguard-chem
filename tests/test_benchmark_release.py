@@ -40,6 +40,7 @@ def test_freeze_benchmark_writes_expected_layout(frozen_release: Path) -> None:
     validation = validate_release_directory(frozen_release)
     assert validation["valid"] is True
     assert validation["num_errors"] == 0
+    assert validation["tool_forced_l3_test_share"] >= validation["min_tool_forced_l3_test_share"]
 
 
 def test_freeze_benchmark_is_deterministic(tmp_path: Path) -> None:
