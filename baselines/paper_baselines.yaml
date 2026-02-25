@@ -1,0 +1,9 @@
+baselines:
+  - name: heuristic
+    model: heuristic
+  - name: abstention_guard
+    model: abstention_guard
+  - name: corpus_search
+    model: corpus_search
+  - name: local_mutation
+    model: local_mutation
