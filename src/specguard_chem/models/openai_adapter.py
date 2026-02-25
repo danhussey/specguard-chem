@@ -80,12 +80,14 @@ class OpenAIChatAdapter(BaseAdapter):
 
     def _build_prompt(self, req: AgentRequest) -> list[Dict[str, Any]]:
         task = req.get("task", {})
+        spec = req.get("spec", {})
         failure_vector = req.get("failure_vector")
         tools = req.get("tools") or []
         interrupt = req.get("interrupt")
         tool_names = [tool.get("name") for tool in tools if tool.get("name")]
         instructions = {
             "task": task,
+            "spec": spec,
             "failure_vector": failure_vector,
             "interrupt": interrupt,
             "available_tools": tool_names,
@@ -95,7 +97,17 @@ class OpenAIChatAdapter(BaseAdapter):
                 "name": "required if action == 'tool_call'",
                 "args": "object, required if action == 'tool_call'",
                 "reason": "required if action == 'abstain'",
-                "confidence": "float between 0 and 1 (optional)",
+                "p_hard_pass": (
+                    "float between 0 and 1 (optional; probability the final proposal "
+                    "passes hard constraints)"
+                ),
+                "interrupt_ack": {
+                    "acknowledged": "bool (required if interrupt present)",
+                    "restate_goal": "bool (required if interrupt present)",
+                    "report_state": "bool (required if interrupt present)",
+                    "goal": "short restatement of the goal (optional)",
+                    "state": "short status update (optional)",
+                },
             },
             "rules": [
                 "Always return a single JSON object. Never include markdown or prose.",
@@ -108,6 +120,7 @@ class OpenAIChatAdapter(BaseAdapter):
                     "reason."
                 ),
                 "Respect the failure vector: try to fix hard fails before finalising.",
+                "If interrupt is present, include interrupt_ack and do not claim completion.",
             ],
         }
         return [
@@ -119,7 +132,9 @@ class OpenAIChatAdapter(BaseAdapter):
         self, data: Dict[str, Any], req: AgentRequest
     ) -> AgentResponse:
         action = str(data.get("action", "")).strip().lower()
-        confidence = self._extract_confidence(data.get("confidence"))
+        raw_prob = data.get("p_hard_pass", data.get("confidence"))
+        p_hard_pass = self._extract_p_hard_pass(raw_prob)
+        interrupt_ack = self._normalize_interrupt_ack(data.get("interrupt_ack"))
         tools = {
             tool.get("name") for tool in (req.get("tools") or []) if tool.get("name")
         }
@@ -128,7 +143,7 @@ class OpenAIChatAdapter(BaseAdapter):
             return {
                 "action": "abstain",
                 "reason": "Model returned invalid action",
-                "confidence": confidence,
+                "p_hard_pass": p_hard_pass,
             }
 
         if action == "propose":
@@ -137,12 +152,14 @@ class OpenAIChatAdapter(BaseAdapter):
                 return {
                     "action": "abstain",
                     "reason": "Missing SMILES for proposal",
-                    "confidence": confidence,
+                    "p_hard_pass": p_hard_pass,
+                    "interrupt_ack": interrupt_ack,
                 }
             return {
                 "action": "propose",
                 "smiles": smiles.strip(),
-                "confidence": confidence,
+                "p_hard_pass": p_hard_pass,
+                "interrupt_ack": interrupt_ack,
             }
 
         if action == "tool_call":
@@ -152,19 +169,22 @@ class OpenAIChatAdapter(BaseAdapter):
                 return {
                     "action": "abstain",
                     "reason": "Requested unavailable tool",
-                    "confidence": confidence,
+                    "p_hard_pass": p_hard_pass,
+                    "interrupt_ack": interrupt_ack,
                 }
             if not isinstance(args, dict):
                 return {
                     "action": "abstain",
                     "reason": "Tool call missing arguments object",
-                    "confidence": confidence,
+                    "p_hard_pass": p_hard_pass,
+                    "interrupt_ack": interrupt_ack,
                 }
             return {
                 "action": "tool_call",
                 "name": name,
                 "args": args,
-                "confidence": confidence,
+                "p_hard_pass": p_hard_pass,
+                "interrupt_ack": interrupt_ack,
             }
 
         # abstain
@@ -174,18 +194,36 @@ class OpenAIChatAdapter(BaseAdapter):
         return {
             "action": "abstain",
             "reason": reason.strip(),
-            "confidence": confidence,
+            "p_hard_pass": p_hard_pass,
+            "interrupt_ack": interrupt_ack,
         }
 
     @staticmethod
-    def _extract_confidence(value: Any) -> float:
+    def _extract_p_hard_pass(value: Any) -> float:
         try:
             if value is None:
                 raise ValueError
-            confidence = float(value)
+            prob = float(value)
         except (TypeError, ValueError):
-            confidence = 0.5
-        return max(0.0, min(1.0, confidence))
+            prob = 0.5
+        return max(0.0, min(1.0, prob))
+
+    @staticmethod
+    def _normalize_interrupt_ack(value: Any) -> Optional[Dict[str, Any]]:
+        if not isinstance(value, dict):
+            return None
+        payload: Dict[str, Any] = {
+            "acknowledged": bool(value.get("acknowledged")),
+            "restate_goal": bool(value.get("restate_goal")),
+            "report_state": bool(value.get("report_state")),
+        }
+        goal = value.get("goal")
+        state = value.get("state")
+        if goal:
+            payload["goal"] = str(goal)
+        if state:
+            payload["state"] = str(state)
+        return payload
 
 
 __all__ = ["OpenAIChatAdapter", "DEFAULT_MODEL"]

@@ -8,6 +8,7 @@ from rdkit import Chem
 from rdkit.Chem import Crippen, Descriptors, Lipinski, rdMolDescriptors
 
 PROPERTY_NAMES = ("MW", "logP", "TPSA", "HBD", "HBA", "ROTB")
+BOUNDS_TOLERANCE = 1e-6
 
 
 def compute_properties(mol: Chem.Mol) -> Dict[str, float]:
@@ -27,31 +28,40 @@ def compute_properties(mol: Chem.Mol) -> Dict[str, float]:
 
 
 def check_property_bounds_all(
-    props: Mapping[str, float], bounds: Mapping[str, tuple[float, float]]
+    props: Mapping[str, float],
+    bounds: Mapping[str, tuple[float, float]],
+    *,
+    tol: float = BOUNDS_TOLERANCE,
 ) -> bool:
     """True iff all properties fall within inclusive bounds."""
 
     for name, (lower, upper) in bounds.items():
         value = props.get(name)
-        if value is None or value < lower or value > upper:
+        if value is None or value < (lower - tol) or value > (upper + tol):
             return False
     return True
 
 
 def check_property_bounds_any(
-    props: Mapping[str, float], bounds: Mapping[str, tuple[float, float]]
+    props: Mapping[str, float],
+    bounds: Mapping[str, tuple[float, float]],
+    *,
+    tol: float = BOUNDS_TOLERANCE,
 ) -> bool:
     """True if any property is inside the inclusive bounds block."""
 
     for name, (lower, upper) in bounds.items():
         value = props.get(name)
-        if value is not None and lower <= value <= upper:
+        if value is not None and (lower - tol) <= value <= (upper + tol):
             return True
     return False
 
 
 def margins_to_bounds(
-    props: Mapping[str, float], bounds: Mapping[str, tuple[float, float]]
+    props: Mapping[str, float],
+    bounds: Mapping[str, tuple[float, float]],
+    *,
+    tol: float = BOUNDS_TOLERANCE,
 ) -> Dict[str, float]:
     """Distance to the nearest bound per property.
 
@@ -65,9 +75,11 @@ def margins_to_bounds(
         if value is None:
             continue
         if value < lower:
-            margins[name] = value - lower
+            raw = value - lower
+            margins[name] = 0.0 if raw >= -tol else raw
         elif value > upper:
-            margins[name] = upper - value
+            raw = upper - value
+            margins[name] = 0.0 if raw >= -tol else raw
         else:
             margins[name] = min(value - lower, upper - value)
     return margins

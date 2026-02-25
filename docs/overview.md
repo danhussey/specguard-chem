@@ -1,70 +1,85 @@
 # SpecGuard-Chem — Conceptual Overview
 
-This document gives a narrative tour of the SpecGuard-Chem stack so new contributors can orient quickly. It summarises the motivation, system layout, key abstractions, and the relationships between data, runner, adapters, and scoring.
+This document describes the current architecture and data flow of SpecGuard-Chem.
 
-## 1. Purpose
-- Provide a reproducible harness to evaluate chemistry-oriented LLM agents against clearly defined property specs.
-- Focus on compliance and safety (hard/soft constraints, interrupts, and abstentions) rather than discovery or synthesis planning.
-- Remain model-agnostic: any agent that speaks the adapter protocol can plug into the runner.
+## 1) Purpose
+SpecGuard-Chem is a reproducible harness for evaluating agent behavior against explicit medicinal-chemistry-style specs. It measures rule-following, abstention, interrupt safety, and budget/tool efficiency.
 
-## 2. Architecture at a Glance
-1. **Data layer** — `data/specs/*.yaml` define constraint sets; `tasks/suites/*.jsonl` define evaluation tasks grouped into suites (e.g., `basic`, `interrupts`).
-2. **Schemas & config** — `specguard_chem.config` loads/validates specs and tasks, exposing strongly typed Pydantic models.
-3. **Runner core** — `specguard_chem.runner.runner.TaskRunner` orchestrates episodes across protocols L1/L2/L3, feeds failure vectors, handles interrupts, and logs structured traces.
-4. **Verifiers** — `specguard_chem.verifiers.*` wraps RDKit descriptors, PAINS alerts, SA scoring, and SMILES canonicalisation used by the runner to judge proposals.
-5. **Adapters** — concrete agents (`heuristic`, `open_source_example`, `abstention_guard`) subclass `BaseAdapter`, interpreting requests and crafting responses.
-6. **Scoring & reports** — `specguard_chem.scoring` aggregates hard/soft outcomes, edit economy, abstention utility, and calibration metrics; the CLI surfaces summaries.
+It is not a drug-discovery pipeline.
 
-```
-Tasks ──► Config/Schemas ──► Runner ──► Adapter
-   ▲          │                │         │
-   │          ▼                ▼         ▼
- Specs ◄── Verifiers ◄── Scoring/Reports ◄─┘
-```
+## 2) System Layout
+1. **Specs** (`data/specs/*.yaml`): strict v2 spec definitions with families/splits and typed constraints.
+2. **Task suites** (`tasks/suites/*.jsonl`): protocol-tagged episodes with budgets, expected actions, optional interrupt policy, and evidence.
+3. **Runner** (`specguard_chem.runner.runner.TaskRunner`): orchestrates L1/L2/L3 loops, tool calls, gating, interrupts/resume tokens, and trace logging.
+4. **Verifiers** (`specguard_chem.verifiers.*`): deterministic RDKit-backed checks for properties, alert families, SA proxy, canonicalization, and edit costs.
+5. **Adapters** (`specguard_chem.models.*`): pluggable agent implementations (`heuristic`, `open_source_example`, `abstention_guard`, `process`, `openai_chat`).
+6. **Scoring/reports** (`specguard_chem.scoring.*`): computes decision-level metrics, curves, calibration, and metadata-rich `report.json`.
+7. **Dataset pipeline** (`specguard_chem.dataset.*`): deterministic corpus/task generation and dataset validation.
 
-## 3. Protocols
-- **L1 (Single-shot)**: one proposal; no feedback loop. Evaluates immediate spec comprehension.
-- **L2 (Assisted repair)**: up to three rounds. Runner returns a failure vector after each proposal. Interrupts can fire mid-episode to test safety acknowledgements.
-- **L3 (Tool-in-loop)**: agents may call `verify(smiles)` as a dry-run before finalising. Hard gating still applies on final submission.
+## 3) Protocol Semantics
+- **L1**: one-shot proposal, no feedback.
+- **L2**: iterative repair with coarse feedback (`hard_fail_ids`, `soft_miss_ids`, parse-error signal).
+- **L3**: same proposal feedback as L2, plus explicit `verify(smiles)` tool returning full constraint-level vectors.
 
-## 4. Runner Mechanics
-- Builds a `ConstraintEvaluator` per task/spec to compute properties, alerts, and synthetic accessibility.
-- Generates a failure vector summarising hard failures, soft misses, and margins to bounds.
-- Injects interrupt payloads on the configured round (`interrupt_at_step`) so adapters can respond deterministically.
-- Logs each round (action, SMILES, evaluation, confidence, interrupt flag) and persists:
-  - `trace.jsonl`: detailed round-by-round log.
-  - `leaderboard.tsv`: per-task summary, including decision and confidence.
-  - `summary.json`: aggregate stats (pass rate, spec score, rounds, edit distance).
+This makes verifier calls measurable instead of giving full margins for free.
 
-## 5. Adapters
-- **`heuristic`**: deterministic RDKit mutator that reacts to failure vectors (switches scaffolds, tweaks polarity) and cites triggered constraints.
-- **`open_source_example`**: illustrative baseline that showcases tool-call behaviour in L3.
-- **`abstention_guard`**: conservative agent that abstains when margins are too tight; otherwise proposes safe scaffolds.
-- The registry in `specguard_chem.models` allows dynamic registration; adapters only need to implement `step(req: AgentRequest)`.
+## 4) Runner Behavior
+For each task, runner:
+- resolves and embeds full `spec` in every adapter request
+- enforces task budgets (`max_steps`, `max_proposals`, `max_verify_calls`, `max_total_verifier_calls`)
+- normalizes malformed adapter outputs to abstain while recording schema flags
+- hard-gates final acceptance on verifier hard pass
+- tracks decision as `final_decision ∈ {ACCEPT, REJECT, ABSTAIN}`
+- logs interrupt compliance and resume-token outcomes when interrupts fire
 
-## 6. Scoring & Metrics
-- **Hard pass / soft compliance** roll into the spec score (`specguard_chem.scoring.metrics.spec_compliance`).
-- **Edit economy**: Levenshtein distance between input and final SMILES.
-- **Abstention utility**: cost-weighted utility for accept/reject/abstain decisions with heavy penalties on false accepts.
-- **Calibration**: Brier score and Expected Calibration Error computed over final confidences.
-- CLI reports highlight `avg_spec_score`, violation rate, accept/abstain rates, rounds, edit economy, calibration, and abstention utility.
+Outputs per run directory:
+- `trace.jsonl`
+- `leaderboard.tsv`
+- `summary.json`
+- `report.json` (after `specguard-chem report`)
 
-## 7. Task Suites
-- **`basic`** (10 tasks): mixture of L1 proposals, L2 repairs, L3 verify-in-loop, and abstention prompts.
-- **`interrupts`** (3 tasks): every task triggers an interrupt to test acknowledgement and recovery logic.
-- Suites live under `tasks/suites/*.jsonl`; new suites must respect `tasks/schema.json` and should ship with targeted tests.
+## 5) Data Contracts
+- **Spec schema**: strict enum-driven checks, typed params, `additionalProperties: false`.
+- **Task schema**: expected action, budgets, task family, evidence, interrupt behavior.
+- **Failure vector**: legacy summaries plus `constraint_results` with per-constraint status, property margins, and alert hits.
 
-## 8. Safety & Reproducibility
-- SAFETY.md codifies scope: no synthesis planning, no claims about biological activity, offline deterministic verifiers only.
-- Reproducibility leans on fixed seeds (`utils.seeds`), `uv`-managed environments, CI smoke runs, and Docker.
+Legacy v1 specs are migrated into v2 internal representation at load time.
 
-## 9. Extending the Project
-- Add new specs: drop YAML under `data/specs/` and update tests to cover constraints.
-- Add suites: extend JSONL files, ensuring coverage in `tests/test_schemas.py`.
-- Add adapters: subclass `BaseAdapter`, register with `register_adapter`, and supply tests validating behaviour.
-- Enrich reports: modify `scoring/reports.py`, then update CLI and regression tests.
+## 6) Metrics (high level)
+Report summary includes:
+- decision-level confusion/utility
+- budget-first metrics (`pass_at_steps`, steps/tool economy)
+- risk-coverage and cost-coverage curves from `p_hard_pass`
+- calibration (`brier_score`, `ece`)
+- hard-vs-soft conditional metrics
+- interrupt/resume metrics
+- edit economy (string + BRICS, final + trajectory)
+- gaming resistance (`invariance_failure_rate`, boundary precision rates)
+- schema robustness (`schema_error_rate`, invalid action/tool-call rates)
+- per-family and per-split slices
 
-For implementation specifics or deep dives, see:
-- `SPEC.md` for the authoritative engineering spec.
-- `METRICS.md` for mathematical definitions.
-- `SAFETY.md` for guardrails and scope.
+See `METRICS.md` for exact definitions.
+
+## 7) Current Built-in Suites
+- `basic_plain`, `basic_checklist`
+- `repair_ladder_plain`, `repair_ladder_checklist`
+- `interrupts`, `interrupt_strict`, `interrupt_resume`
+- `alerts_pains_soft`
+- `smiles_invariance`
+- `boundary_precision`
+
+## 8) CLI Surface
+Primary commands:
+- `run`
+- `report`
+- `build-corpus`
+- `generate-tasks`
+- `validate-dataset`
+- `run-baselines`
+- `compare-baselines` (supports `--group-by`)
+
+## 9) Reproducibility and Scope
+- deterministic seeds and strict schemas
+- no web/external-service dependency for benchmark correctness
+- report metadata captures versions and hashes (taskset/spec-family/corpus when available)
+- scope guardrails are defined in `SAFETY.md`

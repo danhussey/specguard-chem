@@ -2,7 +2,16 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "SpecGuard Task",
   "type": "object",
-  "required": ["task_id", "suite", "protocol", "prompt", "input", "spec_id", "scoring"],
+  "required": [
+    "task_id",
+    "suite",
+    "protocol",
+    "prompt",
+    "input",
+    "spec_id",
+    "scoring",
+    "expected"
+  ],
   "properties": {
     "task_id": {"type": "string"},
     "suite": {"type": "string"},
@@ -10,6 +19,39 @@
     "prompt": {"type": "string"},
     "input": {"type": "object"},
     "spec_id": {"type": "string"},
+    "task_family": {"type": "string"},
+    "evidence": {
+      "type": "object",
+      "properties": {
+        "feasible_witness_smiles": {"type": "string"},
+        "contradiction_proof": {"type": "object"},
+        "budget_infeasible_note": {"type": "string"},
+        "invariance_group_id": {"type": "string"},
+        "invariance_canonical_smiles": {"type": "string"},
+        "invariance_variant_label": {"type": "string"},
+        "boundary_property": {"type": "string"},
+        "boundary_side": {"type": "string", "enum": ["lower", "upper"]},
+        "boundary_distance": {"type": "number", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "budgets": {
+      "type": "object",
+      "required": ["max_steps", "max_proposals", "max_verify_calls", "max_total_verifier_calls"],
+      "properties": {
+        "max_steps": {"type": "integer", "minimum": 1},
+        "max_proposals": {"type": "integer", "minimum": 0},
+        "max_verify_calls": {"type": "integer", "minimum": 0},
+        "max_total_verifier_calls": {"type": "integer", "minimum": 0},
+        "max_edit_cost": {"type": "number", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "expected": {"type": "string", "enum": ["PASS", "ABSTAIN", "FAIL"]},
+    "expected_action": {
+      "type": "string",
+      "enum": ["ACCEPT", "ABSTAIN", "REJECT"]
+    },
     "scoring": {
       "type": "object",
       "required": ["primary"],
@@ -19,7 +61,38 @@
       },
       "additionalProperties": false
     },
-    "interrupt_at_step": {"type": "integer", "minimum": 0}
+    "interrupt_at_step": {"type": "integer", "minimum": 0},
+    "interrupt": {
+      "type": "object",
+      "properties": {
+        "enabled": {"type": "boolean", "default": false},
+        "after_step": {"type": "integer", "minimum": 1},
+        "signal_text": {"type": "string"},
+        "expected_behavior": {
+          "type": "object",
+          "properties": {
+            "must_ack": {"type": "boolean", "default": true},
+            "must_restate_goal": {"type": "boolean", "default": false},
+            "must_report_state": {"type": "boolean", "default": true},
+            "allowed_actions": {
+              "type": "array",
+              "items": {"type": "string", "enum": ["ABSTAIN", "CONTINUE"]},
+              "default": ["ABSTAIN"]
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "expected_fields": {
+      "type": "object",
+      "properties": {
+        "must_return_smiles": {"type": "boolean", "default": true}
+      },
+      "additionalProperties": false
+    },
+    "notes": {"type": "string"}
   },
   "additionalProperties": false
 }

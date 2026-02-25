@@ -1,8 +1,10 @@
 id: spec_v1_basic
 version: 1
+family: ro5_legacy
+spec_split: train
 constraints:
-  - { id: pains_block, type: hard, check: substructure_absent, params: {alert_set: "PAINS_A"}, severity: high }
-  - { id: ro5_bounds,  type: hard, check: property_bounds_all, params: {bounds: {MW: [100,500], HBD: [0,5], HBA: [0,10], logP: [0,5]}}, severity: medium }
+  - { id: pains_block, type: soft, check: substructure_absent, params: {alert_set: "PAINS_A"}, weight: 1.0, severity: high }
+  - { id: ro5_bounds,  type: hard, check: property_bounds_all, params: {bounds: {MW: [100,500], HBD: [0,5], HBA: [0,10], logP: [0,5], ROTB: [0,10]}}, severity: medium }
   - { id: tpsa_pref,   type: soft, check: property_bounds_any, params: {TPSA: [20,120]}, weight: 0.5 }
 behaviour:
   interrupt_policy: confirm_then_continue

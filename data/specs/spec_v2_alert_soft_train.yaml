@@ -1,0 +1,37 @@
+id: spec_v2_alert_soft_train
+version: 2
+family: alerts_soft
+spec_split: train
+constraints:
+  - id: broad_druglike_bounds
+    type: hard
+    check: property_bounds
+    params:
+      mode: all
+      bounds:
+        MW: {min: 100, max: 550}
+        HBD: {min: 0, max: 6}
+        HBA: {min: 0, max: 12}
+        logP: {min: -1, max: 5.5}
+        ROTB: {min: 0, max: 12}
+  - id: pains_a_soft
+    type: soft
+    check: alert_set_absent
+    params: {alert_set: "PAINS_A"}
+    weight: 1.0
+  - id: pains_b_soft
+    type: soft
+    check: alert_set_absent
+    params: {alert_set: "PAINS_B"}
+    weight: 1.0
+  - id: pains_c_soft
+    type: soft
+    check: alert_set_absent
+    params: {alert_set: "PAINS_C"}
+    weight: 1.0
+behaviour:
+  interrupt_policy: confirm_then_continue
+  abstain_policy:
+    margin_lt:
+      logP: 0.2
+      MW: 10.0

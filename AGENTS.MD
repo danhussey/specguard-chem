@@ -30,7 +30,7 @@
    - Provide at least one abstention-focused baseline (`abstention_guard`) for comparison.
 6) **Scoring** (Scoring Eng): compliance, ECE/Brier, reports; CLI `report`.
 7) **Docs & Safety** (Docs Eng): examples, metrics doc, safety guardrails.
-   - Keep README adapter list in sync and describe task suites (basic + interrupts).
+   - Keep README adapter list in sync and describe task suites (basic_plain/basic_checklist + interrupts).
 8) **Smoke CI**: run 5 tasks in CI; enforce < 120s runtime and include `specguard-chem report` smoke.
 
 ## Commit conventions

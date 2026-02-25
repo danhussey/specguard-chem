@@ -1,0 +1,31 @@
+id: spec_v2_low_rotor_train
+version: 2
+family: flexibility
+spec_split: train
+constraints:
+  - id: low_rotor_bounds
+    type: hard
+    check: property_bounds
+    params:
+      mode: all
+      bounds:
+        MW: {min: 120, max: 480}
+        HBD: {min: 0, max: 5}
+        HBA: {min: 0, max: 10}
+        logP: {min: -1, max: 4.5}
+        ROTB: {min: 0, max: 4}
+  - id: tpsa_soft_window
+    type: soft
+    check: property_bounds
+    params:
+      mode: any
+      bounds:
+        TPSA: {min: 20, max: 120}
+    weight: 0.5
+behaviour:
+  interrupt_policy: confirm_then_continue
+  abstain_policy:
+    margin_lt:
+      ROTB: 1.0
+      logP: 0.2
+

@@ -23,6 +23,19 @@ class OpenSourceExampleAdapter(BaseAdapter):
         round_id = req.get("round", 1)
         input_block = task.get("input") or {}
         starting_smiles: Optional[str] = input_block.get("smiles")
+        if req.get("interrupt"):
+            return {
+                "action": "abstain",
+                "reason": "Interrupt received; pausing safely.",
+                "p_hard_pass": 0.35,
+                "interrupt_ack": {
+                    "acknowledged": True,
+                    "restate_goal": True,
+                    "report_state": True,
+                    "goal": f"Task {task.get('task_id')} for {task.get('spec_id')}",
+                    "state": "Interrupted before final proposal.",
+                },
+            }
 
         if protocol == "L3" and round_id == 1 and failure_vector is None:
             return {
@@ -32,9 +45,13 @@ class OpenSourceExampleAdapter(BaseAdapter):
             }
 
         if failure_vector:
-            hard_fails = [
-                item.get("id") for item in failure_vector.get("hard_fails", [])
-            ]
+            hard_fail_ids = failure_vector.get("hard_fail_ids")
+            if isinstance(hard_fail_ids, list):
+                hard_fails = [str(item) for item in hard_fail_ids if item]
+            else:
+                hard_fails = [
+                    item.get("id") for item in failure_vector.get("hard_fails", [])
+                ]
             proposal = starting_smiles or _SAFE_PROPOSAL
             if "pains_block" in hard_fails or not proposal:
                 proposal = _SAFE_PROPOSAL
@@ -42,8 +59,8 @@ class OpenSourceExampleAdapter(BaseAdapter):
                 "action": "propose",
                 "smiles": proposal,
                 "cited_specs": [fid for fid in hard_fails if fid],
-                "confidence": 0.6,
+                "p_hard_pass": 0.6,
             }
 
         proposal = starting_smiles or _SAFE_PROPOSAL
-        return {"action": "propose", "smiles": proposal, "confidence": 0.5}
+        return {"action": "propose", "smiles": proposal, "p_hard_pass": 0.5}

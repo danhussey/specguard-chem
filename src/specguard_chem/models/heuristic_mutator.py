@@ -23,13 +23,26 @@ class HeuristicMutatorAdapter(BaseAdapter):
         failure_vector = req.get("failure_vector")
         input_block = task.get("input") or {}
         starting_smiles: Optional[str] = input_block.get("smiles")
+        if req.get("interrupt"):
+            return {
+                "action": "abstain",
+                "reason": "Interrupt received; pausing safely.",
+                "p_hard_pass": 0.4,
+                "interrupt_ack": {
+                    "acknowledged": True,
+                    "restate_goal": True,
+                    "report_state": True,
+                    "goal": f"Task {task.get('task_id')} for {task.get('spec_id')}",
+                    "state": "Interrupted before final proposal.",
+                },
+            }
 
         if round_id == 1 and not failure_vector:
             proposal = starting_smiles or _SAFE_OPTIONS["default"]
             return {
                 "action": "propose",
                 "smiles": proposal,
-                "confidence": 0.5,
+                "p_hard_pass": 0.5,
                 "cited_specs": ["initial_guess"],
             }
 
@@ -38,7 +51,7 @@ class HeuristicMutatorAdapter(BaseAdapter):
             "action": "propose",
             "smiles": proposal,
             "cited_specs": [cid for cid in cited if cid],
-            "confidence": 0.7,
+            "p_hard_pass": 0.7,
         }
 
     def _select_fix(
@@ -47,12 +60,22 @@ class HeuristicMutatorAdapter(BaseAdapter):
         if not failure_vector:
             return starting_smiles or _SAFE_OPTIONS["default"], ["fallback_default"]
 
+        hard_fail_ids = failure_vector.get("hard_fail_ids")
+        if isinstance(hard_fail_ids, list):
+            hard_ids = [str(item) for item in hard_fail_ids if item]
+        else:
+            hard_ids = [item.get("id") for item in failure_vector.get("hard_fails", [])]
+
+        soft_miss_ids = failure_vector.get("soft_miss_ids")
+        if isinstance(soft_miss_ids, list):
+            soft_ids = [str(item) for item in soft_miss_ids if item]
+        else:
+            soft_ids = [item.get("id") for item in failure_vector.get("soft_misses", [])]
+
         margins = {
             item.get("id"): item.get("distance_to_bound")
             for item in failure_vector.get("margins", [])
         }
-        hard_ids = [item.get("id") for item in failure_vector.get("hard_fails", [])]
-        soft_ids = [item.get("id") for item in failure_vector.get("soft_misses", [])]
         cited: list[str] = [cid for cid in hard_ids + soft_ids if cid]
 
         if "pains_block" in hard_ids:

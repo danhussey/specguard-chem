@@ -19,23 +19,40 @@ class AbstentionGuardAdapter(BaseAdapter):
         failure_vector = req.get("failure_vector") or {}
         task = req.get("task", {})
         starting_smiles = (task.get("input") or {}).get("smiles")
+        if req.get("interrupt"):
+            return {
+                "action": "abstain",
+                "reason": "Interrupt received; pausing safely.",
+                "p_hard_pass": 0.3,
+                "interrupt_ack": {
+                    "acknowledged": True,
+                    "restate_goal": True,
+                    "report_state": True,
+                    "goal": f"Task {task.get('task_id')} for {task.get('spec_id')}",
+                    "state": "Interrupted before final proposal.",
+                },
+            }
 
         if round_id == 1 and not failure_vector:
             proposal = starting_smiles or _deterministic_choice(self.seed)
             return {
                 "action": "propose",
                 "smiles": proposal,
-                "confidence": 0.55,
+                "p_hard_pass": 0.55,
                 "cited_specs": ["initial"],
             }
 
         hard_fails = failure_vector.get("hard_fails", [])
+        if not hard_fails:
+            hard_fail_ids = failure_vector.get("hard_fail_ids", [])
+            if isinstance(hard_fail_ids, list):
+                hard_fails = [{"id": item} for item in hard_fail_ids]
         if hard_fails:
             # Hard gating still violated; fall back to conservative scaffold.
             return {
                 "action": "propose",
                 "smiles": _deterministic_choice(self.seed + len(hard_fails)),
-                "confidence": 0.45,
+                "p_hard_pass": 0.45,
                 "cited_specs": [
                     item.get("id") for item in hard_fails if item.get("id")
                 ],
@@ -49,6 +66,10 @@ class AbstentionGuardAdapter(BaseAdapter):
             abs(item.get("delta", 0.0) or 0.0)
             for item in failure_vector.get("soft_misses", [])
         ]
+        if not soft_deltas:
+            soft_ids = failure_vector.get("soft_miss_ids", [])
+            if isinstance(soft_ids, list):
+                soft_deltas = [0.0 for _ in soft_ids]
         near_margin = any(
             value <= self.margin_threshold for value in margins if value is not None
         )
@@ -60,14 +81,14 @@ class AbstentionGuardAdapter(BaseAdapter):
             return {
                 "action": "abstain",
                 "reason": "Uncertain compliance; margins too tight",
-                "confidence": 0.35,
+                "p_hard_pass": 0.35,
             }
 
         proposal = starting_smiles or _deterministic_choice(self.seed + round_id)
         return {
             "action": "propose",
             "smiles": proposal,
-            "confidence": 0.6,
+            "p_hard_pass": 0.6,
         }
 
 

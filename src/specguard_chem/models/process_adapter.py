@@ -51,7 +51,14 @@ class ProcessAdapter(BaseAdapter):
             raise RuntimeError("External adapter returned invalid JSON") from exc
         if not isinstance(data, dict):  # pragma: no cover - defensive
             raise RuntimeError("External adapter must return a JSON object")
-        data.setdefault("confidence", 0.5)
+        raw_prob = data.get("p_hard_pass", data.get("confidence"))
+        if raw_prob is None:
+            raw_prob = 0.5
+        try:
+            prob = float(raw_prob)
+        except (TypeError, ValueError):
+            prob = 0.5
+        data["p_hard_pass"] = max(0.0, min(1.0, prob))
         return data  # type: ignore[return-value]
 
 

@@ -1,0 +1,35 @@
+id: spec_v2_ro5_balanced_test
+version: 2
+family: ro5_balanced
+spec_split: test
+constraints:
+  - id: ro5_bounds
+    type: hard
+    check: property_bounds
+    params:
+      mode: all
+      bounds:
+        MW: {min: 120, max: 520}
+        HBD: {min: 0, max: 5}
+        HBA: {min: 0, max: 10}
+        logP: {min: -1, max: 5}
+        ROTB: {min: 0, max: 10}
+  - id: brenk_hard_block
+    type: hard
+    check: alert_set_absent
+    params: {alert_set: "BRENK"}
+  - id: tpsa_soft_window
+    type: soft
+    check: property_bounds
+    params:
+      mode: any
+      bounds:
+        TPSA: {min: 20, max: 130}
+    weight: 0.5
+behaviour:
+  interrupt_policy: confirm_then_continue
+  abstain_policy:
+    margin_lt:
+      TPSA: 5.0
+      logP: 0.2
+

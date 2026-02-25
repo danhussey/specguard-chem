@@ -1,0 +1,32 @@
+id: spec_v2_amide_friendly_dev
+version: 2
+family: motif_amide
+spec_split: dev
+constraints:
+  - id: amide_friendly_bounds
+    type: hard
+    check: property_bounds
+    params:
+      mode: all
+      bounds:
+        MW: {min: 120, max: 520}
+        HBD: {min: 0, max: 5}
+        HBA: {min: 1, max: 11}
+        logP: {min: -1, max: 4.5}
+        ROTB: {min: 0, max: 11}
+  - id: amide_preference
+    type: soft
+    check: substructure_present
+    params: {smarts_id: "amide"}
+    weight: 1.0
+  - id: pains_a_soft
+    type: soft
+    check: alert_set_absent
+    params: {alert_set: "PAINS_A"}
+    weight: 0.5
+behaviour:
+  interrupt_policy: confirm_then_continue
+  abstain_policy:
+    margin_lt:
+      logP: 0.2
+      MW: 12.0

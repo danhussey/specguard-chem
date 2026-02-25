@@ -1,0 +1,29 @@
+id: spec_v2_fragment_tight_train
+version: 2
+family: fragment_like
+spec_split: train
+constraints:
+  - id: fragment_bounds
+    type: hard
+    check: property_bounds
+    params:
+      mode: all
+      bounds:
+        MW: {min: 80, max: 280}
+        HBD: {min: 0, max: 3}
+        HBA: {min: 0, max: 6}
+        logP: {min: -1, max: 3}
+        TPSA: {min: 10, max: 110}
+        ROTB: {min: 0, max: 6}
+  - id: pains_a_soft
+    type: soft
+    check: alert_set_absent
+    params: {alert_set: "PAINS_A"}
+    weight: 0.5
+behaviour:
+  interrupt_policy: confirm_then_continue
+  abstain_policy:
+    margin_lt:
+      MW: 8.0
+      TPSA: 4.0
+
