@@ -1,4 +1,4 @@
-.PHONY: setup test lint run smoke baselines compare-baselines
+.PHONY: setup test lint run smoke baselines compare-baselines freeze-benchmark run-benchmark paper-figures
 
 setup:
 	uv venv --seed
@@ -19,3 +19,12 @@ baselines:
 
 compare-baselines:
 	uv run specguard-chem compare-baselines runs/baselines -o runs/baseline_compare.json
+
+freeze-benchmark:
+	uv run specguard-chem freeze-benchmark --benchmark-id sgchem_v0.1 --out benchmarks/releases/sgchem_v0.1 --target-tasks 200 --seed 7
+
+run-benchmark:
+	uv run specguard-chem run-benchmark --benchmark benchmarks/releases/sgchem_v0.1 --split test --baselines baselines/paper_baselines.yaml --out runs/paper_sweeps/sgchem_v0.1_test --seed 7
+
+paper-figures:
+	uv run python scripts/make_paper_figures.py --runs runs/paper_sweeps/sgchem_v0.1_test --out paper
