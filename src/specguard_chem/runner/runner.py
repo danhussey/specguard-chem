@@ -7,7 +7,7 @@ import json
 from dataclasses import dataclass, asdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any, Callable, Dict, Iterable, List, Optional
 
 from ..config import (
     FailureVector,
@@ -20,6 +20,7 @@ from ..config import (
     load_tasks_for_suite,
     select_tasks,
 )
+from ..benchmark import build_effective_spec
 from ..models import get_adapter
 from ..scoring.metrics import spec_compliance
 from ..utils import jsonio
@@ -96,6 +97,7 @@ class RunRecord:
     final_p_hard_pass: Optional[float]
     decision: str
     spec_sha256: str
+    effective_spec_sha256: str
     schema_error: bool
     schema_error_types: List[str]
     invalid_action: bool
@@ -142,6 +144,7 @@ class RunRecord:
             "final_p_hard_pass": self.final_p_hard_pass,
             "decision": self.decision,
             "spec_sha256": self.spec_sha256,
+            "effective_spec_sha256": self.effective_spec_sha256,
             "schema_error": self.schema_error,
             "schema_error_types": self.schema_error_types,
             "invalid_action": self.invalid_action,
@@ -350,13 +353,31 @@ class TaskRunner:
                     split_tasks.append(task)
             tasks = split_tasks
         tasks = select_tasks(tasks, protocol=protocol, limit=limit)
+        return self.run_tasks(
+            tasks,
+            run_dir=run_dir,
+            suite=suite,
+            protocol=protocol or "mixed",
+        )
+
+    def run_tasks(
+        self,
+        tasks: Iterable[TaskModel],
+        *,
+        run_dir: Optional[Path] = None,
+        suite: str = "benchmark",
+        protocol: str = "mixed",
+        spec_loader: Callable[[str], SpecModel] = load_spec,
+    ) -> List[RunRecord]:
+        seed_everything(self.seed)
         results: List[RunRecord] = []
         for task in tasks:
-            spec = load_spec(task.spec_id)
-            evaluator = ConstraintEvaluator(spec)
+            base_spec = spec_loader(task.spec_id)
+            effective_spec = build_effective_spec(base_spec, task.task_constraints)
+            evaluator = ConstraintEvaluator(effective_spec)
             results.append(self._run_task(task, evaluator))
         if run_dir is not None:
-            persist_run(results, run_dir, suite=suite, protocol=protocol or "mixed")
+            persist_run(results, run_dir, suite=suite, protocol=protocol)
         return results
 
     def _run_task(self, task: TaskModel, evaluator: ConstraintEvaluator) -> RunRecord:
@@ -746,6 +767,7 @@ class TaskRunner:
             final_p_hard_pass=last_p_hard_pass,
             decision=decision,
             spec_sha256=spec_sha256,
+            effective_spec_sha256=spec_sha256,
             schema_error=schema_error,
             schema_error_types=sorted(schema_error_types),
             invalid_action=invalid_action,
