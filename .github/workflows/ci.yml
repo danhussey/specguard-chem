@@ -24,3 +24,18 @@ jobs:
       - run: uv run specguard-chem run interrupts --model abstention_guard --run-path runs/ci_interrupts
       - run: uv run specguard-chem report runs/ci_interrupts
       - run: uv run specguard-chem run-baselines --suite basic_plain --spec-split train --limit 1 --out-dir runs/ci_baselines
+      - run: uv run specguard-chem freeze-benchmark --benchmark-id sgchem_v0.1 --out benchmarks/releases/ci_a --target-tasks 50 --seed 7
+      - run: uv run specguard-chem freeze-benchmark --benchmark-id sgchem_v0.1 --out benchmarks/releases/ci_b --target-tasks 50 --seed 7
+      - run: diff benchmarks/releases/ci_a/checksums/sha256sums.txt benchmarks/releases/ci_b/checksums/sha256sums.txt
+      - run: |
+          cat > baselines/ci_paper_baselines.yaml <<'YAML'
+          baselines:
+            - name: heuristic
+              model: heuristic
+            - name: corpus_search
+              model: corpus_search
+          YAML
+      - run: uv run specguard-chem run-benchmark --benchmark benchmarks/releases/ci_a --split test --baselines baselines/ci_paper_baselines.yaml --out runs/ci_paper_sweep --limit 25 --seed 7
+      - run: uv run python scripts/make_paper_figures.py --runs runs/ci_paper_sweep --out paper/ci_smoke
+      - run: test -f paper/ci_smoke/figures/pass_at_budget.png
+      - run: test -f paper/ci_smoke/tables/topline_summary.csv
