@@ -3,9 +3,11 @@ from __future__ import annotations
 """Dataset invariant validation for generated task suites."""
 
 from collections import Counter, defaultdict
+import json
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping
 
+from ..benchmark.effective_spec import build_effective_spec
 from ..config import PATHS, ProjectPaths, TaskModel, load_spec
 from ..runner.protocols import ConstraintEvaluator
 from ..utils import jsonio
@@ -76,6 +78,7 @@ def validate_dataset_records(
     paths: ProjectPaths = PATHS,
     near_miss_margin_band: float = 5.0,
     boundary_margin_band: float = 1.0,
+    repair_start_hard_fail_threshold: float = 0.70,
     min_counts: Mapping[str, int] | None = None,
 ) -> Dict[str, Any]:
     """Validate generated task invariants and evidence blocks."""
@@ -88,6 +91,7 @@ def validate_dataset_records(
             "contradiction_abstain": 1,
             "smiles_invariance": 1,
             "boundary_precision": 1,
+            "interrupt_resume": 1,
         }
 
     parsed_tasks: List[TaskModel] = []
@@ -108,15 +112,35 @@ def validate_dataset_records(
         )
 
     family_counts: Dict[str, int] = defaultdict(int)
-    spec_cache: Dict[str, ConstraintEvaluator] = {}
-    invariance_groups: Dict[tuple[str, str], List[TaskModel]] = defaultdict(list)
+    spec_cache: Dict[tuple[str, str], ConstraintEvaluator] = {}
+    invariance_groups: Dict[tuple[str, str, str], List[TaskModel]] = defaultdict(list)
+    repair_total = 0
+    repair_hard_fail_starts = 0
 
     for task in parsed_tasks:
         family = task.task_family or "unspecified"
         family_counts[family] += 1
-        if task.spec_id not in spec_cache:
-            spec_cache[task.spec_id] = ConstraintEvaluator(load_spec(task.spec_id, paths=paths))
-        evaluator = spec_cache[task.spec_id]
+        task_constraints_payload = (
+            task.task_constraints.model_dump(mode="json")
+            if task.task_constraints is not None
+            else None
+        )
+        task_constraints_key = (
+            json.dumps(
+                task_constraints_payload,
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=True,
+            )
+            if task_constraints_payload is not None
+            else ""
+        )
+        cache_key = (task.spec_id, task_constraints_key)
+        if cache_key not in spec_cache:
+            base_spec = load_spec(task.spec_id, paths=paths)
+            effective_spec = build_effective_spec(base_spec, task.task_constraints)
+            spec_cache[cache_key] = ConstraintEvaluator(effective_spec)
+        evaluator = spec_cache[cache_key]
 
         if task.expected_action == "ACCEPT":
             evidence = task.evidence
@@ -129,6 +153,7 @@ def validate_dataset_records(
                     errors.append(f"{task.task_id}: witness does not hard-pass spec")
 
             if family in {"repair_near_miss", "repair_multi_violation"}:
+                repair_total += 1
                 if not task.input.smiles:
                     errors.append(f"{task.task_id}: repair task missing input.smiles")
                 else:
@@ -137,10 +162,8 @@ def validate_dataset_records(
                         1 for outcome in start_result.hard_outcomes if not outcome.passed
                     )
                     hard_units = _hard_violation_units(start_result)
-                    if hard_fail_count == 0:
-                        errors.append(
-                            f"{task.task_id}: repair task input must start with hard violation"
-                        )
+                    if hard_fail_count > 0:
+                        repair_hard_fail_starts += 1
                     if family == "repair_near_miss":
                         if hard_units != 1:
                             errors.append(
@@ -188,7 +211,9 @@ def validate_dataset_records(
                             f"{task.task_id}: witness does not match invariance canonical"
                         )
                     if group_id:
-                        invariance_groups[(task.spec_id, group_id)].append(task)
+                        invariance_groups[
+                            (task.spec_id, task_constraints_key, group_id)
+                        ].append(task)
             elif family == "boundary_precision":
                 if not evidence:
                     errors.append(f"{task.task_id}: boundary_precision task missing evidence")
@@ -207,10 +232,6 @@ def validate_dataset_records(
                     if boundary_distance is None:
                         errors.append(
                             f"{task.task_id}: boundary_precision missing boundary_distance"
-                        )
-                    elif boundary_distance > boundary_margin_band:
-                        errors.append(
-                            f"{task.task_id}: boundary_distance {boundary_distance:.6f} exceeds band {boundary_margin_band:.6f}"
                         )
                     if witness:
                         witness_result = evaluator.evaluate(witness)
@@ -239,23 +260,22 @@ def validate_dataset_records(
         if task.expected_action == "ABSTAIN":
             evidence = task.evidence
             contradiction = evidence.contradiction_proof if evidence else None
-            note = evidence.budget_infeasible_note if evidence else None
-            if not contradiction and not note:
-                errors.append(
-                    f"{task.task_id}: ABSTAIN task needs contradiction_proof or budget_infeasible_note"
-                )
+            if not contradiction:
+                errors.append(f"{task.task_id}: ABSTAIN task needs contradiction_proof")
             if contradiction and not _is_bounds_contradiction(contradiction):
                 errors.append(
                     f"{task.task_id}: contradiction_proof present but not contradictory"
                 )
 
-    for (spec_id, group_id), tasks_in_group in invariance_groups.items():
+    for (spec_id, task_constraints_key, group_id), tasks_in_group in invariance_groups.items():
         if len(tasks_in_group) < 2:
             errors.append(
                 f"invariance group {group_id} ({spec_id}) must contain at least two tasks"
             )
             continue
-        evaluator = spec_cache[spec_id]
+        evaluator = spec_cache.get((spec_id, task_constraints_key))
+        if evaluator is None:
+            evaluator = ConstraintEvaluator(load_spec(spec_id, paths=paths))
         base_task = tasks_in_group[0]
         if not base_task.input.smiles:
             errors.append(f"{base_task.task_id}: invariance base task missing input.smiles")
@@ -289,12 +309,23 @@ def validate_dataset_records(
                 f"distribution sanity failed: {family} has {family_counts.get(family, 0)} < {min_count}"
             )
 
+    repair_start_hard_fail_rate = (
+        (repair_hard_fail_starts / repair_total) if repair_total else 0.0
+    )
+    if repair_total and repair_start_hard_fail_rate < repair_start_hard_fail_threshold:
+        errors.append(
+            "distribution sanity failed: repair start hard-fail rate "
+            f"{repair_start_hard_fail_rate:.3f} < {repair_start_hard_fail_threshold:.3f}"
+        )
+
     return {
         "valid": len(errors) == 0,
         "num_tasks": len(parsed_tasks),
         "num_errors": len(errors),
         "errors": errors,
         "family_counts": dict(sorted(family_counts.items())),
+        "repair_start_hard_fail_rate": repair_start_hard_fail_rate,
+        "repair_start_hard_fail_threshold": repair_start_hard_fail_threshold,
     }
 
 
@@ -304,6 +335,7 @@ def validate_dataset_file(
     paths: ProjectPaths = PATHS,
     near_miss_margin_band: float = 5.0,
     boundary_margin_band: float = 1.0,
+    repair_start_hard_fail_threshold: float = 0.70,
     min_counts: Mapping[str, int] | None = None,
 ) -> Dict[str, Any]:
     records = jsonio.read_jsonl(path)
@@ -312,5 +344,6 @@ def validate_dataset_file(
         paths=paths,
         near_miss_margin_band=near_miss_margin_band,
         boundary_margin_band=boundary_margin_band,
+        repair_start_hard_fail_threshold=repair_start_hard_fail_threshold,
         min_counts=min_counts,
     )

@@ -262,8 +262,8 @@ def generate_tasks(
 
 @app.command("validate-dataset")
 def validate_dataset(
-    task_path: Path = typer.Argument(
-        ..., help="Task suite JSONL path to validate."
+    dataset_path: Path = typer.Argument(
+        ..., help="Task suite JSONL path or frozen benchmark release directory."
     ),
     near_miss_margin_band: float = typer.Option(
         5.0,
@@ -275,16 +275,32 @@ def validate_dataset(
         "--boundary-margin-band",
         help="Expected boundary-precision distance ceiling.",
     ),
+    repair_start_hard_fail_threshold: float = typer.Option(
+        0.70,
+        "--repair-start-hard-fail-threshold",
+        help="Minimum required fraction of repair tasks that start hard-failing.",
+    ),
 ) -> None:
-    if not task_path.exists():
-        console.print(f"[red]Task file not found:[/red] {task_path}")
+    if not dataset_path.exists():
+        console.print(f"[red]Dataset path not found:[/red] {dataset_path}")
         raise typer.Exit(code=1)
 
-    result = validate_dataset_file(
-        task_path,
-        near_miss_margin_band=near_miss_margin_band,
-        boundary_margin_band=boundary_margin_band,
-    )
+    if dataset_path.is_dir():
+        from .benchmark.release import validate_release_directory
+
+        result = validate_release_directory(
+            dataset_path,
+            near_miss_margin_band=near_miss_margin_band,
+            boundary_margin_band=boundary_margin_band,
+            repair_start_hard_fail_threshold=repair_start_hard_fail_threshold,
+        )
+    else:
+        result = validate_dataset_file(
+            dataset_path,
+            near_miss_margin_band=near_miss_margin_band,
+            boundary_margin_band=boundary_margin_band,
+            repair_start_hard_fail_threshold=repair_start_hard_fail_threshold,
+        )
 
     summary_table = Table(title="Dataset Validation")
     summary_table.add_column("metric")
@@ -293,6 +309,12 @@ def validate_dataset(
     summary_table.add_row("num_tasks", str(result["num_tasks"]))
     summary_table.add_row("num_errors", str(result["num_errors"]))
     summary_table.add_row("family_counts", json.dumps(result["family_counts"]))
+    if "split_counts" in result:
+        summary_table.add_row("split_counts", json.dumps(result["split_counts"]))
+    summary_table.add_row(
+        "repair_start_hard_fail_rate",
+        _metric_str(result.get("repair_start_hard_fail_rate")),
+    )
     console.print(summary_table)
 
     errors = result.get("errors", [])
@@ -303,6 +325,161 @@ def validate_dataset(
             error_table.add_row(message)
         console.print(error_table)
         raise typer.Exit(code=1)
+
+
+@app.command("freeze-benchmark")
+def freeze_benchmark(
+    benchmark_id: str = typer.Option(
+        "sgchem_v0.1", "--benchmark-id", help="Benchmark release identifier."
+    ),
+    out: Path = typer.Option(
+        Path("benchmarks/releases/sgchem_v0.1"),
+        "--out",
+        help="Output release directory.",
+    ),
+    target_tasks: int = typer.Option(
+        200, "--target-tasks", help="Number of tasks to generate in release."
+    ),
+    seed: int = typer.Option(7, "--seed", help="Deterministic generation seed."),
+    near_miss_margin_band: float = typer.Option(
+        5.0,
+        "--near-miss-margin-band",
+        help="Near-miss margin band used during generation and validation.",
+    ),
+    boundary_margin_band: float = typer.Option(
+        1.0,
+        "--boundary-margin-band",
+        help="Boundary precision margin band used during generation and validation.",
+    ),
+    repair_start_hard_fail_threshold: float = typer.Option(
+        0.70,
+        "--repair-start-hard-fail-threshold",
+        help="Minimum required fraction of repair tasks that start hard-failing.",
+    ),
+) -> None:
+    from .benchmark.release import freeze_benchmark_release
+
+    try:
+        manifest = freeze_benchmark_release(
+            benchmark_id=benchmark_id,
+            out_dir=out,
+            target_tasks=target_tasks,
+            seed=seed,
+            near_miss_margin_band=near_miss_margin_band,
+            boundary_margin_band=boundary_margin_band,
+            repair_start_hard_fail_threshold=repair_start_hard_fail_threshold,
+        )
+    except Exception as exc:
+        console.print(f"[red]freeze-benchmark failed:[/red] {exc}")
+        raise typer.Exit(code=1) from exc
+
+    counts = manifest.get("counts", {}) if isinstance(manifest, dict) else {}
+    console.print(f"Benchmark release: [green]{out}[/green]")
+    console.print(
+        "Split counts: "
+        + json.dumps((counts.get("by_split") if isinstance(counts, dict) else {}))
+    )
+    console.print(f"Manifest written to [green]{out / 'MANIFEST.json'}[/green]")
+
+
+@app.command("run-benchmark")
+def run_benchmark(
+    benchmark: Path = typer.Option(
+        ...,
+        "--benchmark",
+        help="Path to frozen benchmark release directory (contains MANIFEST.json).",
+    ),
+    split: str = typer.Option(
+        "test",
+        "--split",
+        help="Release split to run (train|dev|test).",
+    ),
+    baselines: Path = typer.Option(
+        Path("baselines/paper_baselines.yaml"),
+        "--baselines",
+        help="Baseline matrix YAML file.",
+    ),
+    out: Path = typer.Option(
+        Path("runs/paper_sweeps/sgchem_v0.1_test"),
+        "--out",
+        help="Output directory for sweep artifacts.",
+    ),
+    seed: int = typer.Option(7, "--seed", help="Deterministic seed for baselines."),
+    limit: Optional[int] = typer.Option(
+        None, "--limit", help="Optional cap on number of tasks per baseline."
+    ),
+) -> None:
+    if not benchmark.exists():
+        console.print(f"[red]Benchmark directory not found:[/red] {benchmark}")
+        raise typer.Exit(code=1)
+    if not baselines.exists():
+        console.print(f"[red]Baseline YAML not found:[/red] {baselines}")
+        raise typer.Exit(code=1)
+
+    from .benchmark.sweep import run_benchmark_sweep
+
+    try:
+        aggregate = run_benchmark_sweep(
+            benchmark_dir=benchmark,
+            split=split,
+            baselines_path=baselines,
+            out_dir=out,
+            seed=seed,
+            limit=limit,
+        )
+    except Exception as exc:
+        console.print(f"[red]run-benchmark failed:[/red] {exc}")
+        raise typer.Exit(code=1) from exc
+
+    table = Table(title="Benchmark Sweep")
+    table.add_column("baseline")
+    table.add_column("model")
+    table.add_column("protocol")
+    table.add_column("num_tasks", justify="right")
+    table.add_column("accept_rate", justify="right")
+    table.add_column("hard_violation_rate", justify="right")
+    for row in aggregate.get("baselines", []):
+        metrics = row.get("metrics", {})
+        table.add_row(
+            str(row.get("name")),
+            str(row.get("model")),
+            str(row.get("protocol") or "mixed"),
+            str(metrics.get("num_tasks", 0)),
+            _metric_str(metrics.get("accept_rate")),
+            _metric_str(metrics.get("hard_violation_rate")),
+        )
+    console.print(table)
+    console.print(f"Aggregate written to [green]{out / 'aggregate.json'}[/green]")
+
+
+@app.command("paper-figures")
+def paper_figures(
+    runs: Optional[Path] = typer.Option(
+        None,
+        "--runs",
+        help="Sweep directory containing aggregate.json and per-baseline runs.",
+    ),
+    aggregate: Optional[Path] = typer.Option(
+        None,
+        "--aggregate",
+        help="Path to aggregate.json (alternative to --runs).",
+    ),
+    out: Path = typer.Option(
+        Path("paper"),
+        "--out",
+        help="Output directory for paper figures/tables.",
+    ),
+) -> None:
+    from .benchmark.paper import make_paper_artifacts
+
+    try:
+        result = make_paper_artifacts(out_dir=out, runs_dir=runs, aggregate_path=aggregate)
+    except Exception as exc:
+        console.print(f"[red]paper-figures failed:[/red] {exc}")
+        raise typer.Exit(code=1) from exc
+    console.print(f"Figures: [green]{result['figures_dir']}[/green]")
+    console.print(f"Tables: [green]{result['tables_dir']}[/green]")
+    console.print(f"Summary: [green]{result['summary_path']}[/green]")
 
 
 @app.command()

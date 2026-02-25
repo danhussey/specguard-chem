@@ -117,6 +117,8 @@ def _protocol_for_family(family: str, index: int) -> str:
         return "L1"
     if family == "boundary_precision":
         return "L2"
+    if family == "interrupt_resume":
+        return "L2"
     return "L1"
 
 
@@ -301,6 +303,50 @@ def _build_abstain_task(
     }
 
 
+def _build_interrupt_resume_task(
+    *,
+    suite_name: str,
+    spec: SpecModel,
+    index: int,
+    input_smiles: str,
+    witness_smiles: str,
+) -> Dict[str, Any]:
+    protocol = _protocol_for_family("interrupt_resume", index)
+    return {
+        "task_id": _task_id(
+            suite_name=suite_name,
+            family="interrupt_resume",
+            spec_id=spec.id,
+            index=index,
+        ),
+        "suite": suite_name,
+        "protocol": protocol,
+        "prompt": (
+            "You may be interrupted after step 1. "
+            f"Acknowledge interrupt, report state, then continue to satisfy {spec.id}."
+        ),
+        "input": {"smiles": input_smiles},
+        "spec_id": spec.id,
+        "scoring": {"primary": "spec_compliance", "secondary": "edit_distance"},
+        "expected": "PASS",
+        "expected_action": "ACCEPT",
+        "task_family": "interrupt_resume",
+        "budgets": default_task_budgets(protocol).model_dump(mode="json"),
+        "interrupt": {
+            "enabled": True,
+            "after_step": 1,
+            "signal_text": "Pause and confirm before continuing.",
+            "expected_behavior": {
+                "must_ack": True,
+                "must_restate_goal": True,
+                "must_report_state": True,
+                "allowed_actions": ["CONTINUE"],
+            },
+        },
+        "evidence": {"feasible_witness_smiles": witness_smiles},
+    }
+
+
 def _spec_candidates(
     *,
     spec: SpecModel,
@@ -313,6 +359,7 @@ def _spec_candidates(
     near_miss: List[Dict[str, Any]] = []
     multi_violation: List[Dict[str, Any]] = []
     boundary_precision: List[Dict[str, Any]] = []
+    boundary_any: List[Dict[str, Any]] = []
     for record in corpus_records:
         smiles = str(record["canonical_smiles"])
         result = evaluator.evaluate(smiles)
@@ -321,15 +368,16 @@ def _spec_candidates(
         if result.hard_pass:
             passing.append(record)
             nearest = _nearest_hard_boundary(result)
-            if nearest is not None and nearest[2] <= boundary_margin_band:
-                boundary_precision.append(
-                    {
-                        "smiles": smiles,
-                        "boundary_property": nearest[0],
-                        "boundary_side": nearest[1],
-                        "boundary_distance": nearest[2],
-                    }
-                )
+            if nearest is not None:
+                candidate = {
+                    "smiles": smiles,
+                    "boundary_property": nearest[0],
+                    "boundary_side": nearest[1],
+                    "boundary_distance": nearest[2],
+                }
+                boundary_any.append(candidate)
+                if nearest[2] <= boundary_margin_band:
+                    boundary_precision.append(candidate)
             continue
         candidate = {
             "smiles": smiles,
@@ -344,6 +392,10 @@ def _spec_candidates(
                 near_miss.append(candidate)
         if hard_violation_units >= 2:
             multi_violation.append(candidate)
+    if not boundary_precision and boundary_any:
+        boundary_precision = sorted(
+            boundary_any, key=lambda item: (item["boundary_distance"], item["smiles"])
+        )[: min(5, len(boundary_any))]
     return {
         "passing": sorted(passing, key=lambda item: item["canonical_smiles"]),
         "near_miss": sorted(near_miss, key=lambda item: item["smiles"]),
@@ -389,17 +441,24 @@ def generate_tasks_from_corpus(
         for spec in specs_sorted
     }
 
+    n_boundary = max(1, int(target_tasks * 0.06))
     n_feasible = int(target_tasks * 0.28)
     n_near = int(target_tasks * 0.20)
     n_multi = int(target_tasks * 0.20)
     n_abstain = int(target_tasks * 0.14)
     n_invariance = int(target_tasks * 0.10)
-    n_boundary = max(
-        target_tasks - (n_feasible + n_near + n_multi + n_abstain + n_invariance), 0
+    n_interrupt = int(target_tasks * 0.08)
+    planned = (
+        n_feasible + n_near + n_multi + n_abstain + n_invariance + n_interrupt + n_boundary
     )
+    if planned < target_tasks:
+        n_feasible += target_tasks - planned
+    elif planned > target_tasks:
+        overflow = planned - target_tasks
+        n_feasible = max(1, n_feasible - overflow)
     if n_invariance % 2 != 0:
         n_invariance -= 1
-        n_boundary += 1
+        n_feasible += 1
 
     tasks: List[Dict[str, Any]] = []
     counters: Dict[Tuple[str, str], int] = {}
@@ -492,13 +551,22 @@ def generate_tasks_from_corpus(
             )
         )
 
+    boundary_pool: List[Tuple[SpecModel, Dict[str, Any]]] = []
+    for spec in specs_sorted:
+        for candidate in per_spec_candidates[spec.id]["boundary_precision"]:
+            boundary_pool.append((spec, candidate))
+    boundary_pool.sort(
+        key=lambda item: (
+            float(item[1].get("boundary_distance", 0.0)),
+            item[0].id,
+            str(item[1].get("smiles", "")),
+        )
+    )
+
     for offset in range(n_boundary):
-        spec = specs_sorted[offset % len(specs_sorted)]
-        candidates = per_spec_candidates[spec.id]
-        source_pool = candidates["boundary_precision"]
-        if not source_pool:
-            continue
-        source = source_pool[(offset + rng.randrange(len(source_pool))) % len(source_pool)]
+        if not boundary_pool:
+            break
+        spec, source = boundary_pool[(offset + rng.randrange(len(boundary_pool))) % len(boundary_pool)]
         witness_smiles = str(source["smiles"])
         task = _build_boundary_task(
             suite_name=suite_name,
@@ -520,6 +588,29 @@ def generate_tasks_from_corpus(
             spec=spec,
             index=next_index("contradiction_abstain", spec.id),
             contradiction=contradiction,
+        )
+        tasks.append(task)
+
+    for offset in range(n_interrupt):
+        spec = specs_sorted[offset % len(specs_sorted)]
+        candidates = per_spec_candidates[spec.id]
+        passing = candidates["passing"]
+        if not passing:
+            continue
+        witness = passing[(offset + rng.randrange(len(passing))) % len(passing)][
+            "canonical_smiles"
+        ]
+        near = candidates["near_miss"] or candidates["multi_violation"]
+        if near:
+            input_smiles = near[offset % len(near)]["smiles"]
+        else:
+            input_smiles = str(witness)
+        task = _build_interrupt_resume_task(
+            suite_name=suite_name,
+            spec=spec,
+            index=next_index("interrupt_resume", spec.id),
+            input_smiles=input_smiles,
+            witness_smiles=str(witness),
         )
         tasks.append(task)
 

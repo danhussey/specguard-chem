@@ -247,6 +247,27 @@ class TaskBudgetsModel(BaseModel):
     max_edit_cost: Optional[float] = Field(default=None, ge=0)
 
 
+class TaskConstraintOverrideModel(BaseModel):
+    """Deterministic per-constraint override block merged into a base spec."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    check: Optional[SpecCheck] = None
+    type: Optional[ConstraintType] = None
+    severity: Optional[str] = None
+    weight: Optional[float] = None
+    params: Dict[str, Any] = Field(default_factory=dict)
+
+
+class TaskConstraintsModel(BaseModel):
+    """Task-level patch for constructing an effective spec."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    overrides: Dict[str, TaskConstraintOverrideModel] = Field(default_factory=dict)
+    additions: List[ConstraintModel] = Field(default_factory=list)
+
+
 def default_task_budgets(protocol: str) -> TaskBudgetsModel:
     """Protocol defaults preserve the original step limits."""
 
@@ -312,6 +333,7 @@ class TaskModel(BaseModel):
     scoring: TaskScoringModel
     task_family: Optional[str] = None
     evidence: Optional[TaskEvidenceModel] = None
+    task_constraints: Optional[TaskConstraintsModel] = None
     budgets: Optional[TaskBudgetsModel] = None
     interrupt_at_step: Optional[int] = None
     expected: ExpectedOutcome = "PASS"
