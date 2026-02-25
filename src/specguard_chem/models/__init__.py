@@ -10,6 +10,8 @@ from .open_source_example import OpenSourceExampleAdapter
 from .abstention_guard import AbstentionGuardAdapter
 from .process_adapter import ProcessAdapter
 from .openai_adapter import OpenAIChatAdapter
+from .corpus_search import CorpusSearchAdapter
+from .local_mutation import LocalMutationAdapter
 
 _ADAPTERS: Dict[str, Type[BaseAdapter]] = {
     HeuristicMutatorAdapter.name: HeuristicMutatorAdapter,
@@ -17,6 +19,8 @@ _ADAPTERS: Dict[str, Type[BaseAdapter]] = {
     AbstentionGuardAdapter.name: AbstentionGuardAdapter,
     ProcessAdapter.name: ProcessAdapter,
     OpenAIChatAdapter.name: OpenAIChatAdapter,
+    CorpusSearchAdapter.name: CorpusSearchAdapter,
+    LocalMutationAdapter.name: LocalMutationAdapter,
 }
 
 
