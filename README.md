@@ -7,6 +7,8 @@ Spec-driven, programmatically verifiable evaluation of agentic LLMs on safe medi
 
 **What it is NOT:** drug discovery, activity/toxicity prediction, or synthesis planning.
 
+Prompts are optional rendering. Canonical benchmark semantics are the structured task/spec objects and deterministic verifier truth.
+
 Alert checks support expanded deterministic families (`PAINS_A/B/C`, `BRENK`).
 
 ## Quickstart
@@ -63,10 +65,41 @@ Stratify aggregate rows with `--group-by` (fields: `name,model,protocol,suite,sp
 specguard-chem compare-baselines runs/baselines --group-by name,spec_split -o runs/baseline_compare_by_split.json
 ```
 
+## Frozen Benchmark Release (sgchem_v0.1)
+Create a deterministic frozen release artifact:
+
+```bash
+specguard-chem freeze-benchmark \
+  --benchmark-id sgchem_v0.1 \
+  --out benchmarks/releases/sgchem_v0.1 \
+  --target-tasks 200 \
+  --seed 7
+```
+
+Run benchmark sweeps over frozen TEST split:
+
+```bash
+specguard-chem run-benchmark \
+  --benchmark benchmarks/releases/sgchem_v0.1 \
+  --split test \
+  --baselines baselines/paper_baselines.yaml \
+  --out runs/paper_sweeps/sgchem_v0.1_test
+```
+
+Generate paper figures/tables:
+
+```bash
+uv run python scripts/make_paper_figures.py \
+  --runs runs/paper_sweeps/sgchem_v0.1_test \
+  --out paper
+```
+
 ## Included Adapters
 - `heuristic`: deterministic mutator using failure-vector feedback in L2/L3.
 - `open_source_example`: tool-using baseline for L3.
 - `abstention_guard`: conservative abstention-heavy baseline.
+- `corpus_search`: deterministic corpus-pass retrieval baseline (non-LLM).
+- `local_mutation`: deterministic local mutation hill-climb baseline (non-LLM).
 - `process`: delegates each step to an external command (`SPEC_GUARD_PROCESS_ADAPTER_CMD`).
 - `openai_chat`: OpenAI Chat Completions-backed adapter (`OPENAI_API_KEY`).
 
@@ -88,3 +121,4 @@ See `docs/adapters.md` for integration details.
 CI runs lint/tests, coverage, smoke runs (`run` + `report`), and baseline smoke (`run-baselines`).
 
 For architecture details see `docs/overview.md`. For formulas see `METRICS.md`. For scope guardrails see `SAFETY.md`.
+Benchmark positioning and release policy are documented in `BENCHMARK_CARD.md`.
