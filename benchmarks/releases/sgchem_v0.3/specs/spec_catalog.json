@@ -1,0 +1,122 @@
+{
+  "num_specs": 13,
+  "specs": [
+    {
+      "family": "ro5_legacy",
+      "id": "spec_v1_basic",
+      "release_path": "specs/spec_v1_basic.json",
+      "source_path": "/Users/danielhussey/Code/specguard-chem/data/specs/spec_v1_basic.yaml",
+      "source_sha256": "c9dec861bee83648aeb797e398ce20afc0aab1a550a3ef9a84b4834f5a4f1f66",
+      "spec_split": "train",
+      "version": 2
+    },
+    {
+      "family": "alerts_soft",
+      "id": "spec_v2_alert_soft_train",
+      "release_path": "specs/spec_v2_alert_soft_train.json",
+      "source_path": "/Users/danielhussey/Code/specguard-chem/data/specs/spec_v2_alert_soft_train.yaml",
+      "source_sha256": "99a97c3690287822568f6462e610a8b1cdb6f4f3c4904a0f147e9c0855ebb19b",
+      "spec_split": "train",
+      "version": 2
+    },
+    {
+      "family": "alerts_strict",
+      "id": "spec_v2_alert_strict_dev",
+      "release_path": "specs/spec_v2_alert_strict_dev.json",
+      "source_path": "/Users/danielhussey/Code/specguard-chem/data/specs/spec_v2_alert_strict_dev.yaml",
+      "source_sha256": "7151452b8e6099108b31540e1e7c9314ddc156628824134a8e4c3e203e282f72",
+      "spec_split": "dev",
+      "version": 2
+    },
+    {
+      "family": "motif_amide",
+      "id": "spec_v2_amide_friendly_dev",
+      "release_path": "specs/spec_v2_amide_friendly_dev.json",
+      "source_path": "/Users/danielhussey/Code/specguard-chem/data/specs/spec_v2_amide_friendly_dev.yaml",
+      "source_sha256": "4c09268a85a81ddc7dacd67b72eb3664add2f463292641d4494161c3bfa20f94",
+      "spec_split": "dev",
+      "version": 2
+    },
+    {
+      "family": "motif_aromatic",
+      "id": "spec_v2_aromatic_pref_test",
+      "release_path": "specs/spec_v2_aromatic_pref_test.json",
+      "source_path": "/Users/danielhussey/Code/specguard-chem/data/specs/spec_v2_aromatic_pref_test.yaml",
+      "source_sha256": "4365abcc1b8a016f81e34a81cc85d0813454373ba214125049689fec17cc1dd6",
+      "spec_split": "test",
+      "version": 2
+    },
+    {
+      "family": "cns_like",
+      "id": "spec_v2_cns_like_test",
+      "release_path": "specs/spec_v2_cns_like_test.json",
+      "source_path": "/Users/danielhussey/Code/specguard-chem/data/specs/spec_v2_cns_like_test.yaml",
+      "source_sha256": "29ee0560543ad77c7b756df249a202f3c384c9d41b05d82e8d448f59faa8db99",
+      "spec_split": "test",
+      "version": 2
+    },
+    {
+      "family": "fragment_like",
+      "id": "spec_v2_fragment_tight_train",
+      "release_path": "specs/spec_v2_fragment_tight_train.json",
+      "source_path": "/Users/danielhussey/Code/specguard-chem/data/specs/spec_v2_fragment_tight_train.yaml",
+      "source_sha256": "8c275aba8a0aceb4b0b89b2e2bc9ff7416297f1f74c49a65a859b7aaaafd82b9",
+      "spec_split": "train",
+      "version": 2
+    },
+    {
+      "family": "fragment_like",
+      "id": "spec_v2_fragment_ultra_dev",
+      "release_path": "specs/spec_v2_fragment_ultra_dev.json",
+      "source_path": "/Users/danielhussey/Code/specguard-chem/data/specs/spec_v2_fragment_ultra_dev.yaml",
+      "source_sha256": "1a25ee8830a9cfc18dedd51bb9f3022565610b2bfee59c46b029f9b84940cc8d",
+      "spec_split": "dev",
+      "version": 2
+    },
+    {
+      "family": "flexibility",
+      "id": "spec_v2_low_rotor_train",
+      "release_path": "specs/spec_v2_low_rotor_train.json",
+      "source_path": "/Users/danielhussey/Code/specguard-chem/data/specs/spec_v2_low_rotor_train.yaml",
+      "source_sha256": "cda395ff252821811aac8f63ae3e3e3a65a19e1475fd0e7c307dcee12307e21c",
+      "spec_split": "train",
+      "version": 2
+    },
+    {
+      "family": "polar_bias",
+      "id": "spec_v2_polar_bias_train",
+      "release_path": "specs/spec_v2_polar_bias_train.json",
+      "source_path": "/Users/danielhussey/Code/specguard-chem/data/specs/spec_v2_polar_bias_train.yaml",
+      "source_sha256": "8569cf03d67549adc10b858d29b9110229aa3a5abed1b1d060e6c1830a12d1af",
+      "spec_split": "train",
+      "version": 2
+    },
+    {
+      "family": "ro5_balanced",
+      "id": "spec_v2_ro5_balanced_test",
+      "release_path": "specs/spec_v2_ro5_balanced_test.json",
+      "source_path": "/Users/danielhussey/Code/specguard-chem/data/specs/spec_v2_ro5_balanced_test.yaml",
+      "source_sha256": "95d14bf6def66483777c3917eabb37ca42e7c90ec17b27352c6ae05904ad0cd1",
+      "spec_split": "test",
+      "version": 2
+    },
+    {
+      "family": "sa_proxy",
+      "id": "spec_v2_sa_relaxed_dev",
+      "release_path": "specs/spec_v2_sa_relaxed_dev.json",
+      "source_path": "/Users/danielhussey/Code/specguard-chem/data/specs/spec_v2_sa_relaxed_dev.yaml",
+      "source_sha256": "d2a217ca220d275eca86d6d56d2c62b786da322e7bf989935679abf9b96403c5",
+      "spec_split": "dev",
+      "version": 2
+    },
+    {
+      "family": "sa_proxy",
+      "id": "spec_v2_sa_strict_test",
+      "release_path": "specs/spec_v2_sa_strict_test.json",
+      "source_path": "/Users/danielhussey/Code/specguard-chem/data/specs/spec_v2_sa_strict_test.yaml",
+      "source_sha256": "db2b709bb5eb585e99d0b6f3eb80e9bb46c963808f9ba75e50973281bba2f61d",
+      "spec_split": "test",
+      "version": 2
+    }
+  ]
+}

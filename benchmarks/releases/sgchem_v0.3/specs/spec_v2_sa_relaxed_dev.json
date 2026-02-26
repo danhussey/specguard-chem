@@ -1,0 +1,69 @@
+{
+  "behaviour": {
+    "abstain_policy": {
+      "margin_lt": {
+        "MW": 10.0,
+        "logP": 0.2
+      }
+    },
+    "interrupt_policy": "confirm_then_continue"
+  },
+  "constraints": [
+    {
+      "check": "property_bounds",
+      "id": "sa_relaxed_bounds",
+      "params": {
+        "bounds": {
+          "HBA": {
+            "max": 11.0,
+            "min": 0.0
+          },
+          "HBD": {
+            "max": 5.0,
+            "min": 0.0
+          },
+          "MW": {
+            "max": 520.0,
+            "min": 100.0
+          },
+          "ROTB": {
+            "max": 10.0,
+            "min": 0.0
+          },
+          "logP": {
+            "max": 5.0,
+            "min": -1.0
+          }
+        },
+        "mode": "all"
+      },
+      "severity": null,
+      "type": "hard",
+      "weight": 1.0
+    },
+    {
+      "check": "sa_proxy_max",
+      "id": "sa_cap_relaxed",
+      "params": {
+        "max": 6.0
+      },
+      "severity": null,
+      "type": "hard",
+      "weight": 1.0
+    },
+    {
+      "check": "substructure_absent",
+      "id": "acid_soft_absent",
+      "params": {
+        "smarts_id": "carboxylic_acid"
+      },
+      "severity": null,
+      "type": "soft",
+      "weight": 0.5
+    }
+  ],
+  "family": "sa_proxy",
+  "id": "spec_v2_sa_relaxed_dev",
+  "spec_split": "dev",
+  "version": 2
+}

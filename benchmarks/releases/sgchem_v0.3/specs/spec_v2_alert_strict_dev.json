@@ -1,0 +1,95 @@
+{
+  "behaviour": {
+    "abstain_policy": {
+      "margin_lt": {
+        "MW": 12.0,
+        "TPSA": 6.0
+      }
+    },
+    "interrupt_policy": "confirm_then_continue"
+  },
+  "constraints": [
+    {
+      "check": "property_bounds",
+      "id": "broad_druglike_bounds",
+      "params": {
+        "bounds": {
+          "HBA": {
+            "max": 10.0,
+            "min": 0.0
+          },
+          "HBD": {
+            "max": 5.0,
+            "min": 0.0
+          },
+          "MW": {
+            "max": 520.0,
+            "min": 100.0
+          },
+          "ROTB": {
+            "max": 10.0,
+            "min": 0.0
+          },
+          "logP": {
+            "max": 5.0,
+            "min": -1.0
+          }
+        },
+        "mode": "all"
+      },
+      "severity": null,
+      "type": "hard",
+      "weight": 1.0
+    },
+    {
+      "check": "alert_set_absent",
+      "id": "pains_a_block",
+      "params": {
+        "alert_set": "PAINS_A"
+      },
+      "severity": null,
+      "type": "hard",
+      "weight": 1.0
+    },
+    {
+      "check": "alert_set_absent",
+      "id": "pains_b_block",
+      "params": {
+        "alert_set": "PAINS_B"
+      },
+      "severity": null,
+      "type": "hard",
+      "weight": 1.0
+    },
+    {
+      "check": "alert_set_absent",
+      "id": "brenk_block",
+      "params": {
+        "alert_set": "BRENK"
+      },
+      "severity": null,
+      "type": "hard",
+      "weight": 1.0
+    },
+    {
+      "check": "property_bounds",
+      "id": "tpsa_soft_window",
+      "params": {
+        "bounds": {
+          "TPSA": {
+            "max": 140.0,
+            "min": 25.0
+          }
+        },
+        "mode": "any"
+      },
+      "severity": null,
+      "type": "soft",
+      "weight": 0.5
+    }
+  ],
+  "family": "alerts_strict",
+  "id": "spec_v2_alert_strict_dev",
+  "spec_split": "dev",
+  "version": 2
+}

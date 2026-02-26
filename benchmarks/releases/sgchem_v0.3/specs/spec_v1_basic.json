@@ -1,0 +1,75 @@
+{
+  "behaviour": {
+    "abstain_policy": {
+      "margin_lt": {
+        "TPSA": 5.0,
+        "logP": 0.2
+      }
+    },
+    "interrupt_policy": "confirm_then_continue"
+  },
+  "constraints": [
+    {
+      "check": "alert_set_absent",
+      "id": "pains_block",
+      "params": {
+        "alert_set": "PAINS_A"
+      },
+      "severity": "high",
+      "type": "soft",
+      "weight": 1.0
+    },
+    {
+      "check": "property_bounds",
+      "id": "ro5_bounds",
+      "params": {
+        "bounds": {
+          "HBA": {
+            "max": 10.0,
+            "min": 0.0
+          },
+          "HBD": {
+            "max": 5.0,
+            "min": 0.0
+          },
+          "MW": {
+            "max": 500.0,
+            "min": 100.0
+          },
+          "ROTB": {
+            "max": 10.0,
+            "min": 0.0
+          },
+          "logP": {
+            "max": 5.0,
+            "min": 0.0
+          }
+        },
+        "mode": "all"
+      },
+      "severity": "medium",
+      "type": "hard",
+      "weight": 1.0
+    },
+    {
+      "check": "property_bounds",
+      "id": "tpsa_pref",
+      "params": {
+        "bounds": {
+          "TPSA": {
+            "max": 120.0,
+            "min": 20.0
+          }
+        },
+        "mode": "any"
+      },
+      "severity": null,
+      "type": "soft",
+      "weight": 0.5
+    }
+  ],
+  "family": "ro5_legacy",
+  "id": "spec_v1_basic",
+  "spec_split": "train",
+  "version": 2
+}

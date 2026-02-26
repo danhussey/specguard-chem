@@ -1,0 +1,168 @@
+{
+  "benchmark_id": "sgchem_v0.3",
+  "checksums": {
+    "algorithm": "sha256",
+    "excluded_files": [
+      "MANIFEST.json",
+      "checksums/sha256sums.txt"
+    ],
+    "file": "checksums/sha256sums.txt",
+    "files": {
+      "README.md": "16533afd7ad261d722c7ba40e57dff9290bddc06eadd005836c2faefdb01d1bb",
+      "corpus/corpus.parquet": "808dee90550063033f816b672c87fad4fab6eefba3d3f470b7d3364dc9500983",
+      "specs/spec_catalog.json": "455a820f15b6699b60006b70264ff76a794ee73ca149df29d1b12b23ba403120",
+      "specs/spec_v1_basic.json": "6046bf4f065795fcb0e9b772496d473644ac48b513b7d3c69a660dad19663e80",
+      "specs/spec_v2_alert_soft_train.json": "c6e1278d54d2ff5f6af26aa14a2ba3db5257ea814684c3ff585b6880ba9a70ed",
+      "specs/spec_v2_alert_strict_dev.json": "bbee5782b50e76c75e896afaf87d6703812074538ec931d7c80d0dd136d94b52",
+      "specs/spec_v2_amide_friendly_dev.json": "5a0dff1900069fcd10ae253c4f2067849dcac8e4e03555b899e89d6f73e1a545",
+      "specs/spec_v2_aromatic_pref_test.json": "b6a6a5ac5e78a0027ede0a7fe9008bd186d65669aca8b66fe1e86a3fbddf5584",
+      "specs/spec_v2_cns_like_test.json": "bc0b2aef87013043169d3333b5c5087aa6ca4b29c2bd65c2332580a63fdfa7bf",
+      "specs/spec_v2_fragment_tight_train.json": "307baf28708f0bf1fe46e12b8b492c94b98a707d2fece7243c4ced73f5f052f0",
+      "specs/spec_v2_fragment_ultra_dev.json": "f23d993b0bd2006164049ed8d29ace83962b8cbedb1e73c4426e7bed95481a12",
+      "specs/spec_v2_low_rotor_train.json": "85d52b7f238560e5c04b5d81de9709c7faef8668d7eb75b7c50b6fa27a9e0d21",
+      "specs/spec_v2_polar_bias_train.json": "57b431bd94c0eacd1539968aad66b60b0f8bcf3ba94d67ee7b33d51e0f187453",
+      "specs/spec_v2_ro5_balanced_test.json": "7567cc79b783e3979c6ae28838a84187e460c4ee5add381c55d340abe2385dc4",
+      "specs/spec_v2_sa_relaxed_dev.json": "5bec2fecc72f4ca71af473bf6133aedc810e275f7af8e8ec8e41201461c659cd",
+      "specs/spec_v2_sa_strict_test.json": "278b1e474794259627844918be489aaf5c10bb459665a170e066736f5e1a40ec",
+      "tasks/dev.jsonl": "c29efec9e4e613475298f82b34feadeb0d41b7e26fa3821a2de59b5dd3fb5c24",
+      "tasks/test.jsonl": "a8bec79400d7f67a2f09bb92c033e75f3c06963d471229678b56dab121972f15",
+      "tasks/train.jsonl": "54dcdbfebaa5e6edebf3e8d3aa4cb775bade82a858571d29d751dbe520e4e203"
+    }
+  },
+  "corpus": {
+    "num_records": 2329,
+    "path": "corpus/corpus.parquet"
+  },
+  "counts": {
+    "by_protocol": {
+      "L1": 197,
+      "L2": 187,
+      "L3": 616
+    },
+    "by_split": {
+      "dev": 310,
+      "test": 308,
+      "train": 382
+    },
+    "by_split_suite_protocol": {
+      "dev": {
+        "sgchem_v0.3": {
+          "L1": 63,
+          "L2": 57,
+          "L3": 190
+        }
+      },
+      "test": {
+        "sgchem_v0.3": {
+          "L1": 61,
+          "L2": 58,
+          "L3": 189
+        }
+      },
+      "train": {
+        "sgchem_v0.3": {
+          "L1": 73,
+          "L2": 72,
+          "L3": 237
+        }
+      }
+    },
+    "by_suite": {
+      "sgchem_v0.3": 1000
+    },
+    "by_task_family": {
+      "boundary_precision": 50,
+      "contradiction_abstain": 100,
+      "feasible_propose": 86,
+      "interrupt_resume": 50,
+      "repair_multi_violation": 240,
+      "repair_near_miss": 260,
+      "smiles_invariance": 94,
+      "tool_forced_l3": 120
+    },
+    "total_tasks": 1000
+  },
+  "created_at_utc": "2026-02-25T13:45:06.038843+00:00",
+  "generation": {
+    "boundary_margin_band": 1.0,
+    "min_tool_forced_l3_test_share": 0.1,
+    "near_miss_margin_band": 5.0,
+    "repair_start_hard_fail_threshold": 0.7,
+    "seed": 7,
+    "suite_mix": {
+      "sgchem_v0.3": 1000
+    },
+    "target_tasks": 1000
+  },
+  "git_commit": "d2da6170890bad16d9769455deaafb01fb7843f6",
+  "platform": "macOS-14.3.1-arm64-arm-64bit",
+  "python_version": "3.11.11",
+  "rdkit_version": "2025.03.6",
+  "spec_catalog": {
+    "num_specs": 13,
+    "path": "specs/spec_catalog.json"
+  },
+  "tasks": {
+    "dev": "tasks/dev.jsonl",
+    "test": "tasks/test.jsonl",
+    "train": "tasks/train.jsonl"
+  },
+  "validator": {
+    "errors": [],
+    "family_counts": {
+      "boundary_precision": 50,
+      "contradiction_abstain": 100,
+      "feasible_propose": 86,
+      "interrupt_resume": 50,
+      "repair_multi_violation": 240,
+      "repair_near_miss": 260,
+      "smiles_invariance": 94,
+      "tool_forced_l3": 120
+    },
+    "invariance_subfamily_counts": {
+      "aromatic": 24,
+      "charge": 22,
+      "stereo": 24,
+      "tautomer": 24
+    },
+    "min_tool_forced_l3_test_share": 0.1,
+    "nonempty_splits": [
+      "dev",
+      "test",
+      "train"
+    ],
+    "num_errors": 0,
+    "num_tasks": 1000,
+    "repair_start_hard_fail_rate": 1.0,
+    "repair_start_hard_fail_threshold": 0.7,
+    "require_test_invariance_subfamilies": true,
+    "split_counts": {
+      "dev": 310,
+      "test": 308,
+      "train": 382
+    },
+    "test_family_counts": {
+      "boundary_precision": 17,
+      "contradiction_abstain": 30,
+      "feasible_propose": 26,
+      "interrupt_resume": 15,
+      "repair_multi_violation": 74,
+      "repair_near_miss": 80,
+      "smiles_invariance": 30,
+      "tool_forced_l3": 36
+    },
+    "test_invariance_subfamily_counts": {
+      "aromatic": 8,
+      "charge": 6,
+      "stereo": 8,
+      "tautomer": 8
+    },
+    "test_protocol_counts": {
+      "L1": 61,
+      "L2": 58,
+      "L3": 189
+    },
+    "tool_forced_l3_test_share": 0.11688311688311688,
+    "valid": true
+  }
+}

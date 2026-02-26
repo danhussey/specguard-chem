@@ -1,0 +1,63 @@
+{
+  "behaviour": {
+    "abstain_policy": {
+      "margin_lt": {
+        "MW": 10.0,
+        "TPSA": 5.0
+      }
+    },
+    "interrupt_policy": "confirm_then_continue"
+  },
+  "constraints": [
+    {
+      "check": "property_bounds",
+      "id": "polar_bounds",
+      "params": {
+        "bounds": {
+          "HBA": {
+            "max": 12.0,
+            "min": 1.0
+          },
+          "HBD": {
+            "max": 6.0,
+            "min": 0.0
+          },
+          "MW": {
+            "max": 520.0,
+            "min": 120.0
+          },
+          "ROTB": {
+            "max": 10.0,
+            "min": 0.0
+          },
+          "TPSA": {
+            "max": 180.0,
+            "min": 40.0
+          },
+          "logP": {
+            "max": 3.0,
+            "min": -1.0
+          }
+        },
+        "mode": "all"
+      },
+      "severity": null,
+      "type": "hard",
+      "weight": 1.0
+    },
+    {
+      "check": "substructure_present",
+      "id": "amide_soft_preference",
+      "params": {
+        "smarts_id": "amide"
+      },
+      "severity": null,
+      "type": "soft",
+      "weight": 0.8
+    }
+  ],
+  "family": "polar_bias",
+  "id": "spec_v2_polar_bias_train",
+  "spec_split": "train",
+  "version": 2
+}
