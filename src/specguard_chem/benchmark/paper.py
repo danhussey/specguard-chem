@@ -11,7 +11,16 @@ import numpy as np
 
 from ..utils import jsonio
 
-TRACKS: tuple[str, ...] = ("closed_book", "retrieval", "external")
+TRACKS: tuple[str, ...] = (
+    "primary_closed_book",
+    "tool_enabled",
+    "retrieval_upper_bound",
+    "oracle_upper_bound",
+    "external_model_snapshot",
+    "closed_book",
+    "retrieval",
+    "external",
+)
 
 
 def _clear_generated_outputs(figures_dir: Path, tables_dir: Path) -> None:
@@ -21,6 +30,8 @@ def _clear_generated_outputs(figures_dir: Path, tables_dir: Path) -> None:
                 path.unlink()
     for pattern in ("*.csv", "*.md"):
         for path in tables_dir.glob(pattern):
+            if path.name == "evaluation_denominators.md":
+                continue
             if path.is_file():
                 path.unlink()
 
@@ -672,6 +683,61 @@ def make_paper_artifacts(
     invariance_subfamily = _invariance_subfamily_rows(reports, all_rows)
     _write_csv(tables_dir / "invariance_subfamily_summary.csv", invariance_subfamily)
     _write_md_table(tables_dir / "invariance_subfamily_summary.md", invariance_subfamily)
+
+    baseline_tracks = [
+        {
+            "baseline": row.get("name"),
+            "model": row.get("model"),
+            "track": row.get("track") or "primary_closed_book",
+            "primary_leaderboard": str(row.get("track") == "primary_closed_book").lower(),
+        }
+        for row in all_rows
+    ]
+    _write_md_table(tables_dir / "baseline_tracks.md", baseline_tracks)
+
+    confusion_rows: List[Dict[str, Any]] = []
+    unsafe_rows: List[Dict[str, Any]] = []
+    denominator_rows: List[Dict[str, Any]] = []
+    for row in all_rows:
+        name = str(row.get("name"))
+        summary = (reports.get(name) or {}).get("summary") or {}
+        confusion = summary.get("confusion")
+        if isinstance(confusion, dict):
+            for expected, predicted_counts in sorted(confusion.items()):
+                if not isinstance(predicted_counts, dict):
+                    continue
+                for predicted, count in sorted(predicted_counts.items()):
+                    confusion_rows.append(
+                        {
+                            "baseline": name,
+                            "expected_action": expected,
+                            "predicted_action": predicted,
+                            "count": count,
+                        }
+                    )
+        unsafe_rows.append(
+            {
+                "baseline": name,
+                "track": row.get("track") or "primary_closed_book",
+                "unsafe_accept_rate": (row.get("metrics") or {}).get("unsafe_accept_rate"),
+                "correct_reject_rate": (row.get("metrics") or {}).get("correct_reject_rate"),
+                "correct_abstain_rate": (row.get("metrics") or {}).get("correct_abstain_rate"),
+            }
+        )
+        definitions = (reports.get(name) or {}).get("definitions") or {}
+        rates = definitions.get("rates") if isinstance(definitions, dict) else {}
+        if isinstance(rates, dict):
+            for metric, denominator in sorted(rates.items()):
+                denominator_rows.append(
+                    {
+                        "baseline": name,
+                        "metric": metric,
+                        "denominator": denominator,
+                    }
+                )
+    _write_md_table(tables_dir / "action_confusion_matrix.md", confusion_rows)
+    _write_md_table(tables_dir / "unsafe_accept_rate.md", unsafe_rows)
+    _write_md_table(tables_dir / "metric_denominators.md", denominator_rows)
 
     summary_lines = [
         "# Paper Metrics Summary",

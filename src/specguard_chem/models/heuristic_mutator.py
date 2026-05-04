@@ -32,7 +32,7 @@ class HeuristicMutatorAdapter(BaseAdapter):
                     "acknowledged": True,
                     "restate_goal": True,
                     "report_state": True,
-                    "goal": f"Task {task.get('task_id')} for {task.get('spec_id')}",
+                    "goal": f"{task.get('visible_task_name', 'task')} under {task.get('protocol', 'protocol')}",
                     "state": "Interrupted before final proposal.",
                 },
             }

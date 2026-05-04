@@ -73,9 +73,9 @@ uv run specguard-chem compile-benchmark \
   --benchmark-id sgchem_v1.0 \
   --out benchmarks/releases/sgchem_v1.0 \
   --seed 7 \
-  --target-bundles 80 \
-  --min-tasks 400 \
-  --max-tasks 700 \
+  --target-bundles 120 \
+  --min-tasks 650 \
+  --max-tasks 900 \
   --anonymous
 ```
 
@@ -83,6 +83,14 @@ Strictly validate the frozen release:
 
 ```bash
 uv run specguard-chem validate-dataset benchmarks/releases/sgchem_v1.0 --strict
+```
+
+Run prompt-isolation and artifact hardening audits:
+
+```bash
+uv run python scripts/audit_model_prompt_leakage.py --release benchmarks/releases/sgchem_v1.0
+uv run python scripts/audit_oracle_scrambling.py --release benchmarks/releases/sgchem_v1.0
+uv run python scripts/preflight_neurips_ed_artifact.py --release benchmarks/releases/sgchem_v1.0
 ```
 
 Run the primary paper sweep (track-separated: closed-book + retrieval):
@@ -127,6 +135,14 @@ uv run specguard-chem paper-figures \
   --out paper_v1
 ```
 
+One-command rc1 reproduction and artifact preflight:
+
+```bash
+uv run python scripts/build_and_check_sgchem_v1.py
+```
+
+Inspect one test bundle manually in `benchmarks/releases/sgchem_v1.0/audits/manual_test_bundle_dossiers.md`. Each dossier shows rendered public inputs, hidden oracle summaries, hashes, suggested reviewer objections, and manual grade placeholders.
+
 ## Included Adapters
 - `heuristic`: deterministic mutator using failure-vector feedback in L2/L3.
 - `open_source_example`: tool-using baseline for L3.
@@ -141,9 +157,11 @@ uv run specguard-chem paper-figures \
 See `docs/adapters.md` for integration details.
 
 ### Tracks
-- `closed_book`: no retrieval, no external calls (primary leaderboard).
-- `retrieval`: retrieval-allowed baselines (`corpus_search`) reported separately as upper bound.
-- `external`: API/process snapshot baselines; optional and replayable from cache.
+- `primary_closed_book`: no retrieval, no external calls (primary leaderboard).
+- `tool_enabled`: verifier-tool baselines reported separately from closed-book models.
+- `retrieval_upper_bound`: retrieval-allowed baselines (`corpus_search`) reported separately as an upper bound.
+- `oracle_upper_bound`: oracle-assisted controls, if present, never mixed into model leaderboards.
+- `external_model_snapshot`: API/process snapshot baselines; optional and replayable from cache.
 
 ## Included Task Suites
 - `basic_plain` (10): mixed L1/L2/L3 tasks.

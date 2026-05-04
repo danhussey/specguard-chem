@@ -17,6 +17,9 @@ def test_manifest_counts_match_release_files(v1_release, v1_tasks, v1_bundles, v
         "safety_scope_checks",
         "requested_tasks",
         "generated_tasks",
+        "test_task_type_counts",
+        "test_task_type_minimums_met",
+        "neurips_ed_preflight",
     ):
         assert key in v1_manifest
 

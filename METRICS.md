@@ -143,3 +143,29 @@ Per-slice aggregates:
 - suite/spec hashes
 - dataset version hashes/IDs (`taskset`, `spec_family`, optional `corpus`)
 - utility cost table used for scoring
+
+## 13) sgchem_v1.0 denominator policy
+
+Paper-facing `sgchem_v1.0` metrics must cite denominators from `paper_v1/tables/evaluation_denominators.md` and `benchmarks/releases/sgchem_v1.0/audits/claim_readiness_report.md`.
+
+Classification:
+- `primary_reportable`: n >= 25
+- `diagnostic_only`: 10 <= n < 25
+- `appendix_only`: 0 < n < 10
+- `not_reportable`: n == 0
+
+Baseline tracks are reported separately:
+- `primary_closed_book`
+- `tool_enabled`
+- `retrieval_upper_bound`
+- `oracle_upper_bound`
+- `external_model_snapshot`
+
+Retrieval and oracle-assisted rows must not be mixed into the primary leaderboard. The expected-action confusion matrix uses rows and columns `ACCEPT`, `REJECT`, `ABSTAIN`, and `INVALID`, so invalid model output is not silently converted to abstention.
+
+Reproduce the release and metrics with:
+
+```bash
+uv run python scripts/build_and_check_sgchem_v1.py
+uv run specguard-chem validate-dataset benchmarks/releases/sgchem_v1.0 --strict
+```

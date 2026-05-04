@@ -130,7 +130,7 @@ Safety and misuse considerations: outputs must not be interpreted as therapeutic
 
 Reproducibility commands:
 ```bash
-uv run specguard-chem compile-benchmark --benchmark-id {benchmark_id} --out benchmarks/releases/{benchmark_id} --seed {manifest.get("seed", 7)} --target-bundles 80 --anonymous
+uv run specguard-chem compile-benchmark --benchmark-id {benchmark_id} --out benchmarks/releases/{benchmark_id} --seed {manifest.get("seed", 7)} --target-bundles {manifest.get("requested_bundles", 120)} --anonymous
 uv run specguard-chem validate-dataset benchmarks/releases/{benchmark_id} --strict
 ```
 """
@@ -153,7 +153,7 @@ Strict validation: {manifest.get("strict_validation", {})}
 
 Reproducibility:
 ```bash
-uv run specguard-chem compile-benchmark --benchmark-id {benchmark_id} --out benchmarks/releases/{benchmark_id} --seed {manifest.get("seed", 7)} --target-bundles 80 --anonymous
+uv run specguard-chem compile-benchmark --benchmark-id {benchmark_id} --out benchmarks/releases/{benchmark_id} --seed {manifest.get("seed", 7)} --target-bundles {manifest.get("requested_bundles", 120)} --anonymous
 uv run specguard-chem validate-dataset benchmarks/releases/{benchmark_id} --strict
 ```
 """
@@ -191,6 +191,8 @@ def _croissant_metadata(benchmark_id: str, anonymous: bool) -> dict[str, Any]:
         "description": "Oracle-compiled medicinal-chemistry constraint-compliance benchmark.",
         "license": "MIT",
         "creator": creator,
+        "url": "PENDING_ANONYMOUS_HOSTED_URL",
+        "externalValidationStatus": "pending",
         "distribution": [
             {"@type": "FileObject", "name": "train tasks", "contentUrl": "tasks/train.jsonl"},
             {"@type": "FileObject", "name": "dev tasks", "contentUrl": "tasks/dev.jsonl"},
@@ -226,6 +228,7 @@ def _croissant_metadata(benchmark_id: str, anonymous: bool) -> dict[str, Any]:
             "intendedUse": "Offline benchmark evaluation of medicinal-chemistry rule compliance.",
             "outOfScopeUse": "Biological activity, toxicity, therapeutic, clinical, dosing, disease, target-binding, or synthesis-feasibility claims.",
             "dataGenerationProcess": "Deterministic offline bundle compiler with oracle/certificate validation.",
+            "seeds": [7],
             "safetyLimitations": "The dataset does not establish real-world molecular safety, efficacy, or developability.",
         },
     }
@@ -274,6 +277,10 @@ def _manifest_counts(
         "tasks_per_split": {split: splits[split]["tasks"] for split in RELEASE_SPLITS},
         "bundles_per_split": {split: splits[split]["bundles"] for split in RELEASE_SPLITS},
         "split_policy": compilation.get("split_policy", {}),
+        "test_task_type_minimums": compilation.get("test_task_type_minimums", {}),
+        "test_task_type_counts": compilation.get("test_task_type_counts", {}),
+        "test_task_type_minimums_met": bool(compilation.get("test_task_type_minimums_met", True)),
+        "diagnostic_only_test_task_types": compilation.get("diagnostic_only_test_task_types", []),
         "oracle_validation": {
             "valid": bool(strict_validation.get("checks", {}).get("oracles", {}).get("passed", False)),
             "num_errors": int(strict_validation.get("checks", {}).get("oracles", {}).get("num_errors", 0) or 0),
@@ -293,6 +300,15 @@ def _manifest_counts(
         },
         "deterministic_rebuild_checked": True,
         "deterministic_rebuild_checksum_match": True,
+        "dataset_url": "PENDING_ANONYMOUS_HOSTED_URL",
+        "reviewer_accessibility": "Upload the release archive to anonymous hosting and verify access before submission.",
+        "neurips_ed_preflight": {
+            "anonymous_scan_passed": False,
+            "croissant_local_validation_passed": False,
+            "external_croissant_validation_status": "pending",
+            "dataset_url_accessible": "pending",
+            "one_command_reproduction_passed": False,
+        },
         "tasks": {split: f"tasks/{split}.jsonl" for split in RELEASE_SPLITS},
         "bundles": {split: f"bundles/{split}.jsonl" for split in RELEASE_SPLITS},
         "checksums": {
@@ -338,6 +354,7 @@ def compile_benchmark_release(
     min_tasks: int | None = None,
     max_tasks: int | None = None,
     anonymous: bool = False,
+    min_test_task_type_counts: Mapping[str, int] | None = None,
     paths: ProjectPaths = PATHS,
 ) -> dict[str, Any]:
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -367,6 +384,7 @@ def compile_benchmark_release(
         target_bundles=target_bundles,
         min_tasks=min_tasks,
         max_tasks=max_tasks,
+        min_test_task_type_counts=dict(min_test_task_type_counts or {}),
     )
     compilation_payload = compilation_result.model_dump(mode="json")
     bundles_payload = [bundle.model_dump(mode="json") for bundle in compilation_result.bundles]

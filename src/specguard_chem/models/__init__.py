@@ -14,6 +14,14 @@ from .openai_verify_l3 import OpenAIChatVerifyL3Adapter
 from .corpus_search import CorpusSearchAdapter
 from .local_mutation import LocalMutationAdapter
 from .verify_first import VerifyFirstAdapter
+from .simple_baselines import (
+    AlwaysAbstainAdapter,
+    AlwaysAcceptAdapter,
+    AlwaysRejectAdapter,
+    RandomActionAdapter,
+    SchemaValidDummyAdapter,
+    VerifierGuidedGreedyAdapter,
+)
 
 _ADAPTERS: Dict[str, Type[BaseAdapter]] = {
     HeuristicMutatorAdapter.name: HeuristicMutatorAdapter,
@@ -25,6 +33,12 @@ _ADAPTERS: Dict[str, Type[BaseAdapter]] = {
     CorpusSearchAdapter.name: CorpusSearchAdapter,
     LocalMutationAdapter.name: LocalMutationAdapter,
     VerifyFirstAdapter.name: VerifyFirstAdapter,
+    AlwaysAcceptAdapter.name: AlwaysAcceptAdapter,
+    AlwaysRejectAdapter.name: AlwaysRejectAdapter,
+    AlwaysAbstainAdapter.name: AlwaysAbstainAdapter,
+    RandomActionAdapter.name: RandomActionAdapter,
+    SchemaValidDummyAdapter.name: SchemaValidDummyAdapter,
+    VerifierGuidedGreedyAdapter.name: VerifierGuidedGreedyAdapter,
 }
 
 

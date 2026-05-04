@@ -16,7 +16,16 @@ from ..scoring.metrics import decision_utility
 from ..utils import jsonio
 from .release import load_benchmark_release
 
-TRACKS: tuple[str, ...] = ("closed_book", "retrieval", "external")
+TRACKS: tuple[str, ...] = (
+    "primary_closed_book",
+    "tool_enabled",
+    "retrieval_upper_bound",
+    "oracle_upper_bound",
+    "external_model_snapshot",
+    "closed_book",
+    "retrieval",
+    "external",
+)
 
 
 @dataclass(frozen=True)
@@ -31,10 +40,12 @@ class BaselineEntry:
 
 def _infer_track(model: str) -> str:
     if model == "corpus_search":
-        return "retrieval"
+        return "retrieval_upper_bound"
+    if model in {"verify_first", "verifier_guided_greedy"}:
+        return "tool_enabled"
     if model in {"openai_chat", "openai_chat_verify_l3", "process"}:
-        return "external"
-    return "closed_book"
+        return "external_model_snapshot"
+    return "primary_closed_book"
 
 
 def load_baseline_matrix(path: Path) -> List[BaselineEntry]:

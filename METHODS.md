@@ -161,3 +161,16 @@ Each run produces:
 - RDKit version
 - git commit and dirty flag (when available)
 - SHA256 hashes of each spec file keyed by `spec_id` observed in the trace
+
+## 8. sgchem_v1.0 oracle-compiled release
+
+`sgchem_v1.0` is compiled from bundles, not template-filled task clones. The compiler emits construct, repair, candidate-audit, feasibility-check, boundary, representation-invariance, interrupt/resume, and tool-forced tasks from offline corpus/spec pairs. Each task has an oracle witness or certificate, but normal adapters consume only `PublicTaskView`; hidden expected actions, witnesses, proofs, certificates, split labels, task IDs, bundle IDs, and internal task labels stay private to validation/scoring.
+
+The rc1 build uses:
+
+```bash
+uv run python scripts/build_and_check_sgchem_v1.py
+uv run specguard-chem validate-dataset benchmarks/releases/sgchem_v1.0 --strict
+```
+
+The build runs prompt-leakage, oracle-scrambling, negative-control, Croissant, artifact-preflight, baseline-track, denominator, claim-readiness, and manual-dossier checks before paper artifacts are regenerated.

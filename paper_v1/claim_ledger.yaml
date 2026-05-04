@@ -1,0 +1,75 @@
+claims:
+  - claim_id: C1
+    text: "SpecGuard-Chem compiles tasks from machine-checkable witnesses and certificates."
+    support:
+      - benchmarks/releases/sgchem_v1.0/audits/oracle_validation_report.md
+      - tests/test_strict_validator_negative_controls.py
+    denominator: "all generated tasks"
+    status: supported
+    limitation: "Certificates cover the implemented specification language, not arbitrary medicinal chemistry."
+  - claim_id: C2
+    text: "Bundle-aware splits prevent leakage across related task views."
+    support:
+      - benchmarks/releases/sgchem_v1.0/audits/split_leakage_report.md
+      - tests/test_bundle_splits.py
+    denominator: "all bundles and split groups"
+    status: supported
+    limitation: "Scaffold overlap is audited and reported rather than asserted impossible."
+  - claim_id: C3
+    text: "SpecGuard-Chem evaluates medicinal-chemistry specification compliance, not drug-discovery success."
+    support:
+      - SAFETY.md
+      - BENCHMARK_CARD.md
+      - benchmarks/releases/sgchem_v1.0/audits/safety_scope_report.md
+    denominator: "all agent-visible task text"
+    status: supported
+    limitation: "Molecular tasks are synthetic and rule-based."
+  - claim_id: C4
+    text: "Public task views isolate model prompts from hidden oracle fields."
+    support:
+      - src/specguard_chem/runner/public_view.py
+      - benchmarks/releases/sgchem_v1.0/audits/model_prompt_leakage_report.md
+      - benchmarks/releases/sgchem_v1.0/audits/oracle_scrambling_report.md
+    denominator: "all test prompts and deterministic non-oracle baseline calls"
+    status: supported
+    limitation: "External adapters must be run through the runner boundary to inherit this guarantee."
+  - claim_id: C5
+    text: "The benchmark includes meaningful REJECT and ABSTAIN tasks."
+    support:
+      - benchmarks/releases/sgchem_v1.0/MANIFEST.json
+      - benchmarks/releases/sgchem_v1.0/audits/oracle_validation_report.md
+    denominator: "tasks_per_expected_action in the manifest"
+    status: supported
+    limitation: "REJECT/ABSTAIN semantics are scoped to machine-checkable constraints and explicit contradictions."
+  - claim_id: C6
+    text: "Deterministic validation catches corrupted releases."
+    support:
+      - tests/test_strict_validator_negative_controls.py
+    denominator: "18 negative controls"
+    status: supported
+    limitation: "Negative controls are representative, not exhaustive formal verification."
+  - claim_id: C7
+    text: "Retrieval and oracle-assisted tracks are separated from primary closed-book baselines."
+    support:
+      - baselines/paper_baselines.yaml
+      - paper_v1/tables/baseline_tracks.md
+    denominator: "all configured baselines"
+    status: supported
+    limitation: "Track names are configuration metadata and must be preserved when adding future baselines."
+  - claim_id: C8
+    text: "Boundary, invariance, interrupt, and tool-use diagnostics are reported only when denominators support them."
+    support:
+      - benchmarks/releases/sgchem_v1.0/audits/claim_readiness_report.md
+      - paper_v1/tables/evaluation_denominators.md
+    denominator: "test split denominator table"
+    status: supported
+    limitation: "Underpowered slices are diagnostic-only or appendix-only."
+  - claim_id: C9
+    text: "SpecGuard-Chem does not evaluate activity, toxicity, synthesis feasibility, therapeutic efficacy, clinical utility, target binding, dosing, disease relevance, or drug-discovery success."
+    support:
+      - SAFETY.md
+      - BENCHMARK_CARD.md
+      - benchmarks/releases/sgchem_v1.0/BENCHMARK_CARD.md
+    denominator: "documentation and safety-scope scan"
+    status: supported
+    limitation: "The benchmark name and prompts still use medicinal-chemistry terminology because property/substructure rule compliance is the intended domain."

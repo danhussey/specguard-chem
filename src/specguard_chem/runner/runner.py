@@ -33,6 +33,7 @@ from ..verifiers import (
 )
 from ..utils.seeds import seed_everything
 from .adapter_api import AgentRequest, AgentResponse, ToolSpec
+from .public_view import build_public_adapter_request
 from .protocols import ConstraintEvaluator, EvaluationResult
 
 ProtocolName = str
@@ -600,22 +601,21 @@ class TaskRunner:
                     last_evaluation=last_evaluation,
                 )
             failure_payload = next_feedback if task.protocol in {"L2", "L3"} else None
-            request: AgentRequest = {
-                "task": task.model_dump(mode="json"),
-                "spec": spec_payload,
-                "round": round_index,
-                "tools": tool_specs,
-                "failure_vector": failure_payload,
-            }
-            if interrupt_payload:
-                request["interrupt"] = interrupt_payload
+            request = build_public_adapter_request(
+                task=task,
+                spec=spec_payload,
+                round_index=round_index,
+                tools=tool_specs,
+                failure_feedback=failure_payload,
+                interrupt=interrupt_payload,
+            )
             cache_request = {
                 "task_id": task.task_id,
                 "spec_sha256": effective_spec_sha256,
                 "round": round_index,
                 "tools": tool_specs,
-                "failure_vector": failure_payload,
-                "interrupt": interrupt_payload,
+                "failure_vector": request.get("failure_vector"),
+                "interrupt": request.get("interrupt"),
                 "request": request,
             }
             raw_response = self._invoke_adapter(

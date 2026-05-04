@@ -82,19 +82,8 @@ class CorpusSearchAdapter(BaseAdapter):
         if not passers:
             return "CC(=O)NC1=CC=CC=C1O"
 
-        evidence = task.get("evidence") or {}
-        witness_smiles = evidence.get("feasible_witness_smiles")
-        witness_canonical = (
-            canonicalize_smiles(witness_smiles)
-            if isinstance(witness_smiles, str) and witness_smiles
-            else None
-        )
-        candidate_pool = [
-            smiles for smiles in passers if not witness_canonical or smiles != witness_canonical
-        ]
-        if not candidate_pool:
-            candidate_pool = list(passers)
-        family = str(task.get("task_family") or "")
+        candidate_pool = list(passers)
+        family = str(task.get("visible_task_name") or task.get("task_family") or "")
         if isinstance(input_smiles, str) and input_smiles and family.startswith("repair"):
             if input_canonical:
                 best_smiles = candidate_pool[0]

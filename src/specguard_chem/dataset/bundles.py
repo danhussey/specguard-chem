@@ -37,6 +37,19 @@ TASK_TYPES_V1: tuple[str, ...] = (
     "tool_forced_l3",
 )
 
+VISIBLE_TASK_NAMES: dict[str, str] = {
+    "construct_feasible": "construct",
+    "repair_near_miss": "repair",
+    "repair_multi_violation": "repair",
+    "audit_accept": "candidate_audit",
+    "audit_reject": "candidate_audit",
+    "abstain_contradiction": "feasibility_check",
+    "boundary_precision": "boundary_audit",
+    "smiles_invariance": "representation_invariance",
+    "interrupt_resume": "repair",
+    "tool_forced_l3": "repair",
+}
+
 
 class BundleModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -68,6 +81,10 @@ class BundleCompilationResult(BaseModel):
     generation_shortfall: int
     generation_shortfall_reason: str | None
     split_policy: dict[str, Any]
+    test_task_type_minimums: dict[str, int] = Field(default_factory=dict)
+    test_task_type_counts: dict[str, int] = Field(default_factory=dict)
+    test_task_type_minimums_met: bool = True
+    diagnostic_only_test_task_types: list[str] = Field(default_factory=list)
 
 
 def _short_hash(value: str) -> str:
@@ -197,7 +214,7 @@ def _render_task(
     if protocol == "L3":
         lines.extend(["Verifier-tool availability: verify(smiles) may be used within the verify-call budget."])
     payload = {
-        "task_type": task_type,
+        "visible_task_name": VISIBLE_TASK_NAMES.get(task_type, "evaluation_task"),
         "rendered_agent_input": "\n".join(lines),
         "input": {"smiles": input_smiles} if input_smiles else {},
         "spec_id": spec.id,
@@ -666,6 +683,7 @@ def compile_bundles_from_corpus(
     target_bundles: int,
     min_tasks: int | None = None,
     max_tasks: int | None = None,
+    min_test_task_type_counts: dict[str, int] | None = None,
 ) -> BundleCompilationResult:
     if target_bundles <= 0:
         raise ValueError("target_bundles must be positive")
@@ -1024,15 +1042,148 @@ def compile_bundles_from_corpus(
 
     split_by_bundle = assign_bundle_splits(raw_bundles, seed=seed)
     split_policy = {
-        "name": "bundle_hash_seeded_60_20_20",
+        "name": "bundle_hash_seeded_50_20_30",
         "seed": seed,
-        "proportions": {"train": 0.60, "dev": 0.20, "test": 0.20},
+        "proportions": {"train": 0.50, "dev": 0.20, "test": 0.30},
         "unit": "bundle",
     }
     for bundle in raw_bundles:
         bundle["split"] = split_by_bundle.get(str(bundle["bundle_id"]), "test")
     for task in all_tasks:
         task["split"] = split_by_bundle.get(str(task["bundle_id"]), "test")
+
+    def _task_type_count_for_split(split: str) -> Counter[str]:
+        return Counter(
+            str(task["task_type"])
+            for task in all_tasks
+            if str(task.get("split")) == split
+        )
+
+    def _add_task_type_to_bundle(bundle: dict[str, Any], task_type: str) -> list[dict[str, Any]]:
+        spec = spec_by_id[str(bundle["spec_id"])]
+        candidates = candidates_by_spec[spec.id]
+        source = {
+            "canonical_smiles": bundle["source_canonical_smiles"],
+            "scaffold_hash": bundle.get("scaffold_hash"),
+            "molecule_id": bundle.get("source_molecule_id"),
+        }
+        ordinal = len([task for task in all_tasks if task["bundle_id"] == bundle["bundle_id"]]) + 1
+        new_tasks: list[dict[str, Any]] = []
+        if task_type == "construct_feasible":
+            evaluator = ConstraintEvaluator(spec)
+            witness = str(source["canonical_smiles"])
+            witness_result = evaluator.evaluate(witness)
+            if witness_result.hard_pass:
+                new_tasks.append(
+                    _make_task(
+                        benchmark_id=benchmark_id,
+                        bundle_id=str(bundle["bundle_id"]),
+                        task_type=task_type,
+                        ordinal=ordinal,
+                        spec=spec,
+                        seed=seed,
+                        source_record=source,
+                        protocol=("L1", "L2", "L3")[ordinal % 3],
+                        expected_action="ACCEPT",
+                        input_smiles=None,
+                        evidence={
+                            "oracle_type": "feasible_witness",
+                            "feasible_witness_smiles": witness,
+                            "feasible_witness_canonical_smiles": witness_result.canonical_smiles,
+                            "witness_verifier_result": verifier_result_payload(witness_result),
+                        },
+                    )
+                )
+        elif task_type in {"audit_accept", "audit_reject", "abstain_contradiction"}:
+            skipped[f"quota_duplicate_unsafe_{task_type}"] += 1
+        elif task_type in {"repair_near_miss", "repair_multi_violation"}:
+            task = _repair_task(
+                benchmark_id=benchmark_id,
+                bundle_id=str(bundle["bundle_id"]),
+                ordinal=ordinal,
+                task_type=task_type,
+                spec=spec,
+                seed=seed,
+                source_record=source,
+                candidates=candidates,
+                protocol="L2" if task_type == "repair_near_miss" else "L3",
+            )
+            if task is not None:
+                new_tasks.append(task)
+        elif task_type == "boundary_precision":
+            new_tasks.extend(
+                _boundary_tasks(
+                    benchmark_id=benchmark_id,
+                    bundle_id=str(bundle["bundle_id"]),
+                    ordinal=ordinal,
+                    spec=spec,
+                    seed=seed,
+                    source_record=source,
+                    candidates=candidates,
+                )
+            )
+        elif task_type == "smiles_invariance":
+            new_tasks.extend(
+                _invariance_tasks(
+                    benchmark_id=benchmark_id,
+                    bundle_id=str(bundle["bundle_id"]),
+                    ordinal=ordinal,
+                    spec=spec,
+                    seed=seed,
+                    source_record=source,
+                )
+            )
+        elif task_type in {"interrupt_resume", "tool_forced_l3"}:
+            task = _interrupt_task(
+                benchmark_id=benchmark_id,
+                bundle_id=str(bundle["bundle_id"]),
+                ordinal=ordinal,
+                spec=spec,
+                seed=seed,
+                source_record=source,
+                candidates=candidates,
+                task_type=task_type,
+            )
+            if task is not None:
+                new_tasks.append(task)
+        for task in new_tasks:
+            task["split"] = str(bundle.get("split", "test"))
+        return new_tasks
+
+    requested_test_minimums = {
+        key: int(value)
+        for key, value in (min_test_task_type_counts or {}).items()
+        if key in TASK_TYPES_V1 and int(value) > 0
+    }
+    if requested_test_minimums:
+        test_bundles = [bundle for bundle in raw_bundles if str(bundle.get("split")) == "test"]
+        for task_type, minimum in sorted(requested_test_minimums.items()):
+            attempts = 0
+            while _task_type_count_for_split("test").get(task_type, 0) < minimum and test_bundles:
+                made_progress = False
+                for bundle in test_bundles:
+                    current_bundle_tasks = [
+                        task for task in all_tasks if task["bundle_id"] == bundle["bundle_id"]
+                    ]
+                    if any(task["task_type"] == task_type for task in current_bundle_tasks):
+                        continue
+                    additions = _add_task_type_to_bundle(bundle, task_type)
+                    if not additions:
+                        continue
+                    all_tasks.extend(additions)
+                    _refresh_bundle_summary(bundle)
+                    made_progress = True
+                    if _task_type_count_for_split("test").get(task_type, 0) >= minimum:
+                        break
+                attempts += 1
+                if not made_progress or attempts > 3:
+                    break
+    test_type_counts = dict(sorted(_task_type_count_for_split("test").items()))
+    diagnostic_only = [
+        task_type
+        for task_type, minimum in sorted(requested_test_minimums.items())
+        if test_type_counts.get(task_type, 0) < minimum
+    ]
 
     bundles = [BundleModel.model_validate(bundle) for bundle in sorted(raw_bundles, key=lambda item: str(item["bundle_id"]))]
     all_tasks.sort(key=lambda item: str(item["task_id"]))
@@ -1055,4 +1206,8 @@ def compile_bundles_from_corpus(
         generation_shortfall=shortfall,
         generation_shortfall_reason=reason,
         split_policy=split_policy,
+        test_task_type_minimums=requested_test_minimums,
+        test_task_type_counts=test_type_counts,
+        test_task_type_minimums_met=not diagnostic_only,
+        diagnostic_only_test_task_types=diagnostic_only,
     )

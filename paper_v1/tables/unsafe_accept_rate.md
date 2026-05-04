@@ -1,0 +1,13 @@
+| baseline | track | unsafe_accept_rate | correct_reject_rate | correct_abstain_rate |
+| --- | --- | --- | --- | --- |
+| always_accept | primary_closed_book | 0.47560975609756095 | 0.15217391304347827 | 0.0 |
+| always_reject | primary_closed_book | 0.0 | 1.0 | 0.0 |
+| always_abstain | primary_closed_book | 0.0 | 0.0 | 1.0 |
+| random_action | primary_closed_book | 0.0 | 0.6086956521739131 | 0.3055555555555556 |
+| schema_valid_dummy | primary_closed_book | 0.47560975609756095 | 0.15217391304347827 | 0.0 |
+| heuristic | primary_closed_book | 0.0 | 1.0 | 0.0 |
+| abstention_guard | primary_closed_book | 0.36585365853658536 | 0.34782608695652173 | 0.0 |
+| local_mutation_or_repair | primary_closed_book | 0.5609756097560976 | 0.0 | 0.0 |
+| verify_first | tool_enabled | 0.5609756097560976 | 0.0 | 0.0 |
+| verifier_guided_greedy | tool_enabled | 0.35365853658536583 | 0.3695652173913043 | 0.0 |
+| corpus_retrieval_upper_bound | retrieval_upper_bound | 0.5609756097560976 | 0.0 | 0.0 |

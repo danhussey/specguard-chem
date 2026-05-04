@@ -8,12 +8,12 @@ This release is a hard cutover to oracle-first bundle compilation.
 - added rendered agent-visible inputs and stable agent-visible hashes
 - generated strict audits, checksums, benchmark card, and Croissant metadata
 
-Generated tasks: 426
-Generated bundles: 80
+Generated tasks: 688
+Generated bundles: 120
 Strict validation: {'valid': True, 'num_errors': 0}
 
 Reproducibility:
 ```bash
-uv run specguard-chem compile-benchmark --benchmark-id sgchem_v1.0 --out benchmarks/releases/sgchem_v1.0 --seed 7 --target-bundles 80 --anonymous
+uv run specguard-chem compile-benchmark --benchmark-id sgchem_v1.0 --out benchmarks/releases/sgchem_v1.0 --seed 7 --target-bundles 120 --anonymous
 uv run specguard-chem validate-dataset benchmarks/releases/sgchem_v1.0 --strict
 ```

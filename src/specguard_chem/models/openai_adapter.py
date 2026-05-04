@@ -170,7 +170,7 @@ class OpenAIChatAdapter(BaseAdapter):
                 "name": "required if action == 'tool_call'",
                 "args": "object, required if action == 'tool_call'",
                 "reason": "required if action == 'abstain'",
-                "p_hard_pass": (
+                "confidence": (
                     "float between 0 and 1 (optional; probability the final proposal "
                     "passes hard constraints)"
                 ),
@@ -208,7 +208,7 @@ class OpenAIChatAdapter(BaseAdapter):
                         "verify feedback."
                     ),
                     (
-                        "Set p_hard_pass monotonically with minimum signed hard margin "
+                        "Set confidence monotonically with minimum signed hard margin "
                         "(larger margin => higher confidence)."
                     ),
                 ]

@@ -34,16 +34,23 @@ Reports include pass@budget where appropriate, expected-action confusion matrix,
 Every task includes one oracle or certificate: feasible witness, repair witness, violation certificate, explicit contradiction certificate, equivalence certificate, boundary certificate, or interrupt certificate.
 
 ## Split Policy
-Splits are assigned by deterministic bundle hash using the release seed. All tasks from a bundle stay in the same split. Leakage audits check bundle, group, agent-visible hash, canonical input/spec, witness/spec, and scaffold overlap.
+Splits are assigned by deterministic bundle hash using the release seed with a 50/20/30 train/dev/test target. All tasks from a bundle stay in the same split. Leakage audits check bundle, group, agent-visible hash, canonical input/spec, witness/spec, and scaffold overlap.
+
+## Public/Private Task Views
+Adapters and non-oracle baselines consume `PublicTaskView`, not raw task records. Public views contain rendered task text, public molecule input, public effective spec, protocol, budgets, allowed actions/tools, round index, and permitted feedback. They exclude expected answers, oracle types, evidence, witnesses, proofs, certificates, task IDs, bundle IDs, split labels, and internal answer-encoding task labels.
 
 ## Validation Policy
 `uv run specguard-chem validate-dataset benchmarks/releases/sgchem_v1.0 --strict` must pass with zero errors before reporting benchmark results.
+
+Strict validation is paired with negative controls that intentionally corrupt audit, repair, construct, abstain, boundary, invariance, split, protocol, and prompt-scope invariants. Prompt-leakage and oracle-scrambling audits prove public model inputs are invariant to hidden oracle fields.
 
 ## Curation Policy
 Generated tasks are retained only if schema, oracle, protocol, split, safety-scope, and duplicate checks pass. Baseline performance is not used to select tasks.
 
 ## Limitations
 SpecGuard-Chem evaluates rule compliance, not real-world molecular quality. Passing a task does not imply usefulness, safety, efficacy, synthesizability, or developability.
+
+Metric denominator reports classify paper claims as primary, diagnostic, appendix-only, or not reportable. Retrieval upper bounds, tool-enabled baselines, oracle upper bounds, and external snapshots are separated from the primary closed-book leaderboard.
 
 ## Safety and Misuse
 Agent-visible tasks use scoped medicinal-chemistry language and avoid out-of-scope claims. Audit scans block forbidden claim terms only in agent-visible task text.
@@ -54,10 +61,11 @@ uv run specguard-chem compile-benchmark \
   --benchmark-id sgchem_v1.0 \
   --out benchmarks/releases/sgchem_v1.0 \
   --seed 7 \
-  --target-bundles 80 \
-  --min-tasks 400 \
-  --max-tasks 700 \
+  --target-bundles 120 \
+  --min-tasks 650 \
+  --max-tasks 900 \
   --anonymous
 
 uv run specguard-chem validate-dataset benchmarks/releases/sgchem_v1.0 --strict
+uv run python scripts/build_and_check_sgchem_v1.py
 ```

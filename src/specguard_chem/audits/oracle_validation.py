@@ -91,7 +91,10 @@ def validate_oracles(
                     witness_result = evaluator.evaluate(witness)
                     units = hard_violation_units(input_result)
                     needs_exact_one = task_type == "repair_near_miss"
-                    if input_result.hard_pass or not witness_result.hard_pass:
+                    if not input_result.valid:
+                        counts[key]["failed"] += 1
+                        errors.append(f"{task_id}: repair input is not valid SMILES")
+                    elif input_result.hard_pass or not witness_result.hard_pass:
                         counts[key]["failed"] += 1
                         errors.append(f"{task_id}: repair input/witness oracle failed")
                     elif needs_exact_one and units != 1:
@@ -112,6 +115,14 @@ def validate_oracles(
                 elif not certificate.get("constraints") or not certificate.get("reason"):
                     counts["abstain_certificates"]["failed"] += 1
                     errors.append(f"{task_id}: unsat certificate lacks concrete constraints")
+                else:
+                    referenced = certificate.get("constraints")
+                    visible_ids = {constraint.id for constraint in spec.constraints}
+                    if not isinstance(referenced, list) or not set(map(str, referenced)).issubset(visible_ids):
+                        counts["abstain_certificates"]["failed"] += 1
+                        errors.append(
+                            f"{task_id}: unsat certificate references constraints not visible in task/spec"
+                        )
 
             boundary_group_id = evidence.get("boundary_group_id")
             if isinstance(boundary_group_id, str) and boundary_group_id:

@@ -45,6 +45,7 @@
       "name": "spec catalog"
     }
   ],
+  "externalValidationStatus": "pending",
   "license": "MIT",
   "name": "SpecGuard-Chem",
   "recordSet": [
@@ -105,7 +106,11 @@
     "dataGenerationProcess": "Deterministic offline bundle compiler with oracle/certificate validation.",
     "intendedUse": "Offline benchmark evaluation of medicinal-chemistry rule compliance.",
     "outOfScopeUse": "Biological activity, toxicity, therapeutic, clinical, dosing, disease, target-binding, or synthesis-feasibility claims.",
-    "safetyLimitations": "The dataset does not establish real-world molecular safety, efficacy, or developability."
+    "safetyLimitations": "The dataset does not establish real-world molecular safety, efficacy, or developability.",
+    "seeds": [
+      7
+    ]
   },
+  "url": "PENDING_ANONYMOUS_HOSTED_URL",
   "version": "sgchem_v1.0"
 }

@@ -8,9 +8,9 @@ from typing import Any, Dict, Iterable, Mapping
 
 RELEASE_SPLITS: tuple[str, ...] = ("train", "dev", "test")
 DEFAULT_SPLIT_PROPORTIONS: Mapping[str, float] = {
-    "train": 0.60,
+    "train": 0.50,
     "dev": 0.20,
-    "test": 0.20,
+    "test": 0.30,
 }
 
 
@@ -35,7 +35,7 @@ def assign_bundle_splits(
     if total == 0:
         return {}
 
-    train_count = int(round(total * float(proportions.get("train", 0.60))))
+    train_count = int(round(total * float(proportions.get("train", 0.50))))
     dev_count = int(round(total * float(proportions.get("dev", 0.20))))
     train_count = max(0, min(train_count, total))
     dev_count = max(0, min(dev_count, total - train_count))

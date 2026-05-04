@@ -51,6 +51,26 @@ TASK_TYPES_V1 = {
     "tool_forced_l3",
 }
 EXPECTED_ACTIONS = {"ACCEPT", "REJECT", "ABSTAIN"}
+FORBIDDEN_VISIBLE_LABELS = {
+    "audit_accept",
+    "audit_reject",
+}
+FORBIDDEN_VISIBLE_ORACLE_TERMS = {
+    "expected_action",
+    "oracle_type",
+    "evidence",
+    "feasible_witness",
+    "proof",
+    "unsat_certificate",
+    "violation_certificate",
+    "boundary_certificate",
+    "equivalence_certificate",
+    "hard_pass",
+    "failing_constraints",
+    "curation_status",
+    "task_id",
+    "bundle_id",
+}
 
 
 def load_release_tasks_by_split(release_dir: Path) -> dict[str, list[dict[str, Any]]]:
@@ -179,6 +199,8 @@ def _protocol_checks(tasks_by_split: Mapping[str, list[Mapping[str, Any]]]) -> d
             max_verify_calls = int(budgets.get("max_verify_calls", 0) or 0)
             if protocol == "L1" and max_verify_calls != 0:
                 errors.append(f"{task_id}: L1 must not have verifier tool access")
+            if protocol == "L1" and "verify" in allowed_tools:
+                errors.append(f"{task_id}: L1 visible tools must not include verify")
             if protocol == "L2" and max_verify_calls != 0:
                 errors.append(f"{task_id}: L2 must not have direct verifier calls")
             if protocol == "L3" and max_verify_calls <= 0:
@@ -195,6 +217,40 @@ def _protocol_checks(tasks_by_split: Mapping[str, list[Mapping[str, Any]]]) -> d
                 for required in ("state", "report", "continue"):
                     if required not in field_text:
                         errors.append(f"{task_id}: interrupt evidence missing {required} behavior")
+    return {
+        "passed": len(errors) == 0,
+        "num_errors": len(errors),
+        "errors": errors,
+    }
+
+
+def _prompt_visibility_checks(tasks_by_split: Mapping[str, list[Mapping[str, Any]]]) -> dict[str, Any]:
+    errors: list[str] = []
+    for _split, tasks in tasks_by_split.items():
+        for task in tasks:
+            task_id = str(task.get("task_id", ""))
+            rendered = str(task.get("rendered_agent_input") or task.get("prompt") or "")
+            lower = rendered.lower()
+            for label in FORBIDDEN_VISIBLE_LABELS:
+                if label in lower:
+                    errors.append(f"{task_id}: visible prompt contains internal label {label}")
+            for term in FORBIDDEN_VISIBLE_ORACLE_TERMS:
+                if term in lower:
+                    errors.append(f"{task_id}: visible prompt contains hidden oracle term {term}")
+            evidence = task.get("evidence") if isinstance(task.get("evidence"), dict) else {}
+            input_block = task.get("input") if isinstance(task.get("input"), dict) else {}
+            visible_smiles = {
+                value
+                for value in (
+                    input_block.get("smiles"),
+                    input_block.get("candidate_smiles"),
+                )
+                if isinstance(value, str) and value
+            }
+            for key in ("feasible_witness_smiles", "feasible_witness_canonical_smiles"):
+                value = evidence.get(key)
+                if isinstance(value, str) and value and value not in visible_smiles and value in rendered:
+                    errors.append(f"{task_id}: rendered_agent_input exposes hidden witness SMILES")
     return {
         "passed": len(errors) == 0,
         "num_errors": len(errors),
@@ -244,6 +300,7 @@ def validate_release_v1(release_dir: Path, *, strict: bool = True) -> dict[str, 
     leakage = leakage_summary(tasks_by_split, bundles_by_split)
     duplicates = duplicate_summary(tasks_by_split)
     protocol = _protocol_checks(tasks_by_split)
+    prompt_visibility = _prompt_visibility_checks(tasks_by_split)
     safety = scan_agent_visible_scope(tasks_by_split)
     composition = _composition_checks(tasks_by_split, oracles)
 
@@ -291,6 +348,7 @@ def validate_release_v1(release_dir: Path, *, strict: bool = True) -> dict[str, 
         },
         "splits": split_checks,
         "protocols": protocol,
+        "prompt_visibility": prompt_visibility,
         "safety_scope": safety_checks,
         "composition": composition,
         "duplicates": {
@@ -344,6 +402,12 @@ def validate_croissant_metadata(path: Path, *, anonymous: bool = False) -> dict[
     rai = payload.get("responsibleAI") or payload.get("responsible_ai")
     if not isinstance(rai, dict):
         errors.append("missing Responsible AI fields")
+    else:
+        for field in ("intendedUse", "outOfScopeUse", "dataGenerationProcess", "safetyLimitations"):
+            if not rai.get(field):
+                errors.append(f"Responsible AI missing {field}")
+    if not payload.get("externalValidationStatus"):
+        errors.append("missing externalValidationStatus")
     if anonymous:
         rendered = json.dumps(payload, sort_keys=True)
         for forbidden in ("Daniel", "Hussey", "/Users/", "github.com/danhussey"):

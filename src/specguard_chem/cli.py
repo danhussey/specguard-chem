@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Annotated, Any, Dict, List, Optional
 
 import typer
 from rich.console import Console
@@ -365,15 +365,34 @@ def compile_benchmark(
         400, "--min-tasks", help="Requested minimum task count recorded in the manifest."
     ),
     max_tasks: int = typer.Option(
-        700, "--max-tasks", help="Maximum task count; whole bundles are dropped if needed."
+        900, "--max-tasks", help="Maximum task count; whole bundles are dropped if needed."
     ),
     anonymous: bool = typer.Option(
         False,
         "--anonymous",
         help="Omit personal names, account names, local paths, and institutions from release metadata.",
     ),
+    min_test_task_type_count: Annotated[
+        Optional[List[str]],
+        typer.Option(
+            "--min-test-task-type-count",
+            help="Minimum test split count as task_type=count; may be repeated.",
+        ),
+    ] = None,
 ) -> None:
     from .benchmark.compiler import compile_benchmark_release
+
+    min_test_counts: Dict[str, int] = {}
+    for raw in min_test_task_type_count or []:
+        if "=" not in raw:
+            console.print(f"[red]Invalid --min-test-task-type-count:[/red] {raw}")
+            raise typer.Exit(code=1)
+        key, value = raw.split("=", 1)
+        try:
+            min_test_counts[key.strip()] = int(value)
+        except ValueError as exc:
+            console.print(f"[red]Invalid minimum count:[/red] {raw}")
+            raise typer.Exit(code=1) from exc
 
     try:
         manifest = compile_benchmark_release(
@@ -384,6 +403,7 @@ def compile_benchmark(
             min_tasks=min_tasks,
             max_tasks=max_tasks,
             anonymous=anonymous,
+            min_test_task_type_counts=min_test_counts,
         )
     except Exception as exc:
         console.print(f"[red]compile-benchmark failed:[/red] {exc}")
