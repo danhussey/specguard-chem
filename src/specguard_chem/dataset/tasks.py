@@ -1443,22 +1443,6 @@ def generate_tasks_from_corpus(
         )
         tasks.append(task)
 
-    if len(tasks) < target_tasks and tasks:
-        repeated = []
-        for index in range(target_tasks - len(tasks)):
-            base = tasks[index % len(tasks)]
-            clone = dict(base)
-            family = str(clone.get("task_family", "repeated"))
-            spec_id = str(clone.get("spec_id", "spec"))
-            clone["task_id"] = _task_id(
-                suite_name=suite_name,
-                family=family,
-                spec_id=spec_id,
-                index=next_index(family, spec_id) + 100000,
-            )
-            repeated.append(clone)
-        tasks.extend(repeated)
-
     tasks.sort(key=lambda item: item["task_id"])
     if len(tasks) > target_tasks:
         tasks = tasks[:target_tasks]

@@ -111,6 +111,9 @@ def _summary_metrics(summary: Mapping[str, Any]) -> Dict[str, Any]:
         "num_tasks": summary.get("num_tasks"),
         "accept_rate": summary.get("accept_rate"),
         "hard_violation_rate": summary.get("hard_violation_rate"),
+        "unsafe_accept_rate": summary.get("unsafe_accept_rate"),
+        "correct_reject_rate": summary.get("correct_reject_rate"),
+        "correct_abstain_rate": summary.get("correct_abstain_rate"),
         "abstention_utility": summary.get("abstention_utility"),
         "pass_at_1": pass_at_1,
         "pass_at_3": pass_at_3,
@@ -148,10 +151,12 @@ def _resolve_expected_action(record: Mapping[str, Any]) -> str:
 
 
 def _resolve_final_decision(record: Mapping[str, Any]) -> str:
+    if record.get("schema_error") or record.get("invalid_action") or record.get("invalid_tool_call"):
+        return "INVALID"
     final_decision = record.get("final_decision")
     if isinstance(final_decision, str):
         value = final_decision.strip().upper()
-        if value in {"ACCEPT", "ABSTAIN", "REJECT"}:
+        if value in {"ACCEPT", "ABSTAIN", "REJECT", "INVALID"}:
             return value
     decision = str(record.get("decision", "")).strip().lower()
     if decision == "accept":

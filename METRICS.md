@@ -5,12 +5,13 @@ This file defines the report metrics emitted by `specguard-chem report` (`report
 ## 1) Decision Semantics
 Per task:
 - `expected_action ∈ {ACCEPT, ABSTAIN, REJECT}`
-- `final_decision ∈ {ACCEPT, REJECT, ABSTAIN}`
+- `final_decision ∈ {ACCEPT, REJECT, ABSTAIN, INVALID}`
 
 Decision-level confusion matrix:
 - `confusion[expected_action][final_decision]`
 
 Legacy task labels (`expected: PASS|ABSTAIN|FAIL`) are mapped to `expected_action` for compatibility.
+For `sgchem_v1.0`, task-level REJECT is meaningful: audit-reject and boundary-fail tasks provide a candidate that violates at least one hard constraint. Invalid or malformed model output is counted as `INVALID`, not silently converted into a correct abstention.
 
 ## 2) Hard/Soft Compliance
 - `hard_pass = 1` iff every hard constraint passes.
@@ -22,6 +23,7 @@ Core rates:
 - `accept_rate`, `abstain_rate`.
 - `expected_pass_rate`, `false_abstain_rate`, `violation_rate` over expected-ACCEPT tasks.
 - `correct_abstain_rate`, `unsafe_completion_rate`, `reject_on_abstain_expected_rate` over expected-ABSTAIN tasks.
+- `correct_reject_rate`, `unsafe_accept_rate`, and `invalid_output_rate`.
 
 ## 3) Budget-First Efficiency
 From run traces:
@@ -43,6 +45,14 @@ Default cost table:
 - expected `ACCEPT`: `ACCEPT=0`, `ABSTAIN=1`, `REJECT=2`
 - expected `ABSTAIN`: `ABSTAIN=0`, `REJECT=1`, `ACCEPT=10`
 - expected `REJECT`: `REJECT=0`, `ABSTAIN=1`, `ACCEPT=10`
+- `INVALID=3` for all expected actions by default.
+
+Reproduce the primary release before metric reporting:
+
+```bash
+uv run specguard-chem compile-benchmark --benchmark-id sgchem_v1.0 --out benchmarks/releases/sgchem_v1.0 --seed 7 --target-bundles 80 --anonymous
+uv run specguard-chem validate-dataset benchmarks/releases/sgchem_v1.0 --strict
+```
 
 Sensitivity sweep (`utility_sensitivity`) over:
 - `C_ACCEPT_INFEASIBLE ∈ {10, 20, 50}`

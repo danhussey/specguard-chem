@@ -3,6 +3,18 @@
 This document describes the evaluation methodology implemented in SpecGuard-Chem: task/spec
 formats, runner protocols (L1/L2/L3), scoring, report artifacts, and reproducibility.
 
+## sgchem_v1.0 Method Summary
+The primary release is `sgchem_v1.0`, compiled from oracle-backed bundles rather than clone-filled templates. Bundles are split as units, and each task includes `rendered_agent_input`, `agent_visible_hash`, `expected_action`, `oracle_type`, and evidence/certificate fields.
+
+Non-claims: SpecGuard-Chem does not evaluate biological activity, toxicity, synthesis feasibility, therapeutic efficacy, clinical utility, dosing, disease relevance, or target-binding behavior.
+
+Reproducibility and validation:
+
+```bash
+uv run specguard-chem compile-benchmark --benchmark-id sgchem_v1.0 --out benchmarks/releases/sgchem_v1.0 --seed 7 --target-bundles 80 --anonymous
+uv run specguard-chem validate-dataset benchmarks/releases/sgchem_v1.0 --strict
+```
+
 ## 1. Benchmark scope
 
 SpecGuard-Chem evaluates **spec compliance** of chemistry-AI assistants on synthetic tasks:

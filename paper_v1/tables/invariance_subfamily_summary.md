@@ -1,0 +1,7 @@
+| baseline | track | invariance_subfamily | failure_rate | n_tasks | n_failures |
+| --- | --- | --- | --- | --- | --- |
+| heuristic | closed_book | unspecified | 0.0 | 4 | 0 |
+| abstention_guard | closed_book | unspecified | 0.0 | 4 | 0 |
+| verify_first | closed_book | unspecified | 0.0 | 4 | 0 |
+| local_mutation | closed_book | unspecified | 0.0 | 4 | 0 |
+| corpus_search | retrieval | unspecified | 0.0 | 4 | 0 |

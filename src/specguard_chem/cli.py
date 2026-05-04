@@ -285,10 +285,24 @@ def validate_dataset(
         "--min-tool-forced-l3-test-share",
         help="Minimum required fraction of tool_forced_l3 tasks in TEST split for release directories.",
     ),
+    strict: bool = typer.Option(
+        False,
+        "--strict",
+        help="Run strict sgchem_v1 release validation.",
+    ),
 ) -> None:
     if not dataset_path.exists():
         console.print(f"[red]Dataset path not found:[/red] {dataset_path}")
         raise typer.Exit(code=1)
+
+    if dataset_path.is_dir() and strict:
+        from .dataset.validate_v1 import validate_release_v1
+
+        result = validate_release_v1(dataset_path, strict=True)
+        console.print(json.dumps(result, indent=2, sort_keys=True))
+        if not result.get("valid", False):
+            raise typer.Exit(code=1)
+        return
 
     if dataset_path.is_dir():
         from .benchmark.release import validate_release_directory
@@ -330,6 +344,69 @@ def validate_dataset(
         for message in errors[:20]:
             error_table.add_row(message)
         console.print(error_table)
+        raise typer.Exit(code=1)
+
+
+@app.command("compile-benchmark")
+def compile_benchmark(
+    benchmark_id: str = typer.Option(
+        "sgchem_v1.0", "--benchmark-id", help="Benchmark release identifier."
+    ),
+    out: Path = typer.Option(
+        Path("benchmarks/releases/sgchem_v1.0"),
+        "--out",
+        help="Output release directory.",
+    ),
+    seed: int = typer.Option(7, "--seed", help="Deterministic compilation seed."),
+    target_bundles: int = typer.Option(
+        80, "--target-bundles", help="Number of underlying scenario bundles to compile."
+    ),
+    min_tasks: int = typer.Option(
+        400, "--min-tasks", help="Requested minimum task count recorded in the manifest."
+    ),
+    max_tasks: int = typer.Option(
+        700, "--max-tasks", help="Maximum task count; whole bundles are dropped if needed."
+    ),
+    anonymous: bool = typer.Option(
+        False,
+        "--anonymous",
+        help="Omit personal names, account names, local paths, and institutions from release metadata.",
+    ),
+) -> None:
+    from .benchmark.compiler import compile_benchmark_release
+
+    try:
+        manifest = compile_benchmark_release(
+            benchmark_id=benchmark_id,
+            out_dir=out,
+            seed=seed,
+            target_bundles=target_bundles,
+            min_tasks=min_tasks,
+            max_tasks=max_tasks,
+            anonymous=anonymous,
+        )
+    except Exception as exc:
+        console.print(f"[red]compile-benchmark failed:[/red] {exc}")
+        raise typer.Exit(code=1) from exc
+
+    console.print(f"Benchmark release: [green]{out}[/green]")
+    console.print(f"Bundles: [green]{manifest.get('num_bundles', 0)}[/green]")
+    console.print(f"Tasks: [green]{manifest.get('num_tasks', 0)}[/green]")
+    console.print(f"Manifest written to [green]{out / 'MANIFEST.json'}[/green]")
+
+
+@app.command("validate-croissant")
+def validate_croissant(
+    path: Path = typer.Argument(..., help="Path to croissant.json."),
+    anonymous: bool = typer.Option(
+        False, "--anonymous", help="Apply anonymous metadata checks."
+    ),
+) -> None:
+    from .dataset.validate_v1 import validate_croissant_metadata
+
+    result = validate_croissant_metadata(path, anonymous=anonymous)
+    console.print(json.dumps(result, indent=2, sort_keys=True))
+    if not result.get("valid", False):
         raise typer.Exit(code=1)
 
 

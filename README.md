@@ -5,7 +5,7 @@ Spec-driven, programmatically verifiable evaluation of agentic LLMs on safe medi
 
 **What it is:** a model-agnostic benchmark harness for rule-following under explicit specs. Agents propose/edit molecules, optionally use verifier tools, and either accept, reject, or abstain.
 
-**What it is NOT:** drug discovery, activity/toxicity prediction, or synthesis planning.
+**What it is NOT:** drug discovery, activity/toxicity prediction, synthesis planning, therapeutic selection, clinical evaluation, dosing guidance, disease modeling, or target-binding prediction.
 
 Prompts are optional rendering. Canonical benchmark semantics are the structured task/spec objects and deterministic verifier truth.
 
@@ -65,56 +65,66 @@ Stratify aggregate rows with `--group-by` (fields: `name,model,protocol,suite,sp
 specguard-chem compare-baselines runs/baselines --group-by name,spec_split -o runs/baseline_compare_by_split.json
 ```
 
-## Frozen Benchmark Release (sgchem_v0.3)
-Create a deterministic frozen release artifact:
+## Primary Benchmark Release (sgchem_v1.0)
+Compile the oracle-backed bundle release:
 
 ```bash
-specguard-chem freeze-benchmark \
-  --benchmark-id sgchem_v0.3 \
-  --out benchmarks/releases/sgchem_v0.3 \
-  --target-tasks 1000 \
-  --seed 7
+uv run specguard-chem compile-benchmark \
+  --benchmark-id sgchem_v1.0 \
+  --out benchmarks/releases/sgchem_v1.0 \
+  --seed 7 \
+  --target-bundles 80 \
+  --min-tasks 400 \
+  --max-tasks 700 \
+  --anonymous
+```
+
+Strictly validate the frozen release:
+
+```bash
+uv run specguard-chem validate-dataset benchmarks/releases/sgchem_v1.0 --strict
 ```
 
 Run the primary paper sweep (track-separated: closed-book + retrieval):
 
 ```bash
-specguard-chem run-benchmark \
-  --benchmark benchmarks/releases/sgchem_v0.3 \
+uv run specguard-chem run-benchmark \
+  --benchmark benchmarks/releases/sgchem_v1.0 \
   --split test \
   --baselines baselines/paper_baselines.yaml \
-  --out runs/paper_sweeps/sgchem_v0.3_test
+  --out runs/paper_sweeps/sgchem_v1.0_test \
+  --seed 7
 ```
 
 Run external/LLM snapshot baselines with cache capture (optional):
 
 ```bash
-specguard-chem run-benchmark \
-  --benchmark benchmarks/releases/sgchem_v0.3 \
+uv run specguard-chem run-benchmark \
+  --benchmark benchmarks/releases/sgchem_v1.0 \
   --split test \
   --baselines baselines/external_baselines.yaml \
-  --out runs/paper_sweeps/sgchem_v0.3_external \
+  --out runs/paper_sweeps/sgchem_v1.0_external \
   --allow-external \
-  --cache-dir runs/paper_sweeps/sgchem_v0.3_external/cache
+  --cache-dir runs/paper_sweeps/sgchem_v1.0_external/cache
 ```
 
 Replay external baselines offline from cache:
 
 ```bash
-specguard-chem run-benchmark \
-  --benchmark benchmarks/releases/sgchem_v0.3 \
+uv run specguard-chem run-benchmark \
+  --benchmark benchmarks/releases/sgchem_v1.0 \
   --split test \
   --baselines baselines/external_baselines.yaml \
-  --out runs/paper_sweeps/sgchem_v0.3_external_replay \
-  --replay-cache runs/paper_sweeps/sgchem_v0.3_external/cache
+  --out runs/paper_sweeps/sgchem_v1.0_external_replay \
+  --replay-cache runs/paper_sweeps/sgchem_v1.0_external/cache
 ```
 
 Generate paper figures/tables (track-separated leaderboards + CI columns):
 
 ```bash
-specguard-chem paper-figures \
-  --runs runs/paper_sweeps/sgchem_v0.3_test \
-  --out paper
+uv run specguard-chem paper-figures \
+  --runs runs/paper_sweeps/sgchem_v1.0_test \
+  --out paper_v1
 ```
 
 ## Included Adapters

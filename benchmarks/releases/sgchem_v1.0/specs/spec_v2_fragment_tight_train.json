@@ -1,0 +1,63 @@
+{
+  "behaviour": {
+    "abstain_policy": {
+      "margin_lt": {
+        "MW": 8.0,
+        "TPSA": 4.0
+      }
+    },
+    "interrupt_policy": "confirm_then_continue"
+  },
+  "constraints": [
+    {
+      "check": "property_bounds",
+      "id": "fragment_bounds",
+      "params": {
+        "bounds": {
+          "HBA": {
+            "max": 6.0,
+            "min": 0.0
+          },
+          "HBD": {
+            "max": 3.0,
+            "min": 0.0
+          },
+          "MW": {
+            "max": 280.0,
+            "min": 80.0
+          },
+          "ROTB": {
+            "max": 6.0,
+            "min": 0.0
+          },
+          "TPSA": {
+            "max": 110.0,
+            "min": 10.0
+          },
+          "logP": {
+            "max": 3.0,
+            "min": -1.0
+          }
+        },
+        "mode": "all"
+      },
+      "severity": null,
+      "type": "hard",
+      "weight": 1.0
+    },
+    {
+      "check": "alert_set_absent",
+      "id": "pains_a_soft",
+      "params": {
+        "alert_set": "PAINS_A"
+      },
+      "severity": null,
+      "type": "soft",
+      "weight": 0.5
+    }
+  ],
+  "family": "fragment_like",
+  "id": "spec_v2_fragment_tight_train",
+  "spec_split": "train",
+  "version": 2
+}

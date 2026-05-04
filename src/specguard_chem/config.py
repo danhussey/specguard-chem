@@ -16,6 +16,27 @@ ConstraintType = Literal["hard", "soft"]
 ExpectedOutcome = Literal["PASS", "ABSTAIN", "FAIL"]
 ExpectedAction = Literal["ACCEPT", "ABSTAIN", "REJECT"]
 InterruptAction = Literal["ABSTAIN", "CONTINUE"]
+TaskTypeV1 = Literal[
+    "construct_feasible",
+    "repair_near_miss",
+    "repair_multi_violation",
+    "audit_accept",
+    "audit_reject",
+    "abstain_contradiction",
+    "boundary_precision",
+    "smiles_invariance",
+    "interrupt_resume",
+    "tool_forced_l3",
+]
+OracleTypeV1 = Literal[
+    "feasible_witness",
+    "repair_witness",
+    "violation_certificate",
+    "unsat_certificate",
+    "equivalence_certificate",
+    "boundary_certificate",
+    "interrupt_certificate",
+]
 SpecCheck = Literal[
     "property_bounds",
     "alert_set_absent",
@@ -312,24 +333,55 @@ class TaskScoringModel(BaseModel):
 
 class TaskInputModel(BaseModel):
     smiles: Optional[str] = None
+    candidate_smiles: Optional[str] = None
 
 
 class TaskEvidenceModel(BaseModel):
     """Feasibility or contradiction evidence attached to generated tasks."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
 
     feasible_witness_smiles: Optional[str] = None
+    feasible_witness_canonical_smiles: Optional[str] = None
+    witness_verifier_result: Optional[Dict[str, Any]] = None
+    input_verifier_result: Optional[Dict[str, Any]] = None
+    candidate_verifier_result: Optional[Dict[str, Any]] = None
+    expected_num_failing_constraints: Optional[int] = None
     contradiction_proof: Optional[Dict[str, Any]] = None
+    unsat_certificate: Optional[Dict[str, Any]] = None
     budget_infeasible_note: Optional[str] = None
     invariance_group_id: Optional[str] = None
     invariance_subfamily: Optional[str] = None
     invariance_equivalence_policy: Optional[EquivalencePolicy] = None
     invariance_canonical_smiles: Optional[str] = None
     invariance_variant_label: Optional[str] = None
+    variant_smiles: Optional[List[str]] = None
+    expected_same_decision: Optional[bool] = None
+    boundary_group_id: Optional[str] = None
     boundary_property: Optional[str] = None
     boundary_side: Optional[Literal["lower", "upper"]] = None
     boundary_distance: Optional[float] = Field(default=None, ge=0.0)
+    property: Optional[str] = None
+    threshold: Optional[float] = None
+    pass_smiles: Optional[str] = None
+    fail_smiles: Optional[str] = None
+    pass_margin: Optional[float] = None
+    fail_margin: Optional[float] = None
+    interrupt: Optional[Dict[str, Any]] = None
+
+
+class TaskGenerationModel(BaseModel):
+    """Reproducible generation metadata for compiled benchmark tasks."""
+
+    model_config = ConfigDict(extra="allow")
+
+    seed: int
+    stage: str
+    source_molecule_id: Optional[str] = None
+    source_canonical_smiles: Optional[str] = None
+    scaffold_hash: Optional[str] = None
+    curation_status: str = "generated"
+    curation_reason: Optional[str] = None
 
 
 class TaskBudgetsModel(BaseModel):
@@ -423,15 +475,30 @@ class TaskModel(BaseModel):
 
     task_id: str
     suite: str
+    bundle_id: Optional[str] = None
+    task_type: Optional[TaskTypeV1] = None
     protocol: Literal["L1", "L2", "L3"]
     prompt: str
+    prompt_template: Optional[str] = None
+    rendered_agent_input: Optional[str] = None
+    agent_visible_payload: Optional[Dict[str, Any]] = None
+    agent_visible_hash: Optional[str] = None
     input: TaskInputModel
     spec_id: str
+    spec_instance_hash: Optional[str] = None
     scoring: TaskScoringModel
     task_family: Optional[str] = None
     evidence: Optional[TaskEvidenceModel] = None
+    oracle_type: Optional[OracleTypeV1] = None
     task_constraints: Optional[TaskConstraintsModel] = None
     budgets: Optional[TaskBudgetsModel] = None
+    generation: Optional[TaskGenerationModel] = None
+    source_molecule_id: Optional[str] = None
+    source_smiles: Optional[str] = None
+    source_canonical_smiles: Optional[str] = None
+    generation_seed: Optional[int] = None
+    generation_stage: Optional[str] = None
+    intentional_pair: bool = False
     interrupt_at_step: Optional[int] = None
     expected: ExpectedOutcome = "PASS"
     expected_action: Optional[ExpectedAction] = None

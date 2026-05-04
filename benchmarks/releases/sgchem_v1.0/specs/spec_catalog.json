@@ -1,0 +1,83 @@
+{
+  "num_specs": 13,
+  "specs": [
+    {
+      "family": "ro5_legacy",
+      "id": "spec_v1_basic",
+      "release_path": "specs/spec_v1_basic.json",
+      "version": 2
+    },
+    {
+      "family": "alerts_soft",
+      "id": "spec_v2_alert_soft_train",
+      "release_path": "specs/spec_v2_alert_soft_train.json",
+      "version": 2
+    },
+    {
+      "family": "alerts_strict",
+      "id": "spec_v2_alert_strict_dev",
+      "release_path": "specs/spec_v2_alert_strict_dev.json",
+      "version": 2
+    },
+    {
+      "family": "motif_amide",
+      "id": "spec_v2_amide_friendly_dev",
+      "release_path": "specs/spec_v2_amide_friendly_dev.json",
+      "version": 2
+    },
+    {
+      "family": "motif_aromatic",
+      "id": "spec_v2_aromatic_pref_test",
+      "release_path": "specs/spec_v2_aromatic_pref_test.json",
+      "version": 2
+    },
+    {
+      "family": "cns_like",
+      "id": "spec_v2_cns_like_test",
+      "release_path": "specs/spec_v2_cns_like_test.json",
+      "version": 2
+    },
+    {
+      "family": "fragment_like",
+      "id": "spec_v2_fragment_tight_train",
+      "release_path": "specs/spec_v2_fragment_tight_train.json",
+      "version": 2
+    },
+    {
+      "family": "fragment_like",
+      "id": "spec_v2_fragment_ultra_dev",
+      "release_path": "specs/spec_v2_fragment_ultra_dev.json",
+      "version": 2
+    },
+    {
+      "family": "flexibility",
+      "id": "spec_v2_low_rotor_train",
+      "release_path": "specs/spec_v2_low_rotor_train.json",
+      "version": 2
+    },
+    {
+      "family": "polar_bias",
+      "id": "spec_v2_polar_bias_train",
+      "release_path": "specs/spec_v2_polar_bias_train.json",
+      "version": 2
+    },
+    {
+      "family": "ro5_balanced",
+      "id": "spec_v2_ro5_balanced_test",
+      "release_path": "specs/spec_v2_ro5_balanced_test.json",
+      "version": 2
+    },
+    {
+      "family": "sa_proxy",
+      "id": "spec_v2_sa_relaxed_dev",
+      "release_path": "specs/spec_v2_sa_relaxed_dev.json",
+      "version": 2
+    },
+    {
+      "family": "sa_proxy",
+      "id": "spec_v2_sa_strict_test",
+      "release_path": "specs/spec_v2_sa_strict_test.json",
+      "version": 2
+    }
+  ]
+}

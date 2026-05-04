@@ -1,0 +1,119 @@
+{
+  "benchmark_id": "sgchem_v1.0",
+  "bundles": {
+    "dev": "bundles/dev.jsonl",
+    "test": "bundles/test.jsonl",
+    "train": "bundles/train.jsonl"
+  },
+  "bundles_per_split": {
+    "dev": 16,
+    "test": 16,
+    "train": 48
+  },
+  "checksums": {
+    "algorithm": "sha256",
+    "excluded_files": [
+      "checksums/sha256sums.txt"
+    ],
+    "file": "checksums/sha256sums.txt"
+  },
+  "corpus": {
+    "num_records": 800,
+    "path": "corpus/corpus.parquet"
+  },
+  "croissant_validation": {
+    "errors": [],
+    "num_errors": 0,
+    "valid": true
+  },
+  "deterministic_rebuild_checked": true,
+  "deterministic_rebuild_checksum_match": true,
+  "generated_bundles": 80,
+  "generated_tasks": 426,
+  "generation_shortfall": 0,
+  "generation_shortfall_reason": null,
+  "generator": "bundle_compiler_v1",
+  "leakage_checks": {
+    "agent_visible_cross_split": 0,
+    "boundary_cross_split": 0,
+    "bundle_cross_split": 0,
+    "invariance_cross_split": 0
+  },
+  "num_bundles": 80,
+  "num_tasks": 426,
+  "oracle_validation": {
+    "num_errors": 0,
+    "valid": true
+  },
+  "release_type": "oracle_compiled_gold",
+  "requested_bundles": 80,
+  "requested_tasks": 400,
+  "safety_scope_checks": {
+    "agent_visible_forbidden_matches": 0
+  },
+  "seed": 7,
+  "spec_catalog": {
+    "num_specs": 13,
+    "path": "specs/spec_catalog.json"
+  },
+  "split_policy": {
+    "name": "bundle_hash_seeded_60_20_20",
+    "proportions": {
+      "dev": 0.2,
+      "test": 0.2,
+      "train": 0.6
+    },
+    "seed": 7,
+    "unit": "bundle"
+  },
+  "splits": {
+    "dev": {
+      "bundles": 16,
+      "tasks": 87
+    },
+    "test": {
+      "bundles": 16,
+      "tasks": 87
+    },
+    "train": {
+      "bundles": 48,
+      "tasks": 252
+    }
+  },
+  "strict_validation": {
+    "num_errors": 0,
+    "valid": true
+  },
+  "tasks": {
+    "dev": "tasks/dev.jsonl",
+    "test": "tasks/test.jsonl",
+    "train": "tasks/train.jsonl"
+  },
+  "tasks_per_expected_action": {
+    "ABSTAIN": 80,
+    "ACCEPT": 253,
+    "REJECT": 93
+  },
+  "tasks_per_protocol": {
+    "L1": 186,
+    "L2": 120,
+    "L3": 120
+  },
+  "tasks_per_split": {
+    "dev": 87,
+    "test": 87,
+    "train": 252
+  },
+  "tasks_per_task_type": {
+    "abstain_contradiction": 80,
+    "audit_accept": 80,
+    "audit_reject": 80,
+    "boundary_precision": 26,
+    "construct_feasible": 80,
+    "interrupt_resume": 13,
+    "repair_multi_violation": 14,
+    "repair_near_miss": 14,
+    "smiles_invariance": 26,
+    "tool_forced_l3": 13
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "cr": "http://mlcommons.org/croissant/"
+  },
+  "@type": "Dataset",
+  "creator": {
+    "name": "Anonymous"
+  },
+  "description": "Oracle-compiled medicinal-chemistry constraint-compliance benchmark.",
+  "distribution": [
+    {
+      "@type": "FileObject",
+      "contentUrl": "tasks/train.jsonl",
+      "name": "train tasks"
+    },
+    {
+      "@type": "FileObject",
+      "contentUrl": "tasks/dev.jsonl",
+      "name": "dev tasks"
+    },
+    {
+      "@type": "FileObject",
+      "contentUrl": "tasks/test.jsonl",
+      "name": "test tasks"
+    },
+    {
+      "@type": "FileObject",
+      "contentUrl": "bundles/train.jsonl",
+      "name": "bundle metadata"
+    },
+    {
+      "@type": "FileObject",
+      "contentUrl": "bundles/dev.jsonl",
+      "name": "bundle metadata"
+    },
+    {
+      "@type": "FileObject",
+      "contentUrl": "bundles/test.jsonl",
+      "name": "bundle metadata"
+    },
+    {
+      "@type": "FileObject",
+      "contentUrl": "specs/spec_catalog.json",
+      "name": "spec catalog"
+    }
+  ],
+  "license": "MIT",
+  "name": "SpecGuard-Chem",
+  "recordSet": [
+    {
+      "@type": "cr:RecordSet",
+      "field": [
+        {
+          "@type": "cr:Field",
+          "dataType": "sc:Text",
+          "name": "task_id"
+        },
+        {
+          "@type": "cr:Field",
+          "dataType": "sc:Text",
+          "name": "bundle_id"
+        },
+        {
+          "@type": "cr:Field",
+          "dataType": "sc:Text",
+          "name": "task_type"
+        },
+        {
+          "@type": "cr:Field",
+          "dataType": "sc:Text",
+          "name": "expected_action"
+        },
+        {
+          "@type": "cr:Field",
+          "dataType": "sc:Text",
+          "name": "oracle_type"
+        },
+        {
+          "@type": "cr:Field",
+          "dataType": "sc:Text",
+          "name": "rendered_agent_input"
+        }
+      ],
+      "name": "tasks"
+    },
+    {
+      "@type": "cr:RecordSet",
+      "field": [
+        {
+          "@type": "cr:Field",
+          "dataType": "sc:Text",
+          "name": "id"
+        },
+        {
+          "@type": "cr:Field",
+          "dataType": "sc:Text",
+          "name": "constraints"
+        }
+      ],
+      "name": "specs"
+    }
+  ],
+  "responsibleAI": {
+    "dataGenerationProcess": "Deterministic offline bundle compiler with oracle/certificate validation.",
+    "intendedUse": "Offline benchmark evaluation of medicinal-chemistry rule compliance.",
+    "outOfScopeUse": "Biological activity, toxicity, therapeutic, clinical, dosing, disease, target-binding, or synthesis-feasibility claims.",
+    "safetyLimitations": "The dataset does not establish real-world molecular safety, efficacy, or developability."
+  },
+  "version": "sgchem_v1.0"
+}
