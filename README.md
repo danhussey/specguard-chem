@@ -159,13 +159,22 @@ uv run specguard-chem paper-figures \
   --out paper_v1
 ```
 
-One-command rc1 reproduction and artifact preflight:
+One-command rc2-local reproduction and artifact preflight:
 
 ```bash
 uv run python scripts/build_and_check_sgchem_v1.py
 ```
 
-Inspect one test bundle manually in `benchmarks/releases/sgchem_v1.0/audits/manual_test_bundle_dossiers.md`. Each dossier shows rendered public inputs, hidden oracle summaries, hashes, suggested reviewer objections, and manual grade placeholders.
+Prepare the anonymous hosted artifact upload from `hosting/` and finalize the URL after upload:
+
+```bash
+uv run python scripts/finalize_hosted_url.py \
+  --release benchmarks/releases/sgchem_v1.0 \
+  --dataset-url "<ANONYMOUS_HOSTED_DATASET_URL>"
+uv run python scripts/check_paper_consistency.py --mode final
+```
+
+Inspect one test bundle manually in `benchmarks/releases/sgchem_v1.0/audits/manual_test_bundle_dossiers.md`. Each dossier shows rendered public inputs, hidden oracle summaries, hashes, suggested reviewer objections, manual grade, decision, and paper-safe status.
 
 ## Included Adapters
 - `heuristic`: deterministic mutator using failure-vector feedback in L2/L3.

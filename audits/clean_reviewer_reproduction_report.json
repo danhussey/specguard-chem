@@ -2,7 +2,7 @@
   "rows": [
     {
       "command": "uv run --extra dev pytest",
-      "last_output": "warning: `VIRTUAL_ENV=/Users/danielhussey/.codex/worktrees/03db/specguard-chem/.venv` does not match the project environment path `/var/folders/cf/b2x7gmhd3p75s_swg_s896tm0000gn/T/sgchem_clean_repro_mg77d4ha/.venv` and will be ignored\nUsing CPython 3.11.11\nCreating virtual environment at: /var/folders/cf/b2x7gmhd3p75s_swg_s896tm0000gn/T/sgchem_clean_repro_mg77d4ha/.venv\nInstalled 48 packages in 897ms\n........................................................................ [ 56%]\n.......................................................                  [100%]\n127 passed in 277.76s (0:04:37)",
+      "last_output": "warning: `VIRTUAL_ENV=/Users/danielhussey/.codex/worktrees/03db/specguard-chem/.venv` does not match the project environment path `/var/folders/cf/b2x7gmhd3p75s_swg_s896tm0000gn/T/sgchem_clean_repro_tco2fk3a/.venv` and will be ignored\nUsing CPython 3.11.11\nCreating virtual environment at: /var/folders/cf/b2x7gmhd3p75s_swg_s896tm0000gn/T/sgchem_clean_repro_tco2fk3a/.venv\nInstalled 48 packages in 914ms\n........................................................................ [ 55%]\n............................................s.s...........               [100%]\n128 passed, 2 skipped in 299.21s (0:04:59)",
       "returncode": 0
     },
     {
@@ -12,12 +12,12 @@
     },
     {
       "command": "uv run python scripts/audit_model_prompt_leakage.py --release benchmarks/releases/sgchem_v1.0",
-      "last_output": "warning: `VIRTUAL_ENV=/Users/danielhussey/.codex/worktrees/03db/specguard-chem/.venv` does not match the project environment path `/var/folders/cf/b2x7gmhd3p75s_swg_s896tm0000gn/T/sgchem_clean_repro_mg77d4ha/.venv` and will be ignored\n{\n  \"actual_model_prompts_checked\": 688,\n  \"audit_accept_reject_name_leaks\": 0,\n  \"label_leaks\": 0,\n  \"leaks\": [],\n  \"literal_leaks\": [],\n  \"literal_witness_leaks\": 0,\n  \"oracle_field_leaks\": 0,\n  \"valid\": true\n}",
+      "last_output": "warning: `VIRTUAL_ENV=/Users/danielhussey/.codex/worktrees/03db/specguard-chem/.venv` does not match the project environment path `/var/folders/cf/b2x7gmhd3p75s_swg_s896tm0000gn/T/sgchem_clean_repro_tco2fk3a/.venv` and will be ignored\n{\n  \"actual_model_prompts_checked\": 688,\n  \"audit_accept_reject_name_leaks\": 0,\n  \"label_leaks\": 0,\n  \"leaks\": [],\n  \"literal_leaks\": [],\n  \"literal_witness_leaks\": 0,\n  \"oracle_field_leaks\": 0,\n  \"valid\": true\n}",
       "returncode": 0
     },
     {
       "command": "uv run python scripts/audit_oracle_scrambling.py --release benchmarks/releases/sgchem_v1.0",
-      "last_output": "warning: `VIRTUAL_ENV=/Users/danielhussey/.codex/worktrees/03db/specguard-chem/.venv` does not match the project environment path `/var/folders/cf/b2x7gmhd3p75s_swg_s896tm0000gn/T/sgchem_clean_repro_mg77d4ha/.venv` and will be ignored\n{\n  \"baseline_output_mismatches\": [],\n  \"non_oracle_baseline_outputs_identical\": true,\n  \"oracle_dependent_baselines\": [],\n  \"prompt_mismatches\": [],\n  \"public_views_identical_under_oracle_scrambling\": true,\n  \"tasks_checked\": 688,\n  \"valid\": true\n}",
+      "last_output": "warning: `VIRTUAL_ENV=/Users/danielhussey/.codex/worktrees/03db/specguard-chem/.venv` does not match the project environment path `/var/folders/cf/b2x7gmhd3p75s_swg_s896tm0000gn/T/sgchem_clean_repro_tco2fk3a/.venv` and will be ignored\n{\n  \"baseline_output_mismatches\": [],\n  \"non_oracle_baseline_outputs_identical\": true,\n  \"oracle_dependent_baselines\": [],\n  \"prompt_mismatches\": [],\n  \"public_views_identical_under_oracle_scrambling\": true,\n  \"tasks_checked\": 688,\n  \"valid\": true\n}",
       "returncode": 0
     },
     {
@@ -27,7 +27,7 @@
     },
     {
       "command": "uv run specguard-chem paper-figures --runs /tmp/sgchem_repro_run --out /tmp/sgchem_repro_paper",
-      "last_output": "warning: `VIRTUAL_ENV=/Users/danielhussey/.codex/worktrees/03db/specguard-chem/.venv` does not match the project environment path `/var/folders/cf/b2x7gmhd3p75s_swg_s896tm0000gn/T/sgchem_clean_repro_mg77d4ha/.venv` and will be ignored\nFigures: /tmp/sgchem_repro_paper/figures\nTables: /tmp/sgchem_repro_paper/tables\nSummary: /tmp/sgchem_repro_paper/metrics_summary.md",
+      "last_output": "warning: `VIRTUAL_ENV=/Users/danielhussey/.codex/worktrees/03db/specguard-chem/.venv` does not match the project environment path `/var/folders/cf/b2x7gmhd3p75s_swg_s896tm0000gn/T/sgchem_clean_repro_tco2fk3a/.venv` and will be ignored\nFigures: /tmp/sgchem_repro_paper/figures\nTables: /tmp/sgchem_repro_paper/tables\nSummary: /tmp/sgchem_repro_paper/metrics_summary.md",
       "returncode": 0
     }
   ],

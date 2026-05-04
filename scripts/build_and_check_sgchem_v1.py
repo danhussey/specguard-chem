@@ -143,6 +143,14 @@ COMMANDS = [
         "--out",
         "sgchem_v1.0_anonymous_artifact.zip",
     ],
+    [
+        "uv",
+        "run",
+        "python",
+        "scripts/check_paper_consistency.py",
+        "--mode",
+        "rc",
+    ],
 ]
 
 

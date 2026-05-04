@@ -44,7 +44,7 @@ claims:
     limitation: "Action semantics are scoped to machine-checkable rule compliance and explicit contradictions."
     paper_section: "Benchmark Composition"
   - claim_id: C5
-    text: "Strict validation is deterministic and passes with zero errors for sgchem_v1.0-rc1."
+    text: "Strict validation is deterministic and passes with zero errors for sgchem_v1.0-rc2-local."
     claim_type: artifact
     evidence_files:
       - benchmarks/releases/sgchem_v1.0/MANIFEST.json

@@ -868,13 +868,27 @@ def make_paper_artifacts(
                             "count": count,
                         }
                     )
+        reject_counts = confusion.get("REJECT") if isinstance(confusion, dict) else {}
+        abstain_counts = confusion.get("ABSTAIN") if isinstance(confusion, dict) else {}
+        unsafe_denom = 0
+        correct_reject_denom = 0
+        correct_abstain_denom = 0
+        if isinstance(reject_counts, dict):
+            correct_reject_denom = sum(int(value) for value in reject_counts.values())
+            unsafe_denom += correct_reject_denom
+        if isinstance(abstain_counts, dict):
+            correct_abstain_denom = sum(int(value) for value in abstain_counts.values())
+            unsafe_denom += correct_abstain_denom
         unsafe_rows.append(
             {
                 "baseline": name,
                 "track": row.get("track") or "primary_closed_book",
                 "unsafe_accept_rate": (row.get("metrics") or {}).get("unsafe_accept_rate"),
+                "unsafe_accept_n": unsafe_denom,
                 "correct_reject_rate": (row.get("metrics") or {}).get("correct_reject_rate"),
+                "correct_reject_n": correct_reject_denom,
                 "correct_abstain_rate": (row.get("metrics") or {}).get("correct_abstain_rate"),
+                "correct_abstain_n": correct_abstain_denom,
             }
         )
         definitions = (reports.get(name) or {}).get("definitions") or {}

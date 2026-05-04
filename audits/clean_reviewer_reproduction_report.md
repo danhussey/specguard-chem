@@ -2,7 +2,7 @@
 
 valid: true
 archive: sgchem_v1.0_anonymous_artifact.zip
-temp_dir: /var/folders/cf/b2x7gmhd3p75s_swg_s896tm0000gn/T/sgchem_clean_repro_mg77d4ha
+temp_dir: /var/folders/cf/b2x7gmhd3p75s_swg_s896tm0000gn/T/sgchem_clean_repro_tco2fk3a
 
 | command | returncode |
 | --- | ---: |
@@ -18,13 +18,13 @@ Command output tails:
 ## Command 1
 
 ```text
-warning: `VIRTUAL_ENV=/Users/danielhussey/.codex/worktrees/03db/specguard-chem/.venv` does not match the project environment path `/var/folders/cf/b2x7gmhd3p75s_swg_s896tm0000gn/T/sgchem_clean_repro_mg77d4ha/.venv` and will be ignored
+warning: `VIRTUAL_ENV=/Users/danielhussey/.codex/worktrees/03db/specguard-chem/.venv` does not match the project environment path `/var/folders/cf/b2x7gmhd3p75s_swg_s896tm0000gn/T/sgchem_clean_repro_tco2fk3a/.venv` and will be ignored
 Using CPython 3.11.11
-Creating virtual environment at: /var/folders/cf/b2x7gmhd3p75s_swg_s896tm0000gn/T/sgchem_clean_repro_mg77d4ha/.venv
-Installed 48 packages in 897ms
-........................................................................ [ 56%]
-.......................................................                  [100%]
-127 passed in 277.76s (0:04:37)
+Creating virtual environment at: /var/folders/cf/b2x7gmhd3p75s_swg_s896tm0000gn/T/sgchem_clean_repro_tco2fk3a/.venv
+Installed 48 packages in 914ms
+........................................................................ [ 55%]
+............................................s.s...........               [100%]
+128 passed, 2 skipped in 299.21s (0:04:59)
 ```
 
 ## Command 2
@@ -47,7 +47,7 @@ Installed 48 packages in 897ms
 ## Command 3
 
 ```text
-warning: `VIRTUAL_ENV=/Users/danielhussey/.codex/worktrees/03db/specguard-chem/.venv` does not match the project environment path `/var/folders/cf/b2x7gmhd3p75s_swg_s896tm0000gn/T/sgchem_clean_repro_mg77d4ha/.venv` and will be ignored
+warning: `VIRTUAL_ENV=/Users/danielhussey/.codex/worktrees/03db/specguard-chem/.venv` does not match the project environment path `/var/folders/cf/b2x7gmhd3p75s_swg_s896tm0000gn/T/sgchem_clean_repro_tco2fk3a/.venv` and will be ignored
 {
   "actual_model_prompts_checked": 688,
   "audit_accept_reject_name_leaks": 0,
@@ -63,7 +63,7 @@ warning: `VIRTUAL_ENV=/Users/danielhussey/.codex/worktrees/03db/specguard-chem/.
 ## Command 4
 
 ```text
-warning: `VIRTUAL_ENV=/Users/danielhussey/.codex/worktrees/03db/specguard-chem/.venv` does not match the project environment path `/var/folders/cf/b2x7gmhd3p75s_swg_s896tm0000gn/T/sgchem_clean_repro_mg77d4ha/.venv` and will be ignored
+warning: `VIRTUAL_ENV=/Users/danielhussey/.codex/worktrees/03db/specguard-chem/.venv` does not match the project environment path `/var/folders/cf/b2x7gmhd3p75s_swg_s896tm0000gn/T/sgchem_clean_repro_tco2fk3a/.venv` and will be ignored
 {
   "baseline_output_mismatches": [],
   "non_oracle_baseline_outputs_identical": true,
@@ -95,7 +95,7 @@ Aggregate written to /tmp/sgchem_repro_run/aggregate.json
 ## Command 6
 
 ```text
-warning: `VIRTUAL_ENV=/Users/danielhussey/.codex/worktrees/03db/specguard-chem/.venv` does not match the project environment path `/var/folders/cf/b2x7gmhd3p75s_swg_s896tm0000gn/T/sgchem_clean_repro_mg77d4ha/.venv` and will be ignored
+warning: `VIRTUAL_ENV=/Users/danielhussey/.codex/worktrees/03db/specguard-chem/.venv` does not match the project environment path `/var/folders/cf/b2x7gmhd3p75s_swg_s896tm0000gn/T/sgchem_clean_repro_tco2fk3a/.venv` and will be ignored
 Figures: /tmp/sgchem_repro_paper/figures
 Tables: /tmp/sgchem_repro_paper/tables
 Summary: /tmp/sgchem_repro_paper/metrics_summary.md

@@ -1,7 +1,7 @@
 # Anonymous Hosting Preflight
 
 archive: sgchem_v1.0_anonymous_artifact.zip
-archive_sha256: 9756f8f756dece87b13e7b6272dd634a93e79d3c3acefbb46526ffc46f4926c7
+archive_sha256: 72cfc87a97858bf3660414ca021bad89ad090d228dfa184d94b9f50a10139518
 dataset_url: PENDING_ANONYMOUS_HOSTED_URL
 dataset_url_accessible: pending
 anonymous_scan_passed: true

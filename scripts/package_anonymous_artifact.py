@@ -29,6 +29,7 @@ INCLUDE_PATHS = (
     "scripts",
     "baselines",
     "paper_v1",
+    "paper",
     "tests",
     "data/specs",
     "tasks",
@@ -93,7 +94,12 @@ def write_archive(*, root: Path, archive_path: Path, files: list[Path]) -> None:
     archive_path.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(archive_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         for path in files:
-            archive.write(path, path.relative_to(root).as_posix())
+            rel = path.relative_to(root).as_posix()
+            info = zipfile.ZipInfo(rel)
+            info.date_time = (2026, 1, 1, 0, 0, 0)
+            info.compress_type = zipfile.ZIP_DEFLATED
+            info.external_attr = (path.stat().st_mode & 0o777) << 16
+            archive.writestr(info, path.read_bytes())
 
 
 def write_release_checksums(release: Path) -> None:
@@ -184,6 +190,15 @@ def main() -> int:
         if stale_path.exists():
             stale_path.unlink()
     preflight = run_preflight(args.release, dataset_url=dataset_url)
+    manifest_path = args.release / "MANIFEST.json"
+    manifest = jsonio.read_json(manifest_path)
+    manifest["anonymous_artifact_archive"] = {
+        "path": args.out.as_posix(),
+        "sha256": "ARCHIVE_SHA256_RECORDED_AFTER_PACKAGING",
+        "identity_scan_passed": None,
+    }
+    jsonio.write_json(manifest_path, manifest)
+    write_release_checksums(args.release)
     files = iter_artifact_files(root)
     identity_matches = identity_scan(files, root=root)
     write_archive(root=root, archive_path=args.out, files=files)
@@ -201,7 +216,6 @@ def main() -> int:
         ),
         encoding="utf-8",
     )
-    manifest_path = args.release / "MANIFEST.json"
     manifest = jsonio.read_json(manifest_path)
     manifest["anonymous_artifact_archive"] = {
         "path": args.out.as_posix(),
