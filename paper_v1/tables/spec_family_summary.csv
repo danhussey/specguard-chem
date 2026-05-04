@@ -1,4 +1,4 @@
-spec_family,baseline,track,num_tasks,accept_rate,hard_violation_rate,avg_spec_score
+spec_family,baseline,track,num_tasks,molecule_acceptance_rate,hard_violation_rate,avg_spec_score
 alerts_soft,always_accept,primary_closed_book,30,0.8666666666666667,0.13333333333333333,1.0394241417497232
 alerts_soft,always_reject,primary_closed_book,30,0.0,1.0,0.0
 alerts_soft,always_abstain,primary_closed_book,30,0.0,0.0,0.0

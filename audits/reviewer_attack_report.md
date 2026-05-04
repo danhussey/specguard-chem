@@ -2,19 +2,25 @@
 
 | attack question | status |
 | --- | --- |
-| Are tasks duplicated across train/dev/test? | pass |
 | Can the model see the answer? | pass |
-| Are REJECT tasks real? | pass |
-| Are ABSTAIN tasks explicit contradictions? | pass |
-| Are split groups bundle-aware? | pass |
-| Are boundary/invariance groups kept in one split? | pass |
+| Can baselines read hidden oracle fields? | pass |
+| Are prompts label-neutral? | pass |
+| Are task-level REJECT cases real? | pass |
+| Are ABSTAIN cases explicit contradictions rather than search failure? | pass |
+| Are repair witnesses valid? | pass |
+| Are near-miss and multi-violation cases distinct? | pass |
+| Are boundary/invariance groups valid? | pass |
+| Do any groups leak across train/dev/test? | pass |
+| Are there agent-visible duplicates across splits? | pass |
 | Are medicinal-chemistry claims scoped? | pass |
-| Are forbidden out-of-scope terms absent from tasks? | pass |
-| Are diagnostic claims underpowered? | pass |
-| Are retrieval/oracle baselines separated? | pass |
-| Does one-command reproduction exist? | pass |
-| Is Croissant metadata present and complete? | pass |
-| Are anonymous artifacts free of identity leakage? | pass |
-| Are all paper claims linked to evidence? | pass |
+| Do visible tasks contain drug-discovery claims? | pass |
+| Are retrieval and oracle baselines separated? | pass |
+| Are headline results supported by denominators? | pass |
+| Does Croissant validation pass? | pass |
+| Is the hosted anonymous artifact accessible? | yellow |
+| Does clean-clone reproduction pass? | pass |
+| Are all abstract claims supported by the claim ledger? | pass |
 
 Unresolved red flags: none
+Yellow flags are reflected in claim readiness or pending artifact-hosting notes.
+- Is the hosted anonymous artifact accessible?

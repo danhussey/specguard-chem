@@ -121,6 +121,28 @@ COMMANDS = [
         "--out",
         "paper_v1",
     ],
+    [
+        "uv",
+        "run",
+        "python",
+        "scripts/audit_metric_sanity.py",
+        "--release",
+        "benchmarks/releases/sgchem_v1.0",
+        "--runs",
+        "runs/paper_sweeps/sgchem_v1.0_test",
+        "--paper",
+        "paper_v1",
+    ],
+    [
+        "uv",
+        "run",
+        "python",
+        "scripts/package_anonymous_artifact.py",
+        "--release",
+        "benchmarks/releases/sgchem_v1.0",
+        "--out",
+        "sgchem_v1.0_anonymous_artifact.zip",
+    ],
 ]
 
 

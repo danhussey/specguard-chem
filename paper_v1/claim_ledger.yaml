@@ -1,75 +1,151 @@
 claims:
   - claim_id: C1
-    text: "SpecGuard-Chem compiles tasks from machine-checkable witnesses and certificates."
-    support:
+    text: "SpecGuard-Chem is an oracle-first compiler that creates benchmark tasks from machine-checkable witnesses and certificates."
+    claim_type: methodological
+    evidence_files:
+      - src/specguard_chem/dataset/bundles.py
+      - src/specguard_chem/dataset/oracles.py
       - benchmarks/releases/sgchem_v1.0/audits/oracle_validation_report.md
-      - tests/test_strict_validator_negative_controls.py
-    denominator: "all generated tasks"
-    status: supported
+    metric_denominator: "688 generated tasks"
+    support_status: primary_supported
     limitation: "Certificates cover the implemented specification language, not arbitrary medicinal chemistry."
+    paper_section: "Method"
   - claim_id: C2
-    text: "Bundle-aware splits prevent leakage across related task views."
-    support:
-      - benchmarks/releases/sgchem_v1.0/audits/split_leakage_report.md
-      - tests/test_bundle_splits.py
-    denominator: "all bundles and split groups"
-    status: supported
-    limitation: "Scaffold overlap is audited and reported rather than asserted impossible."
-  - claim_id: C3
-    text: "SpecGuard-Chem evaluates medicinal-chemistry specification compliance, not drug-discovery success."
-    support:
-      - SAFETY.md
-      - BENCHMARK_CARD.md
-      - benchmarks/releases/sgchem_v1.0/audits/safety_scope_report.md
-    denominator: "all agent-visible task text"
-    status: supported
-    limitation: "Molecular tasks are synthetic and rule-based."
-  - claim_id: C4
-    text: "Public task views isolate model prompts from hidden oracle fields."
-    support:
+    text: "Hidden oracle fields are isolated from model prompts through PublicTaskView."
+    claim_type: methodological
+    evidence_files:
       - src/specguard_chem/runner/public_view.py
       - benchmarks/releases/sgchem_v1.0/audits/model_prompt_leakage_report.md
       - benchmarks/releases/sgchem_v1.0/audits/oracle_scrambling_report.md
-    denominator: "all test prompts and deterministic non-oracle baseline calls"
-    status: supported
-    limitation: "External adapters must be run through the runner boundary to inherit this guarantee."
-  - claim_id: C5
-    text: "The benchmark includes meaningful REJECT and ABSTAIN tasks."
-    support:
+    metric_denominator: "688 task prompts"
+    support_status: primary_supported
+    limitation: "The guarantee applies to adapters run through the SpecGuard-Chem runner boundary."
+    paper_section: "Artifact Design"
+  - claim_id: C3
+    text: "Bundle-aware splitting prevents related task views from crossing train/dev/test."
+    claim_type: methodological
+    evidence_files:
+      - src/specguard_chem/dataset/splits.py
+      - benchmarks/releases/sgchem_v1.0/audits/split_leakage_report.md
+      - tests/test_bundle_splits.py
+    metric_denominator: "120 bundles"
+    support_status: primary_supported
+    limitation: "Scaffold overlap is audited and documented rather than asserted impossible."
+    paper_section: "Dataset Construction"
+  - claim_id: C4
+    text: "The action space contains meaningful ACCEPT, REJECT, and ABSTAIN evaluation cases."
+    claim_type: artifact
+    evidence_files:
       - benchmarks/releases/sgchem_v1.0/MANIFEST.json
+      - paper_v1/tables/expected_action_distribution.md
       - benchmarks/releases/sgchem_v1.0/audits/oracle_validation_report.md
-    denominator: "tasks_per_expected_action in the manifest"
-    status: supported
-    limitation: "REJECT/ABSTAIN semantics are scoped to machine-checkable constraints and explicit contradictions."
+    metric_denominator: "ACCEPT=426, REJECT=142, ABSTAIN=120"
+    support_status: primary_supported
+    limitation: "Action semantics are scoped to machine-checkable rule compliance and explicit contradictions."
+    paper_section: "Benchmark Composition"
+  - claim_id: C5
+    text: "Strict validation is deterministic and passes with zero errors for sgchem_v1.0-rc1."
+    claim_type: artifact
+    evidence_files:
+      - benchmarks/releases/sgchem_v1.0/MANIFEST.json
+      - paper_v1/tables/validation_gates.md
+    metric_denominator: "688 tasks and 120 bundles"
+    support_status: primary_supported
+    limitation: "Passing strict validation does not replace manual scientific review."
+    paper_section: "Validation"
   - claim_id: C6
-    text: "Deterministic validation catches corrupted releases."
-    support:
+    text: "Negative controls show that strict validation catches representative corrupted releases."
+    claim_type: methodological
+    evidence_files:
       - tests/test_strict_validator_negative_controls.py
-    denominator: "18 negative controls"
-    status: supported
-    limitation: "Negative controls are representative, not exhaustive formal verification."
+      - paper_v1/tables/negative_controls.md
+    metric_denominator: "18 negative controls"
+    support_status: primary_supported
+    limitation: "The controls are representative, not a proof of complete formal coverage."
+    paper_section: "Validation"
   - claim_id: C7
-    text: "Retrieval and oracle-assisted tracks are separated from primary closed-book baselines."
-    support:
-      - baselines/paper_baselines.yaml
-      - paper_v1/tables/baseline_tracks.md
-    denominator: "all configured baselines"
-    status: supported
-    limitation: "Track names are configuration metadata and must be preserved when adding future baselines."
+    text: "Prompt leakage audits find no hidden oracle-field or audit-label leakage in actual adapter prompts."
+    claim_type: empirical
+    evidence_files:
+      - benchmarks/releases/sgchem_v1.0/audits/model_prompt_leakage_report.md
+      - paper_v1/tables/prompt_leakage_audit.md
+    metric_denominator: "688 prompts"
+    support_status: primary_supported
+    limitation: "Future adapters must be audited with the same prompt-construction path."
+    paper_section: "Audits"
   - claim_id: C8
-    text: "Boundary, invariance, interrupt, and tool-use diagnostics are reported only when denominators support them."
-    support:
-      - benchmarks/releases/sgchem_v1.0/audits/claim_readiness_report.md
-      - paper_v1/tables/evaluation_denominators.md
-    denominator: "test split denominator table"
-    status: supported
-    limitation: "Underpowered slices are diagnostic-only or appendix-only."
+    text: "Oracle-scrambling audits show non-oracle deterministic baselines do not depend on hidden answer fields."
+    claim_type: empirical
+    evidence_files:
+      - benchmarks/releases/sgchem_v1.0/audits/oracle_scrambling_report.md
+      - paper_v1/tables/oracle_scrambling_audit.md
+    metric_denominator: "688 public views and deterministic baseline outputs"
+    support_status: primary_supported
+    limitation: "The audit covers configured deterministic non-oracle baselines."
+    paper_section: "Audits"
   - claim_id: C9
-    text: "SpecGuard-Chem does not evaluate activity, toxicity, synthesis feasibility, therapeutic efficacy, clinical utility, target binding, dosing, disease relevance, or drug-discovery success."
-    support:
+    text: "SpecGuard-Chem is specific to medicinal-chemistry rule compliance."
+    claim_type: safety
+    evidence_files:
       - SAFETY.md
       - BENCHMARK_CARD.md
-      - benchmarks/releases/sgchem_v1.0/BENCHMARK_CARD.md
-    denominator: "documentation and safety-scope scan"
-    status: supported
-    limitation: "The benchmark name and prompts still use medicinal-chemistry terminology because property/substructure rule compliance is the intended domain."
+      - docs/GENERATOR_DESIGN_v1.md
+    metric_denominator: "documentation and generated task text"
+    support_status: primary_supported
+    limitation: "The benchmark is synthetic and rule-based."
+    paper_section: "Scope"
+  - claim_id: C10
+    text: "SpecGuard-Chem does not evaluate biological activity, toxicity, synthesizability, therapeutic efficacy, clinical utility, target binding, dosing, disease relevance, or drug-discovery success."
+    claim_type: safety
+    evidence_files:
+      - SAFETY.md
+      - benchmarks/releases/sgchem_v1.0/audits/safety_scope_report.md
+    metric_denominator: "688 rendered task prompts scanned"
+    support_status: primary_supported
+    limitation: "Medicinal-chemistry terminology remains because property/substructure constraints are the benchmark domain."
+    paper_section: "Scope"
+  - claim_id: C11
+    text: "Baseline results are reported by separated primary_closed_book, tool_enabled, and retrieval_upper_bound tracks."
+    claim_type: empirical
+    evidence_files:
+      - baselines/paper_baselines.yaml
+      - paper_v1/tables/baseline_tracks.md
+      - paper_v1/tables/primary_results.md
+    metric_denominator: "11 configured deterministic baselines"
+    support_status: primary_supported
+    limitation: "Retrieval and oracle-like upper bounds are not primary leaderboard entries."
+    paper_section: "Experiments"
+  - claim_id: C12
+    text: "Aggregate molecule acceptance hides action-specific failures."
+    claim_type: empirical
+    evidence_files:
+      - benchmarks/releases/sgchem_v1.0/audits/metric_sanity_report.md
+      - paper_v1/tables/baseline_metric_sanity.md
+      - paper_v1/tables/baseline_action_confusion_matrices.md
+    metric_denominator: "244 test tasks"
+    support_status: primary_supported
+    limitation: "The paper should not claim non-saturation from molecule_acceptance_rate alone."
+    paper_section: "Results"
+  - claim_id: C13
+    text: "Boundary, invariance, and interrupt/resume results are diagnostic when denominators are 10 to 20."
+    claim_type: limitation
+    evidence_files:
+      - paper_v1/tables/evaluation_denominators.md
+      - paper_v1/tables/diagnostic_slice_results.md
+    metric_denominator: "boundary=20, invariance=20, interrupt=10 test tasks"
+    support_status: diagnostic_supported
+    limitation: "These slices are paper diagnostics, not high-powered challenge claims."
+    paper_section: "Limitations"
+  - claim_id: C14
+    text: "The challenge slice is structurally defined and contains at least 80 test tasks."
+    claim_type: empirical
+    evidence_files:
+      - benchmarks/releases/sgchem_v1.0/audits/challenge_slice_report.md
+      - paper_v1/tables/challenge_slice_denominators.md
+      - paper_v1/tables/challenge_slice_results.md
+    metric_denominator: "challenge-slice test count from challenge_slice_denominators.md"
+    support_status: primary_supported
+    limitation: "Challenge membership is structural and does not imply human-perceived difficulty for every task."
+    paper_section: "Results"
+
+remove_from_paper: []

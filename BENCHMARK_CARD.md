@@ -27,6 +27,8 @@ Tasks use task-level `expected_action` values: `ACCEPT`, `REJECT`, and `ABSTAIN`
 ## Metrics
 Reports include pass@budget where appropriate, expected-action confusion matrix, hard violation rate, unsafe accept rate, correct reject rate, correct abstain rate, abstention utility, tool-call economy, edit economy, calibration metrics, boundary precision, invariance consistency, and interrupt/resume success.
 
+The internal sweep field `accept_rate` is reported in paper tables as `molecule_acceptance_rate`. It is the share of tasks ending in a verifier-accepted molecule, not overall task success. Paper-facing empirical claims should use action accuracy, unsafe acceptance, reject/abstain recall, denominators, and diagnostic-slice reports rather than aggregate molecule acceptance alone.
+
 ## Generation Process
 `sgchem_v1.0` is compiled by `bundle_compiler_v1`. Each bundle represents one underlying specification scenario and emits controlled task views. There is no clone-fill padding; shortfalls are recorded in `MANIFEST.json`.
 
@@ -51,6 +53,8 @@ Generated tasks are retained only if schema, oracle, protocol, split, safety-sco
 SpecGuard-Chem evaluates rule compliance, not real-world molecular quality. Passing a task does not imply usefulness, safety, efficacy, synthesizability, or developability.
 
 Metric denominator reports classify paper claims as primary, diagnostic, appendix-only, or not reportable. Retrieval upper bounds, tool-enabled baselines, oracle upper bounds, and external snapshots are separated from the primary closed-book leaderboard.
+
+The structurally defined challenge slice uses `difficulty_tags` assigned from task/spec/oracle metadata before any baseline run. Boundary, invariance, and interrupt slices remain diagnostic when denominators are 10 to 20.
 
 ## Safety and Misuse
 Agent-visible tasks use scoped medicinal-chemistry language and avoid out-of-scope claims. Audit scans block forbidden claim terms only in agent-visible task text.

@@ -18,6 +18,11 @@ Track leaderboards:
 - external: 0 baseline(s)
 
 Generated figure stems:
+- evaluation_pipeline
+- bundle_structure
+- action_confusion_matrix
+- protocol_comparison
+- diagnostic_slices
 - pass_at_budget[_<track>]
 - risk_coverage[_<track>]
 - calibration_reliability[_<track>]

@@ -125,6 +125,8 @@ Oracle/certificate policy: each task carries a feasible witness, violation certi
 Split policy: {json.dumps(manifest.get("split_policy", {}), sort_keys=True)}
 Validation policy: strict schema, oracle, split, protocol, and safety-scope validation must pass before reporting results.
 Curation policy: generated tasks are retained only when oracle checks and bundle minimums pass; shortfalls are reported rather than clone-filled.
+Metrics: paper-facing tables report action accuracy, unsafe acceptance, reject/abstain recall, diagnostic denominators, and molecule_acceptance_rate. The internal accept_rate is only molecule acceptance, not overall task success.
+Challenge slice: structural difficulty_tags are assigned from task/spec/oracle metadata before any baseline run.
 Limitations: this benchmark measures rule compliance and protocol behavior, not real-world molecular quality.
 Safety and misuse considerations: outputs must not be interpreted as therapeutic candidates or biological claims.
 
@@ -255,6 +257,19 @@ def _manifest_counts(
     by_action = Counter(str(task.get("expected_action")) for task in tasks)
     by_protocol = Counter(str(task.get("protocol")) for task in tasks)
     by_type = Counter(str(task.get("task_type")) for task in tasks)
+    test_tasks = list(tasks_by_split.get("test", []))
+    challenge_test_tasks = [
+        task
+        for task in test_tasks
+        if bool(task.get("challenge_slice"))
+        or (
+            isinstance(task.get("difficulty_tags"), list)
+            and any(tag != "mixed_hard_soft_tradeoff" for tag in task.get("difficulty_tags", []))
+        )
+    ]
+    challenge_tags = Counter(
+        tag for task in challenge_test_tasks for tag in task.get("difficulty_tags", [])
+    )
     leakage = audit_summaries.get("leakage", {}) if isinstance(audit_summaries.get("leakage"), dict) else {}
     safety = audit_summaries.get("safety_scope", {}) if isinstance(audit_summaries.get("safety_scope"), dict) else {}
     return {
@@ -274,6 +289,15 @@ def _manifest_counts(
         "tasks_per_expected_action": dict(sorted(by_action.items())),
         "tasks_per_protocol": dict(sorted(by_protocol.items())),
         "tasks_per_task_type": dict(sorted(by_type.items())),
+        "challenge_slice": {
+            "definition": "structural difficulty tags assigned from task/spec/oracle metadata only",
+            "test_tasks": len(challenge_test_tasks),
+            "test_task_share": (
+                len(challenge_test_tasks) / len(test_tasks) if test_tasks else 0.0
+            ),
+            "classification": "primary_reportable" if len(challenge_test_tasks) >= 80 else "diagnostic_only",
+            "difficulty_tag_counts": dict(sorted(challenge_tags.items())),
+        },
         "tasks_per_split": {split: splits[split]["tasks"] for split in RELEASE_SPLITS},
         "bundles_per_split": {split: splits[split]["bundles"] for split in RELEASE_SPLITS},
         "split_policy": compilation.get("split_policy", {}),

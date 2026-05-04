@@ -110,7 +110,27 @@
       "additionalProperties": true
     },
     "interrupt": {"type": "object"},
-    "intentional_pair": {"type": "boolean"}
+    "intentional_pair": {"type": "boolean"},
+    "difficulty_tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "tight_property_boundary",
+          "multi_constraint_violation",
+          "minimal_edit_required",
+          "low_margin_feasible",
+          "reject_near_miss",
+          "abstain_explicit_contradiction",
+          "invariance_equivalent_representation",
+          "tool_required_by_protocol",
+          "interrupt_state_required",
+          "high_similarity_guard",
+          "mixed_hard_soft_tradeoff"
+        ]
+      }
+    },
+    "challenge_slice": {"type": "boolean"}
   },
   "allOf": [
     {

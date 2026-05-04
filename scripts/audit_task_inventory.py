@@ -46,12 +46,14 @@ def main() -> int:
     prompt_report = _read_report_flags(audits_dir / "model_prompt_leakage_report.md")
     scrambling_report = _read_report_flags(audits_dir / "oracle_scrambling_report.md")
     preflight_report = _read_report_flags(audits_dir / "neurips_ed_preflight_report.md")
+    clean_report = _read_report_flags(Path("audits") / "clean_reviewer_reproduction_report.md")
     reviewer_attack_report = render_reviewer_attack_report(
         leakage=leakage,
         prompt_leakage=prompt_report,
         scrambling=scrambling_report,
         denominator=denominator,
         preflight=preflight_report,
+        clean_reproduction=clean_report,
     )
     (audits_dir / "reviewer_attack_report.md").write_text(
         reviewer_attack_report, encoding="utf-8"
@@ -74,7 +76,16 @@ def _read_report_flags(path: Path) -> dict:
         "one_command_reproduction_configured": "one-command reproduction: configured" in text,
         "croissant_local_validation_passed": "croissant_local_validation_passed: true" in text,
         "anonymous_scan_passed": "anonymous_scan_passed: true" in text,
+        "dataset_url_accessible": _extract_value(text, "dataset_url_accessible"),
     }
+
+
+def _extract_value(text: str, key: str) -> str | None:
+    for line in text.splitlines():
+        stripped = line.strip().lstrip("-").strip()
+        if stripped.startswith(f"{key}:"):
+            return stripped.split(":", 1)[1].strip()
+    return None
 
 
 def _write_checksums(release: Path) -> None:

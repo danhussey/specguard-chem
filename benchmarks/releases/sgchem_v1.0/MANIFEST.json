@@ -10,6 +10,23 @@
     "test": 36,
     "train": 60
   },
+  "challenge_slice": {
+    "classification": "primary_reportable",
+    "definition": "structural difficulty tags assigned from task/spec/oracle metadata only",
+    "difficulty_tag_counts": {
+      "abstain_explicit_contradiction": 36,
+      "interrupt_state_required": 10,
+      "invariance_equivalent_representation": 20,
+      "minimal_edit_required": 20,
+      "mixed_hard_soft_tradeoff": 196,
+      "multi_constraint_violation": 20,
+      "reject_near_miss": 36,
+      "tight_property_boundary": 20,
+      "tool_required_by_protocol": 76
+    },
+    "test_task_share": 0.8032786885245902,
+    "test_tasks": 196
+  },
   "checksums": {
     "algorithm": "sha256",
     "excluded_files": [
@@ -150,5 +167,10 @@
     "smiles_invariance": 20,
     "tool_forced_l3": 10
   },
-  "test_task_type_minimums_met": true
+  "test_task_type_minimums_met": true,
+  "anonymous_artifact_archive": {
+    "path": "sgchem_v1.0_anonymous_artifact.zip",
+    "sha256": "9756f8f756dece87b13e7b6272dd634a93e79d3c3acefbb46526ffc46f4926c7",
+    "identity_scan_passed": true
+  }
 }

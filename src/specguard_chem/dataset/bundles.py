@@ -239,6 +239,39 @@ def _task_budgets(protocol: str, *, interrupt: bool = False) -> dict[str, Any]:
     return default_task_budgets(protocol).model_dump(mode="json")
 
 
+def _difficulty_tags(
+    *,
+    task_type: str,
+    protocol: str,
+    spec: SpecModel,
+    evidence: dict[str, Any],
+) -> list[str]:
+    tags: set[str] = set()
+    if task_type == "boundary_precision":
+        tags.add("tight_property_boundary")
+    if task_type == "repair_multi_violation":
+        tags.add("multi_constraint_violation")
+    if task_type == "repair_near_miss":
+        tags.add("minimal_edit_required")
+    if task_type == "audit_reject":
+        tags.add("reject_near_miss")
+    if task_type == "abstain_contradiction":
+        tags.add("abstain_explicit_contradiction")
+    if task_type == "smiles_invariance":
+        tags.add("invariance_equivalent_representation")
+    if protocol == "L3" or task_type == "tool_forced_l3":
+        tags.add("tool_required_by_protocol")
+    if task_type == "interrupt_resume" or evidence.get("interrupt_group_id"):
+        tags.add("interrupt_state_required")
+    if any(constraint.check == "similarity_min_to_input" for constraint in spec.constraints):
+        tags.add("high_similarity_guard")
+    if any(constraint.type == "hard" for constraint in spec.constraints) and any(
+        constraint.type == "soft" for constraint in spec.constraints
+    ):
+        tags.add("mixed_hard_soft_tradeoff")
+    return sorted(tags)
+
+
 def _instance_soft_constraint(bundle_id: str, source_record: dict[str, Any]) -> dict[str, Any] | None:
     smiles = str(source_record.get("canonical_smiles") or "")
     properties = source_record.get("properties")
@@ -321,6 +354,12 @@ def _make_task(
     oracle_type = evidence.get("oracle_type") or oracle_type_for_task(task_type)
     evidence = dict(evidence)
     evidence["oracle_type"] = oracle_type
+    difficulty_tags = _difficulty_tags(
+        task_type=task_type,
+        protocol=protocol,
+        spec=effective_spec,
+        evidence=evidence,
+    )
     generation = {
         "seed": seed,
         "stage": "bundle_compiler_v1",
@@ -329,6 +368,7 @@ def _make_task(
         "scaffold_hash": str(source_record.get("scaffold_hash", "")) or None,
         "curation_status": "generated",
         "curation_reason": None,
+        "difficulty_tags": difficulty_tags,
     }
     task_id = f"{bundle_id}__{task_type}__{ordinal:02d}"
     expected = "ABSTAIN" if expected_action == "ABSTAIN" else ("FAIL" if expected_action == "REJECT" else "PASS")
@@ -363,6 +403,8 @@ def _make_task(
         "generation_seed": seed,
         "generation_stage": "bundle_compiler_v1",
         "intentional_pair": intentional_pair,
+        "difficulty_tags": difficulty_tags,
+        "challenge_slice": any(tag != "mixed_hard_soft_tradeoff" for tag in difficulty_tags),
     }
     if task_constraints is not None:
         task["task_constraints"] = task_constraints

@@ -499,6 +499,8 @@ class TaskModel(BaseModel):
     generation_seed: Optional[int] = None
     generation_stage: Optional[str] = None
     intentional_pair: bool = False
+    difficulty_tags: List[str] = Field(default_factory=list)
+    challenge_slice: bool = False
     interrupt_at_step: Optional[int] = None
     expected: ExpectedOutcome = "PASS"
     expected_action: Optional[ExpectedAction] = None

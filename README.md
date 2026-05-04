@@ -1,5 +1,4 @@
 # SpecGuard-Chem
-[![CI](https://img.shields.io/github/actions/workflow/status/danhussey/specguard-chem/ci.yml?label=CI)](https://github.com/danhussey/specguard-chem/actions/workflows/ci.yml) ![Coverage](https://img.shields.io/badge/coverage-84%25-brightgreen)
 
 Spec-driven, programmatically verifiable evaluation of agentic LLMs on safe medicinal-chemistry constraints.
 
@@ -102,6 +101,31 @@ uv run specguard-chem run-benchmark \
   --baselines baselines/paper_baselines.yaml \
   --out runs/paper_sweeps/sgchem_v1.0_test \
   --seed 7
+
+uv run specguard-chem paper-figures \
+  --runs runs/paper_sweeps/sgchem_v1.0_test \
+  --out paper_v1
+
+uv run python scripts/audit_metric_sanity.py \
+  --release benchmarks/releases/sgchem_v1.0 \
+  --runs runs/paper_sweeps/sgchem_v1.0_test \
+  --paper paper_v1
+```
+
+Metric sanity reports rename the internal `accept_rate` to `molecule_acceptance_rate` and demote it from headline status. The paper package should emphasize action accuracy, unsafe acceptance, reject/abstain recall, diagnostic denominators, and verifier/tool-economy differences.
+
+Create the anonymous reviewer archive:
+
+```bash
+uv run python scripts/package_anonymous_artifact.py \
+  --release benchmarks/releases/sgchem_v1.0 \
+  --out sgchem_v1.0_anonymous_artifact.zip
+```
+
+After uploading the archive to anonymous hosting, rerun the package/preflight command with `--dataset-url <anonymous-url>` and run the clean reviewer reproduction:
+
+```bash
+uv run python scripts/test_clean_reviewer_reproduction.py
 ```
 
 Run external/LLM snapshot baselines with cache capture (optional):
