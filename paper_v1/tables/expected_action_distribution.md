@@ -2,6 +2,6 @@
 
 | name | n |
 | --- | --- |
-| ABSTAIN | 120 |
-| ACCEPT | 426 |
-| REJECT | 142 |
+| ABSTAIN | 100 |
+| ACCEPT | 418 |
+| REJECT | 138 |

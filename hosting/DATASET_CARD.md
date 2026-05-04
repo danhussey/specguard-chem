@@ -6,7 +6,7 @@ Authorship: anonymous for double-blind review.
 
 ## Description
 
-The release contains 120 bundles, 688 tasks, and 244 test tasks. Each bundle represents one underlying specification scenario and contains controlled task views such as construction, repair, candidate audit, rejection, abstention, boundary precision, representation invariance, and interrupt/resume behavior.
+The release contains 118 bundles, 656 tasks, and 266 test tasks. Each bundle represents one underlying specification scenario and contains controlled task views such as construction, repair, candidate audit, rejection, abstention, boundary precision, representation invariance, and interrupt/resume behavior.
 
 Tasks are generated from machine-checkable witnesses and certificates. The benchmark evaluates whether systems follow visible specifications and protocols while hidden oracle fields remain isolated from model prompts.
 
@@ -39,7 +39,7 @@ The specifications use molecular property ranges, substructure constraints, aler
 
 Archive: `sgchem_v1.0_anonymous_artifact.zip`
 
-SHA256: `72cfc87a97858bf3660414ca021bad89ad090d228dfa184d94b9f50a10139518`
+SHA256: `c0e248e9a4e1b5f7be41082bfdbf186fb29f421aaf2878fe56c93f845fd70568`
 
 Release-level checksums are in `benchmarks/releases/sgchem_v1.0/checksums/sha256sums.txt`.
 

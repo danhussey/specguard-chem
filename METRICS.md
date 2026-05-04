@@ -13,6 +13,8 @@ Decision-level confusion matrix:
 Legacy task labels (`expected: PASS|ABSTAIN|FAIL`) are mapped to `expected_action` for compatibility.
 For `sgchem_v1.0`, task-level REJECT is meaningful: audit-reject and boundary-fail tasks provide a candidate that violates at least one hard constraint. Invalid or malformed model output is counted as `INVALID`, not silently converted into a correct abstention.
 
+Repair task semantics are checked at oracle-validation time. `repair_near_miss` inputs must fail exactly one hard violation unit or one configured failing hard constraint. `repair_multi_violation` inputs must fail at least two distinct hard constraint IDs; the metric reports them as distinct-constraint repair cases, not merely multiple units inside one aggregate constraint.
+
 ## 2) Hard/Soft Compliance
 - `hard_pass = 1` iff every hard constraint passes.
 - `soft_score` is the weighted mean over soft constraints (`weight` field).

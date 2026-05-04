@@ -4,7 +4,7 @@
 
 | file | sha256 | purpose |
 | --- | --- | --- |
-| `sgchem_v1.0_anonymous_artifact.zip` | `72cfc87a97858bf3660414ca021bad89ad090d228dfa184d94b9f50a10139518` | anonymous review artifact |
+| `sgchem_v1.0_anonymous_artifact.zip` | `c0e248e9a4e1b5f7be41082bfdbf186fb29f421aaf2878fe56c93f845fd70568` | anonymous review artifact |
 
 ## Included Content Summary
 
@@ -29,7 +29,7 @@
 ## Required Post-Upload Verification
 
 1. Download the uploaded archive from a clean browser session.
-2. Verify its SHA256 equals `72cfc87a97858bf3660414ca021bad89ad090d228dfa184d94b9f50a10139518`.
+2. Verify its SHA256 equals `c0e248e9a4e1b5f7be41082bfdbf186fb29f421aaf2878fe56c93f845fd70568`.
 3. Run `scripts/finalize_hosted_url.py` with the hosted URL.
 4. Run `scripts/check_paper_consistency.py --mode final`.
 5. Confirm `dataset_url_accessible=passed` in `benchmarks/releases/sgchem_v1.0/MANIFEST.json`.

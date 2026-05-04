@@ -121,7 +121,9 @@ Dataset composition:
 - protocols: {json.dumps(manifest.get("tasks_per_protocol", {}), sort_keys=True)}
 
 Generation process: deterministic bundle compiler `bundle_compiler_v1` from offline corpus molecules and local specs.
+Public specification instances use broad contextual soft preferences when needed; `instance_soft_window_*` micro ranges are forbidden by strict validation.
 Oracle/certificate policy: each task carries a feasible witness, violation certificate, explicit contradiction certificate, equivalence certificate, boundary certificate, or interrupt certificate.
+Repair semantics: `repair_near_miss` has one hard violation unit or one configured failing constraint; `repair_multi_violation` requires at least two distinct hard constraint IDs.
 Split policy: {json.dumps(manifest.get("split_policy", {}), sort_keys=True)}
 Validation policy: strict schema, oracle, split, protocol, and safety-scope validation must pass before reporting results.
 Curation policy: generated tasks are retained only when oracle checks and bundle minimums pass; shortfalls are reported rather than clone-filled.

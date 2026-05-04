@@ -18,6 +18,8 @@ The primary release is generated at `benchmarks/releases/sgchem_v1.0`. It contai
 ## Task Types
 `construct_feasible`, `repair_near_miss`, `repair_multi_violation`, `audit_accept`, `audit_reject`, `abstain_contradiction`, `boundary_precision`, `smiles_invariance`, `interrupt_resume`, and `tool_forced_l3`.
 
+`repair_multi_violation` means the input molecule fails at least two distinct hard constraint IDs under the task's effective specification. `repair_near_miss` is reserved for one hard violation unit or one configured failing constraint.
+
 ## Expected Actions
 Tasks use task-level `expected_action` values: `ACCEPT`, `REJECT`, and `ABSTAIN`. Invalid model outputs are tracked separately in metrics rather than silently treated as correct abstention.
 
@@ -32,11 +34,13 @@ The internal sweep field `accept_rate` is reported in paper tables as `molecule_
 ## Generation Process
 `sgchem_v1.0` is compiled by `bundle_compiler_v1`. Each bundle represents one underlying specification scenario and emits controlled task views. There is no clone-fill padding; shortfalls are recorded in `MANIFEST.json`.
 
+Public prompts may include a broad `contextual_property_preference` soft range to keep specification instances concrete. These ranges are intentionally wide medicinal-chemistry preferences, not witness-level micro windows, and strict validation rejects `instance_soft_window_*` prompts or micro soft ranges.
+
 ## Oracle Policy
 Every task includes one oracle or certificate: feasible witness, repair witness, violation certificate, explicit contradiction certificate, equivalence certificate, boundary certificate, or interrupt certificate.
 
 ## Split Policy
-Splits are assigned by deterministic bundle hash using the release seed with a 50/20/30 train/dev/test target. All tasks from a bundle stay in the same split. Leakage audits check bundle, group, agent-visible hash, canonical input/spec, witness/spec, and scaffold overlap.
+Splits are assigned by deterministic bundle hash using the release seed with a 50/20/30 train/dev/test target. All tasks from a bundle stay in the same split. Bundles linked by exact public input/spec keys are coalesced into one split, and exact duplicate public views are pruned rather than padded. Leakage audits check bundle, group, agent-visible hash, canonical input/spec, witness/spec, and scaffold overlap.
 
 ## Public/Private Task Views
 Adapters and non-oracle baselines consume `PublicTaskView`, not raw task records. Public views contain rendered task text, public molecule input, public effective spec, protocol, budgets, allowed actions/tools, round index, and permitted feedback. They exclude expected answers, oracle types, evidence, witnesses, proofs, certificates, task IDs, bundle IDs, split labels, and internal answer-encoding task labels.

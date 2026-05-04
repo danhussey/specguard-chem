@@ -91,18 +91,26 @@ def validate_oracles(
                     witness_result = evaluator.evaluate(witness)
                     units = hard_violation_units(input_result)
                     needs_exact_one = task_type == "repair_near_miss"
+                    distinct_failing_constraints = set(
+                        failure
+                        for failure in (
+                            outcome.constraint.id
+                            for outcome in input_result.hard_outcomes
+                            if not outcome.passed
+                        )
+                    )
                     if not input_result.valid:
                         counts[key]["failed"] += 1
                         errors.append(f"{task_id}: repair input is not valid SMILES")
                     elif input_result.hard_pass or not witness_result.hard_pass:
                         counts[key]["failed"] += 1
                         errors.append(f"{task_id}: repair input/witness oracle failed")
-                    elif needs_exact_one and units != 1:
+                    elif needs_exact_one and not (units == 1 or len(distinct_failing_constraints) == 1):
                         counts[key]["failed"] += 1
-                        errors.append(f"{task_id}: near-miss input fails {units} hard units")
-                    elif task_type == "repair_multi_violation" and units < 2:
+                        errors.append(f"{task_id}: near-miss input fails {units} hard units across {len(distinct_failing_constraints)} constraints")
+                    elif task_type == "repair_multi_violation" and len(distinct_failing_constraints) < 2:
                         counts[key]["failed"] += 1
-                        errors.append(f"{task_id}: multi-violation input fails {units} hard units")
+                        errors.append(f"{task_id}: multi-violation input fails {len(distinct_failing_constraints)} distinct hard constraints")
             elif task_type == "abstain_contradiction":
                 counts["abstain_certificates"]["checked"] += 1
                 certificate = evidence.get("unsat_certificate")

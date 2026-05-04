@@ -374,13 +374,18 @@ def render_metric_sanity_report(
         for row in metric_rows
         if str(row.get("baseline")) in {"local_mutation_or_repair", "verify_first", "corpus_retrieval_upper_bound"}
     }
+    tracked_acceptance = {
+        name: row.get("molecule_acceptance_rate")
+        for name, row in sorted(tracked.items())
+    }
     lines = [
         "# Metric Sanity Report",
         "",
         "The internal `accept_rate` reported by earlier sweep summaries is renamed in paper-facing tables to `molecule_acceptance_rate`.",
         "It means the fraction of tasks whose final decision was ACCEPT, not the fraction of tasks answered correctly.",
         "",
-        "The three deterministic baselines `local_mutation_or_repair`, `verify_first`, and `corpus_retrieval_upper_bound` have the same 0.852 molecule_acceptance_rate because all three deterministically search for or retrieve a hard-passing molecule on nearly the same set of visible specification instances. That agreement is benign for construction/repair coverage, but it is not a headline success metric: these baselines differ on action accuracy, unsafe acceptance, rejection, abstention, tool use, edit economy, and calibration.",
+        "The deterministic local, verify-first, and retrieval baselines can have high and sometimes similar molecule_acceptance_rate values because they search for or retrieve hard-passing molecules on many of the same visible specification instances. Those values are not headline task success: these baselines differ on action accuracy, unsafe acceptance, rejection, abstention, tool use, edit economy, and calibration.",
+        f"Current tracked molecule_acceptance_rate values: {tracked_acceptance}.",
         "",
         "Paper implication: do not claim non-saturation from molecule acceptance alone. The defensible claim is that metric decomposition reveals different failure modes that aggregate acceptance hides.",
         "",
@@ -391,13 +396,13 @@ def render_metric_sanity_report(
         f"- full task_type counts: {dict(counts.get('full_task_type_counts', {}))}",
         f"- test task_type counts: {dict(counts.get('test_task_type_counts', {}))}",
         "",
-        "## 0.852 Baselines",
+        "## Tracked Baselines",
         "",
     ]
     if tracked:
         lines.append(_md_table(list(tracked.values())))
     else:
-        lines.append("No tracked 0.852 baselines were found in the current run directory.\n")
+        lines.append("No tracked deterministic baselines were found in the current run directory.\n")
     lines.extend(
         [
             "",

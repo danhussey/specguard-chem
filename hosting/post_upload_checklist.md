@@ -8,7 +8,7 @@ Benchmark: SpecGuard-Chem sgchem_v1.0.
 
 - [ ] Hosted URL opens from a clean browser session without personal approval.
 - [ ] Hosted page does not show personal names, institution names, emails, named GitHub accounts, or local paths.
-- [ ] Uploaded archive checksum matches `72cfc87a97858bf3660414ca021bad89ad090d228dfa184d94b9f50a10139518`.
+- [ ] Uploaded archive checksum matches `c0e248e9a4e1b5f7be41082bfdbf186fb29f421aaf2878fe56c93f845fd70568`.
 - [ ] Run:
 
 ```bash

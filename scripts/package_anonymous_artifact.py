@@ -48,6 +48,7 @@ INCLUDE_PATHS = (
 EXCLUDE_PARTS = {
     ".git",
     ".venv",
+    ".DS_Store",
     "__pycache__",
     ".pytest_cache",
     ".mypy_cache",
@@ -69,6 +70,8 @@ def iter_artifact_files(root: Path) -> list[Path]:
                 continue
             rel_parts = child.relative_to(root).parts
             if any(part in EXCLUDE_PARTS or part.endswith(".egg-info") for part in rel_parts):
+                continue
+            if len(rel_parts) >= 2 and rel_parts[0] == "paper" and rel_parts[1] in {"figures", "tables"}:
                 continue
             files.append(child)
     return sorted(files, key=lambda value: value.relative_to(root).as_posix())

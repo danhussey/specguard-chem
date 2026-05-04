@@ -18,7 +18,7 @@ Authorship is anonymous for double-blind review.
 
 ## Dataset Description
 
-The artifact contains a deterministic sgchem_v1.0 release with 120 bundles, 688 tasks, and 244 test tasks. Each bundle is one underlying specification scenario with controlled public task views for construction, repair, candidate audit, rejection, abstention, boundary precision, representation invariance, and interrupt/resume behavior.
+The artifact contains a deterministic sgchem_v1.0 release with 118 bundles, 656 tasks, and 266 test tasks. Each bundle is one underlying specification scenario with controlled public task views for construction, repair, candidate audit, rejection, abstention, boundary precision, representation invariance, and interrupt/resume behavior.
 
 Tasks include hidden oracle evidence such as witnesses and certificates, but normal model adapters consume sanitized public task views. Prompt leakage, oracle scrambling, strict validation, clean-clone reproduction, and anonymous artifact scans are included in the release audits.
 
@@ -46,7 +46,7 @@ The benchmark uses medicinal-chemistry rule constraints: molecular property rang
 Archive SHA256:
 
 ```text
-72cfc87a97858bf3660414ca021bad89ad090d228dfa184d94b9f50a10139518
+c0e248e9a4e1b5f7be41082bfdbf186fb29f421aaf2878fe56c93f845fd70568
 ```
 
 Inside the archive:

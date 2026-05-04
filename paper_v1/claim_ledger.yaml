@@ -6,7 +6,7 @@ claims:
       - src/specguard_chem/dataset/bundles.py
       - src/specguard_chem/dataset/oracles.py
       - benchmarks/releases/sgchem_v1.0/audits/oracle_validation_report.md
-    metric_denominator: "688 generated tasks"
+    metric_denominator: "656 generated tasks"
     support_status: primary_supported
     limitation: "Certificates cover the implemented specification language, not arbitrary medicinal chemistry."
     paper_section: "Method"
@@ -17,7 +17,7 @@ claims:
       - src/specguard_chem/runner/public_view.py
       - benchmarks/releases/sgchem_v1.0/audits/model_prompt_leakage_report.md
       - benchmarks/releases/sgchem_v1.0/audits/oracle_scrambling_report.md
-    metric_denominator: "688 task prompts"
+    metric_denominator: "656 task prompts"
     support_status: primary_supported
     limitation: "The guarantee applies to adapters run through the SpecGuard-Chem runner boundary."
     paper_section: "Artifact Design"
@@ -28,7 +28,7 @@ claims:
       - src/specguard_chem/dataset/splits.py
       - benchmarks/releases/sgchem_v1.0/audits/split_leakage_report.md
       - tests/test_bundle_splits.py
-    metric_denominator: "120 bundles"
+    metric_denominator: "118 bundles"
     support_status: primary_supported
     limitation: "Scaffold overlap is audited and documented rather than asserted impossible."
     paper_section: "Dataset Construction"
@@ -39,7 +39,7 @@ claims:
       - benchmarks/releases/sgchem_v1.0/MANIFEST.json
       - paper_v1/tables/expected_action_distribution.md
       - benchmarks/releases/sgchem_v1.0/audits/oracle_validation_report.md
-    metric_denominator: "ACCEPT=426, REJECT=142, ABSTAIN=120"
+    metric_denominator: "ACCEPT=418, REJECT=138, ABSTAIN=100"
     support_status: primary_supported
     limitation: "Action semantics are scoped to machine-checkable rule compliance and explicit contradictions."
     paper_section: "Benchmark Composition"
@@ -49,7 +49,7 @@ claims:
     evidence_files:
       - benchmarks/releases/sgchem_v1.0/MANIFEST.json
       - paper_v1/tables/validation_gates.md
-    metric_denominator: "688 tasks and 120 bundles"
+    metric_denominator: "656 tasks and 118 bundles"
     support_status: primary_supported
     limitation: "Passing strict validation does not replace manual scientific review."
     paper_section: "Validation"
@@ -59,7 +59,7 @@ claims:
     evidence_files:
       - tests/test_strict_validator_negative_controls.py
       - paper_v1/tables/negative_controls.md
-    metric_denominator: "18 negative controls"
+    metric_denominator: "negative controls covering representative corruptions, including prompt action-set mismatch and public micro-window exposure"
     support_status: primary_supported
     limitation: "The controls are representative, not a proof of complete formal coverage."
     paper_section: "Validation"
@@ -69,7 +69,7 @@ claims:
     evidence_files:
       - benchmarks/releases/sgchem_v1.0/audits/model_prompt_leakage_report.md
       - paper_v1/tables/prompt_leakage_audit.md
-    metric_denominator: "688 prompts"
+    metric_denominator: "656 prompts"
     support_status: primary_supported
     limitation: "Future adapters must be audited with the same prompt-construction path."
     paper_section: "Audits"
@@ -79,7 +79,7 @@ claims:
     evidence_files:
       - benchmarks/releases/sgchem_v1.0/audits/oracle_scrambling_report.md
       - paper_v1/tables/oracle_scrambling_audit.md
-    metric_denominator: "688 public views and deterministic baseline outputs"
+    metric_denominator: "656 public views and deterministic baseline outputs"
     support_status: primary_supported
     limitation: "The audit covers configured deterministic non-oracle baselines."
     paper_section: "Audits"
@@ -100,7 +100,7 @@ claims:
     evidence_files:
       - SAFETY.md
       - benchmarks/releases/sgchem_v1.0/audits/safety_scope_report.md
-    metric_denominator: "688 rendered task prompts scanned"
+    metric_denominator: "656 rendered task prompts scanned"
     support_status: primary_supported
     limitation: "Medicinal-chemistry terminology remains because property/substructure constraints are the benchmark domain."
     paper_section: "Scope"
@@ -122,17 +122,17 @@ claims:
       - benchmarks/releases/sgchem_v1.0/audits/metric_sanity_report.md
       - paper_v1/tables/baseline_metric_sanity.md
       - paper_v1/tables/baseline_action_confusion_matrices.md
-    metric_denominator: "244 test tasks"
+    metric_denominator: "266 test tasks"
     support_status: primary_supported
     limitation: "The paper should not claim non-saturation from molecule_acceptance_rate alone."
     paper_section: "Results"
   - claim_id: C13
-    text: "Boundary, invariance, and interrupt/resume results are diagnostic when denominators are 10 to 20."
+    text: "Boundary, invariance, interrupt/resume, and repair-multi-violation results are diagnostic when denominators are below primary-reportable thresholds."
     claim_type: limitation
     evidence_files:
       - paper_v1/tables/evaluation_denominators.md
       - paper_v1/tables/diagnostic_slice_results.md
-    metric_denominator: "boundary=20, invariance=20, interrupt=10 test tasks"
+    metric_denominator: "boundary=22, invariance=20, interrupt=11, repair_multi_violation=19 test tasks"
     support_status: diagnostic_supported
     limitation: "These slices are paper diagnostics, not high-powered challenge claims."
     paper_section: "Limitations"

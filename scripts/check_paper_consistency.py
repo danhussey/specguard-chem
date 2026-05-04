@@ -74,6 +74,22 @@ def _parse_release_summary(path: Path) -> dict[str, int]:
     return counts
 
 
+def _parse_markdown_rows(path: Path) -> list[dict[str, str]]:
+    lines = [line for line in _read(path).splitlines() if line.startswith("|")]
+    if len(lines) < 3:
+        return []
+    header = [part.strip() for part in lines[0].strip("|").split("|")]
+    rows: list[dict[str, str]] = []
+    for line in lines[2:]:
+        if "---" in line:
+            continue
+        parts = [part.strip() for part in line.strip("|").split("|")]
+        if len(parts) != len(header):
+            continue
+        rows.append(dict(zip(header, parts)))
+    return rows
+
+
 def _require(condition: bool, message: str, errors: list[str]) -> None:
     if not condition:
         errors.append(message)
@@ -102,20 +118,15 @@ def _check_manifest_numbers(manifest: dict[str, Any], errors: list[str]) -> None
         f"{manifest['num_bundles']} bundles",
         f"{manifest['num_tasks']} tasks",
         f"{manifest['splits']['test']['tasks']} test tasks",
-        "ABSTAIN=120",
-        "ACCEPT=426",
-        "REJECT=142",
-        "abstain_contradiction=120",
-        "audit_accept=120",
-        "audit_reject=120",
-        "boundary_precision=44",
-        "construct_feasible=120",
-        "interrupt_resume=27",
-        "repair_multi_violation=30",
-        "repair_near_miss=36",
-        "smiles_invariance=44",
-        "tool_forced_l3=27",
     ]
+    required_snippets.extend(
+        f"{action}={count}"
+        for action, count in sorted((manifest.get("tasks_per_expected_action") or {}).items())
+    )
+    required_snippets.extend(
+        f"{task_type}={count}"
+        for task_type, count in sorted((manifest.get("tasks_per_task_type") or {}).items())
+    )
     for snippet in required_snippets:
         _require(snippet in paper_text, f"paper text missing required release number `{snippet}`", errors)
 
@@ -155,17 +166,31 @@ def _check_baseline_metrics(errors: list[str]) -> None:
         errors.append("missing current aggregate.json for baseline metric comparison")
         return
     rows = baseline_metric_rows(runs)
-    expected = {
+    current = {
         str(row["baseline"]): row
         for row in rows
         if row.get("baseline") in {"local_mutation_or_repair", "verify_first", "corpus_retrieval_upper_bound"}
     }
-    for name, row in expected.items():
-        _require(row.get("molecule_acceptance_rate") == "0.852", f"{name} molecule_acceptance_rate is not 0.852", errors)
-        _require(row.get("overall_task_success") == "0.664", f"{name} overall_task_success is not 0.664", errors)
-        _require(row.get("REJECT_recall") == "0.000", f"{name} REJECT_recall is not 0.000", errors)
-        _require(row.get("ABSTAIN_recall") == "0.000", f"{name} ABSTAIN_recall is not 0.000", errors)
-        _require(row.get("unsafe_accept_rate") == "0.561", f"{name} unsafe_accept_rate is not 0.561", errors)
+    table_rows = {
+        str(row.get("baseline")): row
+        for row in _parse_markdown_rows(Path("paper_v1") / "tables" / "baseline_metric_sanity.md")
+    }
+    fields = (
+        "num_tasks",
+        "overall_task_success",
+        "action_accuracy",
+        "molecule_acceptance_rate",
+        "REJECT_recall",
+        "ABSTAIN_recall",
+        "unsafe_accept_rate",
+    )
+    for name, row in current.items():
+        table_row = table_rows.get(name)
+        _require(table_row is not None, f"baseline_metric_sanity missing row for {name}", errors)
+        if table_row is None:
+            continue
+        for field in fields:
+            _require(str(table_row.get(field)) == str(row.get(field)), f"{name} {field} table value is stale", errors)
 
 
 def _check_final_url(manifest: dict[str, Any], mode: str, errors: list[str]) -> None:

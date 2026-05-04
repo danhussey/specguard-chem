@@ -2,7 +2,7 @@
 
 | check | value |
 | --- | --- |
-| actual_model_prompts_checked | 688 |
+| actual_model_prompts_checked | 656 |
 | oracle_field_leaks | 0 |
 | literal_witness_leaks | 0 |
 | label_leaks | 0 |

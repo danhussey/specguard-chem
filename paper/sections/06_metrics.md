@@ -6,7 +6,7 @@ Primary metrics include overall_task_success, action_accuracy, ACCEPT precision/
 
 The metric formerly called `accept_rate` is now reported as `molecule_acceptance_rate`. It means the fraction of tasks where the final decision is ACCEPT. It is not task success and is not a headline metric.
 
-The central sanity result is that local_mutation_or_repair, verify_first, and corpus_retrieval_upper_bound each have molecule_acceptance_rate=0.852, but overall_task_success=0.664, action_accuracy=0.664, REJECT_recall=0.000, ABSTAIN_recall=0.000, and unsafe_accept_rate=0.561. This motivates the paper's action-aware evaluation story.
+The central sanity result is that local_mutation_or_repair and verify_first have molecule_acceptance_rate=0.846, while corpus_retrieval_upper_bound has molecule_acceptance_rate=0.868. Their action accuracies are 0.650, 0.650, and 0.673, with REJECT_recall=0.000, ABSTAIN_recall=0.000, and unsafe_accept_rate=0.598. This motivates the paper's action-aware evaluation story.
 
 Metric definitions and denominators are generated in:
 

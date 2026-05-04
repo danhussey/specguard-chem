@@ -8,8 +8,8 @@ This release is a hard cutover to oracle-first bundle compilation.
 - added rendered agent-visible inputs and stable agent-visible hashes
 - generated strict audits, checksums, benchmark card, and Croissant metadata
 
-Generated tasks: 688
-Generated bundles: 120
+Generated tasks: 656
+Generated bundles: 118
 Strict validation: {'valid': True, 'num_errors': 0}
 
 Reproducibility:

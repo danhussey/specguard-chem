@@ -11,7 +11,7 @@ Acceptable alternatives: Harvard Dataverse, Kaggle, or OpenML if they can provid
 Upload the existing archive:
 
 - `sgchem_v1.0_anonymous_artifact.zip`
-- SHA256: `72cfc87a97858bf3660414ca021bad89ad090d228dfa184d94b9f50a10139518`
+- SHA256: `c0e248e9a4e1b5f7be41082bfdbf186fb29f421aaf2878fe56c93f845fd70568`
 
 The archive contains the release, source code, scripts, baselines, paper artifacts, tests, documentation, lockfile, and license required for review reproduction.
 

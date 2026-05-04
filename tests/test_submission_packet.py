@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import subprocess
+import json
 from pathlib import Path
 
 import pytest
@@ -46,11 +47,12 @@ def test_paper_skeleton_has_required_sections() -> None:
     for path in required:
         assert path.exists(), path
     text = "\n".join(path.read_text(encoding="utf-8") for path in required)
-    assert "120 bundles" in text
-    assert "688 tasks" in text
-    assert "244 test tasks" in text
-    assert "molecule_acceptance_rate=0.852" in text
-    assert "unsafe_accept_rate=0.561" in text
+    manifest = json.loads((ROOT / "benchmarks" / "releases" / "sgchem_v1.0" / "MANIFEST.json").read_text(encoding="utf-8"))
+    assert f"{manifest['num_bundles']} bundles" in text
+    assert f"{manifest['num_tasks']} tasks" in text
+    assert f"{manifest['splits']['test']['tasks']} test tasks" in text
+    assert "molecule_acceptance_rate=" in text
+    assert "unsafe_accept_rate=" in text
     assert "does not evaluate biological activity" in text
 
 

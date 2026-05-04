@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import shutil
 import subprocess
 import tempfile
@@ -107,7 +108,12 @@ def main() -> int:
             {
                 "command": " ".join(command),
                 "returncode": completed.returncode,
-                "last_output": "\n".join(completed.stdout.splitlines()[-12:]),
+                "last_output": _sanitize_text(
+                    "\n".join(completed.stdout.splitlines()[-12:]),
+                    archive=args.archive,
+                    temp_dir=temp_root,
+                    workdir=workdir,
+                ),
             }
         )
         if completed.returncode != 0:
@@ -133,8 +139,8 @@ def _write_report(
         "# Clean Reviewer Reproduction Report",
         "",
         f"valid: {str(valid).lower()}",
-        f"archive: {archive}",
-        f"temp_dir: {temp_dir}",
+        f"archive: {_sanitize_text(str(archive), archive=archive, temp_dir=temp_dir)}",
+        f"temp_dir: {_sanitize_text(str(temp_dir), archive=archive, temp_dir=temp_dir)}",
         "",
         "| command | returncode |",
         "| --- | ---: |",
@@ -156,6 +162,41 @@ def _write_report(
     report.write_text("\n".join(lines), encoding="utf-8")
     machine = report.with_suffix(".json")
     machine.write_text(json.dumps({"valid": valid, "rows": rows}, indent=2, sort_keys=True), encoding="utf-8")
+
+
+def _sanitize_text(
+    text: str,
+    *,
+    archive: Path | None = None,
+    temp_dir: Path | None = None,
+    workdir: Path | None = None,
+) -> str:
+    replacements: dict[str, str] = {}
+    if archive is not None:
+        replacements[str(archive)] = "<ANONYMOUS_ARTIFACT_ARCHIVE>"
+        replacements[str(archive.resolve())] = "<ANONYMOUS_ARTIFACT_ARCHIVE>"
+    if temp_dir is not None:
+        replacements[str(temp_dir)] = "<TEMP_REPRO_DIR>"
+    if workdir is not None:
+        replacements[str(workdir)] = "<CLEAN_ARTIFACT_DIR>"
+
+    home = Path.home()
+    replacements[str(home)] = "<LOCAL_HOME>"
+    source_worktree = Path.cwd()
+    replacements[str(source_worktree)] = "<SOURCE_WORKTREE>"
+    source_venv = os.environ.get("VIRTUAL_ENV")
+    if source_venv:
+        replacements[source_venv] = "<SOURCE_VENV>"
+
+    for raw, replacement in sorted(replacements.items(), key=lambda item: len(item[0]), reverse=True):
+        if raw:
+            text = text.replace(raw, replacement)
+
+    # Mask remaining absolute paths from platform temp directories without
+    # embedding identity-specific path prefixes in the source artifact.
+    text = re.sub(r"(?<!\w)/(?:private/)?tmp/[^\s`]+", "<LOCAL_TEMP_PATH>", text)
+    text = re.sub(r"(?<!\w)/(?:private/)?var/[^\s`]+", "<LOCAL_TEMP_PATH>", text)
+    return text
 
 
 if __name__ == "__main__":

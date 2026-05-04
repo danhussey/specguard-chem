@@ -7,15 +7,17 @@ Out-of-scope use: drug discovery claims, biological activity, toxicity, synthesi
 Medicinal chemistry scope: property ranges, substructure requirements, alert filters, representation equivalence, boundary behavior, abstention, and protocol compliance.
 
 Dataset composition:
-- tasks: 688
-- bundles: 120
-- task types: {"abstain_contradiction": 120, "audit_accept": 120, "audit_reject": 120, "boundary_precision": 44, "construct_feasible": 120, "interrupt_resume": 27, "repair_multi_violation": 30, "repair_near_miss": 36, "smiles_invariance": 44, "tool_forced_l3": 27}
-- expected actions: {"ABSTAIN": 120, "ACCEPT": 426, "REJECT": 142}
-- protocols: {"L1": 284, "L2": 200, "L3": 204}
+- tasks: 656
+- bundles: 118
+- task types: {"abstain_contradiction": 100, "audit_accept": 118, "audit_reject": 116, "boundary_precision": 44, "construct_feasible": 116, "interrupt_resume": 27, "repair_multi_violation": 29, "repair_near_miss": 36, "smiles_invariance": 44, "tool_forced_l3": 26}
+- expected actions: {"ABSTAIN": 100, "ACCEPT": 418, "REJECT": 138}
+- protocols: {"L1": 261, "L2": 197, "L3": 198}
 
 Generation process: deterministic bundle compiler `bundle_compiler_v1` from offline corpus molecules and local specs.
+Public specification instances use broad contextual soft preferences when needed; `instance_soft_window_*` micro ranges are forbidden by strict validation.
 Oracle/certificate policy: each task carries a feasible witness, violation certificate, explicit contradiction certificate, equivalence certificate, boundary certificate, or interrupt certificate.
-Split policy: {"name": "bundle_hash_seeded_50_20_30", "proportions": {"dev": 0.2, "test": 0.3, "train": 0.5}, "seed": 7, "unit": "bundle"}
+Repair semantics: `repair_near_miss` has one hard violation unit or one configured failing constraint; `repair_multi_violation` requires at least two distinct hard constraint IDs.
+Split policy: {"duplicate_public_view_policy": "drop later exact agent-visible duplicates before release writing; prefer test, then dev, then train when retaining one copy", "name": "bundle_hash_seeded_50_20_30_with_duplicate_public_view_pruning", "proportions": {"dev": 0.2, "test": 0.3, "train": 0.5}, "seed": 7, "unit": "bundle"}
 Validation policy: strict schema, oracle, split, protocol, and safety-scope validation must pass before reporting results.
 Curation policy: generated tasks are retained only when oracle checks and bundle minimums pass; shortfalls are reported rather than clone-filled.
 Metrics: paper-facing tables report action accuracy, unsafe acceptance, reject/abstain recall, diagnostic denominators, and molecule_acceptance_rate. The internal accept_rate is only molecule acceptance, not overall task success.

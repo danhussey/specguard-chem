@@ -81,12 +81,8 @@ def _assert_invalid(release: Path, contains: str) -> None:
         ),
         (
             "multi_violation_fails_one",
-            lambda release: _mutate_first(
-                release,
-                lambda row: row.get("task_type") == "repair_multi_violation",
-                lambda row: row["input"].update({"smiles": row["evidence"]["feasible_witness_smiles"]}),
-            ),
-            "repair input/witness oracle failed",
+            lambda release: _reduce_multi_violation_to_one_distinct_failure(release),
+            "multi-violation input fails",
         ),
         (
             "repair_witness_invalid",
@@ -181,6 +177,39 @@ def _assert_invalid(release: Path, contains: str) -> None:
             "visible prompt contains internal label audit_reject",
         ),
         (
+            "prompt_output_schema_extra_action",
+            lambda release: _mutate_first(
+                release,
+                lambda row: row.get("task_type") == "audit_reject",
+                lambda row: row.update(
+                    {
+                        "rendered_agent_input": row["rendered_agent_input"].replace(
+                            '"action": "ACCEPT|REJECT"',
+                            '"action": "ACCEPT|REJECT|ABSTAIN"',
+                        )
+                    }
+                ),
+            ),
+            "rendered output schema actions",
+        ),
+        (
+            "prompt_instance_soft_window",
+            lambda release: _mutate_first(
+                release,
+                lambda row: True,
+                lambda row: row.update(
+                    {
+                        "rendered_agent_input": row["rendered_agent_input"].replace(
+                            "Soft preferences:\n",
+                            "Soft preferences:\n1. instance_soft_window_bad: MW between 130.000 and 130.001 (weight 0.010)\n",
+                            1,
+                        )
+                    }
+                ),
+            ),
+            "rendered_agent_input exposes instance_soft_window",
+        ),
+        (
             "prompt_forbidden_claim",
             lambda release: _mutate_first(
                 release,
@@ -211,12 +240,20 @@ def _duplicate_agent_hash_cross_split(release: Path) -> str:
     return str(tasks["test"][0]["task_id"])
 
 
+def _failing_constraint_count(result: object) -> int:
+    outcomes = getattr(result, "hard_outcomes", [])
+    return len({outcome.constraint.id for outcome in outcomes if not outcome.passed})
+
+
 def _set_near_miss_to_multi_violation_input(release: Path) -> str:
     tasks = _load_tasks(release)
     for rows in tasks.values():
         for row in rows:
             if row.get("task_type") != "repair_near_miss":
                 continue
+            if _append_distinct_hard_guard(row):
+                _write_tasks(release, tasks)
+                return str(row["task_id"])
             spec = SpecModel.model_validate(jsonio.read_json(release / "specs" / f"{row['spec_id']}.json"))
             constraints = (
                 TaskConstraintsModel.model_validate(row["task_constraints"])
@@ -236,11 +273,61 @@ def _set_near_miss_to_multi_violation_input(release: Path) -> str:
             candidates.extend(["CCCCCCCCCCCCCCCC", "C", "N"])
             for candidate in candidates:
                 result = evaluator.evaluate(candidate)
-                if result.valid and hard_violation_units(result) >= 2:
+                if result.valid and hard_violation_units(result) >= 2 and _failing_constraint_count(result) >= 2:
                     row["input"]["smiles"] = candidate
                     _write_tasks(release, tasks)
                     return str(row["task_id"])
     raise AssertionError("No repair_near_miss task could be made multi-violation")
+
+
+def _append_distinct_hard_guard(row: dict) -> bool:
+    evidence = row.get("evidence") if isinstance(row.get("evidence"), dict) else {}
+    input_result = evidence.get("input_verifier_result") if isinstance(evidence.get("input_verifier_result"), dict) else {}
+    witness_result = evidence.get("witness_verifier_result") if isinstance(evidence.get("witness_verifier_result"), dict) else {}
+    input_props = input_result.get("properties") if isinstance(input_result.get("properties"), dict) else {}
+    witness_props = witness_result.get("properties") if isinstance(witness_result.get("properties"), dict) else {}
+    for prop in ("MW", "TPSA", "logP", "HBA", "HBD", "ROTB"):
+        if prop not in input_props or prop not in witness_props:
+            continue
+        input_value = float(input_props[prop])
+        witness_value = float(witness_props[prop])
+        difference = abs(input_value - witness_value)
+        if difference <= 0.001:
+            continue
+        half_width = max(0.001, difference / 3.0)
+        addition = {
+            "id": "negative_control_distinct_hard_guard",
+            "type": "hard",
+            "check": "property_bounds",
+            "params": {
+                "mode": "all",
+                "bounds": {prop: {"min": witness_value - half_width, "max": witness_value + half_width}},
+            },
+        }
+        constraints = row.setdefault("task_constraints", {})
+        additions = constraints.setdefault("additions", [])
+        additions.append(addition)
+        return True
+    return False
+
+
+def _reduce_multi_violation_to_one_distinct_failure(release: Path) -> str:
+    tasks = _load_tasks(release)
+    for rows in tasks.values():
+        for row in rows:
+            if row.get("task_type") != "repair_multi_violation":
+                continue
+            original_constraints = row.pop("task_constraints", None)
+            spec = SpecModel.model_validate(jsonio.read_json(release / "specs" / f"{row['spec_id']}.json"))
+            evaluator = ConstraintEvaluator(spec)
+            result = evaluator.evaluate(row["input"]["smiles"])
+            witness_result = evaluator.evaluate(row["evidence"]["feasible_witness_smiles"])
+            if result.valid and not result.hard_pass and witness_result.hard_pass and _failing_constraint_count(result) == 1:
+                _write_tasks(release, tasks)
+                return str(row["task_id"])
+            if original_constraints is not None:
+                row["task_constraints"] = original_constraints
+    raise AssertionError("No repair_multi_violation task could be reduced to one distinct failure")
 
 
 def test_strict_validator_rejects_boundary_group_missing_pass_side(v1_release: Path, tmp_path: Path) -> None:

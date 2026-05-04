@@ -3,7 +3,7 @@
 | always_accept | primary_closed_book | unspecified | 0.1 | 20 | 2 |
 | always_reject | primary_closed_book | unspecified | 1.0 | 20 | 20 |
 | always_abstain | primary_closed_book | unspecified | 1.0 | 20 | 20 |
-| random_action | primary_closed_book | unspecified | 0.6 | 20 | 12 |
+| random_action | primary_closed_book | unspecified | 0.55 | 20 | 11 |
 | schema_valid_dummy | primary_closed_book | unspecified | 0.1 | 20 | 2 |
 | heuristic | primary_closed_book | unspecified | 0.0 | 20 | 0 |
 | abstention_guard | primary_closed_book | unspecified | 0.0 | 20 | 0 |

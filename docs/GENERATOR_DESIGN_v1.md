@@ -18,11 +18,15 @@ Each bundle has one `bundle_id`, one `spec_id`, one split, one source molecule c
 ## Task Types
 `construct_feasible`, `repair_near_miss`, `repair_multi_violation`, `audit_accept`, `audit_reject`, `abstain_contradiction`, `boundary_precision`, `smiles_invariance`, `interrupt_resume`, and `tool_forced_l3`.
 
+`repair_multi_violation` is validated as a distinct-constraint repair case: the input must fail at least two different hard constraint IDs in the effective task specification. Near-miss repair tasks are limited to exactly one hard violation unit or one configured failing hard constraint.
+
 ## Oracle Types
 `feasible_witness`, `repair_witness`, `violation_certificate`, `unsat_certificate`, `equivalence_certificate`, `boundary_certificate`, and `interrupt_certificate`.
 
 ## Split Policy
-Bundles are sorted by a deterministic seed-keyed hash and assigned to train/dev/test with a 50/20/30 target. Group IDs for invariance, boundary, and interrupt tasks are bundle-local and cannot cross splits.
+Bundles are sorted by a deterministic seed-keyed hash and assigned to train/dev/test with a 50/20/30 target. Group IDs for invariance, boundary, and interrupt tasks are bundle-local and cannot cross splits. After task rendering, bundles linked by exact public input/spec keys are coalesced into one split, and exact duplicate public views are pruned rather than padded.
+
+The compiler no longer emits `instance_soft_window_*` micro preferences. When a public spec needs scenario context, it uses a broad `contextual_property_preference` soft range with human-readable property bounds; strict validation rejects micro soft ranges in public task text.
 
 ## Public/Private Task Views
 Raw task records contain hidden oracle fields for validation and scoring. Normal adapters receive only `PublicTaskView`: rendered agent input, public molecule input, public effective spec, protocol, budgets, allowed actions/tools, round index, interrupt signal, and permitted feedback. `PublicTaskView` excludes `expected_action`, oracle type, evidence, witnesses, certificates, task IDs, bundle IDs, split labels, and internal task labels such as `audit_accept` or `audit_reject`.

@@ -4,20 +4,20 @@ Every paper-facing metric below is mapped to a test-set denominator.
 
 | metric | n | classification | allowed paper use |
 | --- | ---: | --- | --- |
-| overall compliance | 244 | primary_reportable | main-text claim allowed |
-| ACCEPT precision/recall | 162 | primary_reportable | main-text claim allowed |
-| REJECT precision/recall | 46 | primary_reportable | main-text claim allowed |
-| ABSTAIN precision/recall | 36 | primary_reportable | main-text claim allowed |
-| unsafe accept rate | 82 | primary_reportable | main-text claim allowed |
-| hard violation rate | 244 | primary_reportable | main-text claim allowed |
-| repair success | 40 | primary_reportable | main-text claim allowed |
-| boundary precision | 20 | diagnostic_only | diagnostic claim only |
+| overall compliance | 266 | primary_reportable | main-text claim allowed |
+| ACCEPT precision/recall | 179 | primary_reportable | main-text claim allowed |
+| REJECT precision/recall | 52 | primary_reportable | main-text claim allowed |
+| ABSTAIN precision/recall | 35 | primary_reportable | main-text claim allowed |
+| unsafe accept rate | 87 | primary_reportable | main-text claim allowed |
+| hard violation rate | 266 | primary_reportable | main-text claim allowed |
+| repair success | 41 | primary_reportable | main-text claim allowed |
+| boundary precision | 22 | diagnostic_only | diagnostic claim only |
 | SMILES invariance | 20 | diagnostic_only | diagnostic claim only |
-| interrupt/resume success | 10 | diagnostic_only | diagnostic claim only |
-| tool economy | 76 | primary_reportable | main-text claim allowed |
-| protocol comparison L1/L2/L3 | 76 | primary_reportable | main-text claim allowed |
-| calibration | 244 | primary_reportable | main-text claim allowed |
-| risk coverage | 244 | primary_reportable | main-text claim allowed |
+| interrupt/resume success | 11 | diagnostic_only | diagnostic claim only |
+| tool economy | 84 | primary_reportable | main-text claim allowed |
+| protocol comparison L1/L2/L3 | 84 | primary_reportable | main-text claim allowed |
+| calibration | 266 | primary_reportable | main-text claim allowed |
+| risk coverage | 266 | primary_reportable | main-text claim allowed |
 
 Underpowered or restricted claims:
 - boundary precision

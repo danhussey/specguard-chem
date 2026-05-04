@@ -3,6 +3,7 @@ from __future__ import annotations
 """Strict sgchem_v1 release validation."""
 
 import json
+import re
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any, Dict, Mapping
@@ -71,6 +72,54 @@ FORBIDDEN_VISIBLE_ORACLE_TERMS = {
     "task_id",
     "bundle_id",
 }
+MIN_PUBLIC_SOFT_RANGE_WIDTH = 0.05
+
+
+def _action_label(text: str) -> str | None:
+    label = text.strip().split(maxsplit=1)[0].strip().upper()
+    return label if label in EXPECTED_ACTIONS else None
+
+
+def _rendered_allowed_action_set(rendered: str) -> set[str]:
+    actions: set[str] = set()
+    in_section = False
+    for line in rendered.splitlines():
+        stripped = line.strip()
+        if stripped == "Allowed actions:":
+            in_section = True
+            continue
+        if in_section and not stripped:
+            break
+        if in_section and stripped.startswith("-"):
+            label = _action_label(stripped.lstrip("-").strip())
+            if label:
+                actions.add(label)
+    return actions
+
+
+def _rendered_schema_action_set(rendered: str) -> set[str]:
+    match = re.search(r'"action"\s*:\s*"([^"]+)"', rendered)
+    if not match:
+        return set()
+    return {part.strip().upper() for part in match.group(1).split("|") if part.strip()}
+
+
+def _public_soft_micro_ranges(rendered: str) -> list[str]:
+    matches: list[str] = []
+    in_soft = False
+    for line in rendered.splitlines():
+        stripped = line.strip()
+        if stripped == "Soft preferences:":
+            in_soft = True
+            continue
+        if in_soft and (stripped.startswith("Protocol:") or stripped == "Budget:"):
+            break
+        if not in_soft:
+            continue
+        for lower, upper in re.findall(r"between\s+(-?\d+(?:\.\d+)?)\s+and\s+(-?\d+(?:\.\d+)?)", stripped):
+            if abs(float(upper) - float(lower)) < MIN_PUBLIC_SOFT_RANGE_WIDTH:
+                matches.append(stripped)
+    return matches
 
 
 def load_release_tasks_by_split(release_dir: Path) -> dict[str, list[dict[str, Any]]]:
@@ -237,6 +286,33 @@ def _prompt_visibility_checks(tasks_by_split: Mapping[str, list[Mapping[str, Any
             for term in FORBIDDEN_VISIBLE_ORACLE_TERMS:
                 if term in lower:
                     errors.append(f"{task_id}: visible prompt contains hidden oracle term {term}")
+            rendered_actions = _rendered_allowed_action_set(rendered)
+            schema_actions = _rendered_schema_action_set(rendered)
+            if not schema_actions:
+                errors.append(f"{task_id}: rendered output schema action set missing")
+            elif rendered_actions != schema_actions:
+                errors.append(
+                    f"{task_id}: rendered output schema actions {sorted(schema_actions)} do not match allowed actions {sorted(rendered_actions)}"
+                )
+            visible = task.get("agent_visible_payload") if isinstance(task.get("agent_visible_payload"), dict) else {}
+            visible_actions = {
+                label
+                for label in (
+                    _action_label(str(value))
+                    for value in visible.get("allowed_actions", [])
+                    if isinstance(value, str)
+                )
+                if label
+            }
+            if visible_actions and rendered_actions != visible_actions:
+                errors.append(
+                    f"{task_id}: rendered allowed actions {sorted(rendered_actions)} do not match public payload actions {sorted(visible_actions)}"
+                )
+            if "instance_soft_window" in lower:
+                errors.append(f"{task_id}: rendered_agent_input exposes instance_soft_window")
+            micro_ranges = _public_soft_micro_ranges(rendered)
+            if micro_ranges:
+                errors.append(f"{task_id}: rendered_agent_input contains micro soft preference range: {micro_ranges[0]}")
             evidence = task.get("evidence") if isinstance(task.get("evidence"), dict) else {}
             input_block = task.get("input") if isinstance(task.get("input"), dict) else {}
             visible_smiles = {

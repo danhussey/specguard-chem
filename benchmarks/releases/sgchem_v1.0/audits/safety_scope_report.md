@@ -1,6 +1,6 @@
 # Safety Scope Report
 
-task count scanned: 688
+task count scanned: 656
 agent-visible forbidden term matches: 0
 medicinal chemistry allowed framing confirmation: yes
 

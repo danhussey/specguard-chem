@@ -2,7 +2,7 @@
 
 All paper-facing metrics are tied to denominators.
 
-The test split has 244 test tasks. Expected-action denominators are ACCEPT=162, REJECT=46, and ABSTAIN=36. Diagnostic task-type denominators include boundary_precision=20, smiles_invariance=20, interrupt_resume=10, and tool_forced_l3=10.
+The test split has 266 test tasks. Expected-action denominators are ACCEPT=179, REJECT=52, and ABSTAIN=35. Diagnostic task-type denominators include boundary_precision=22, smiles_invariance=20, interrupt_resume=11, tool_forced_l3=13, and repair_multi_violation=19.
 
 See:
 

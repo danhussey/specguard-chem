@@ -6,26 +6,26 @@
     "train": "bundles/train.jsonl"
   },
   "bundles_per_split": {
-    "dev": 24,
-    "test": 36,
-    "train": 60
+    "dev": 26,
+    "test": 42,
+    "train": 50
   },
   "challenge_slice": {
     "classification": "primary_reportable",
     "definition": "structural difficulty tags assigned from task/spec/oracle metadata only",
     "difficulty_tag_counts": {
-      "abstain_explicit_contradiction": 36,
-      "interrupt_state_required": 10,
+      "abstain_explicit_contradiction": 35,
+      "interrupt_state_required": 11,
       "invariance_equivalent_representation": 20,
-      "minimal_edit_required": 20,
-      "mixed_hard_soft_tradeoff": 196,
-      "multi_constraint_violation": 20,
-      "reject_near_miss": 36,
-      "tight_property_boundary": 20,
-      "tool_required_by_protocol": 76
+      "minimal_edit_required": 22,
+      "mixed_hard_soft_tradeoff": 210,
+      "multi_constraint_violation": 19,
+      "reject_near_miss": 41,
+      "tight_property_boundary": 22,
+      "tool_required_by_protocol": 84
     },
-    "test_task_share": 0.8032786885245902,
-    "test_tasks": 196
+    "test_task_share": 0.7894736842105263,
+    "test_tasks": 210
   },
   "checksums": {
     "algorithm": "sha256",
@@ -46,11 +46,13 @@
   "dataset_url": "PENDING_ANONYMOUS_HOSTED_URL",
   "deterministic_rebuild_checked": true,
   "deterministic_rebuild_checksum_match": true,
-  "diagnostic_only_test_task_types": [],
-  "generated_bundles": 120,
-  "generated_tasks": 688,
+  "diagnostic_only_test_task_types": [
+    "repair_multi_violation"
+  ],
+  "generated_bundles": 118,
+  "generated_tasks": 656,
   "generation_shortfall": 0,
-  "generation_shortfall_reason": null,
+  "generation_shortfall_reason": "bundles_dropped_after_duplicate_pruning=2; bundles_reassigned_to_keep_public_input_groups_in_split=11; duplicate_agent_visible_tasks_pruned=28",
   "generator": "bundle_compiler_v1",
   "leakage_checks": {
     "agent_visible_cross_split": 0,
@@ -65,8 +67,8 @@
     "dataset_url_accessible": "pending",
     "one_command_reproduction_passed": true
   },
-  "num_bundles": 120,
-  "num_tasks": 688,
+  "num_bundles": 118,
+  "num_tasks": 656,
   "oracle_validation": {
     "num_errors": 0,
     "valid": true
@@ -84,7 +86,8 @@
     "path": "specs/spec_catalog.json"
   },
   "split_policy": {
-    "name": "bundle_hash_seeded_50_20_30",
+    "duplicate_public_view_policy": "drop later exact agent-visible duplicates before release writing; prefer test, then dev, then train when retaining one copy",
+    "name": "bundle_hash_seeded_50_20_30_with_duplicate_public_view_pruning",
     "proportions": {
       "dev": 0.2,
       "test": 0.3,
@@ -95,16 +98,16 @@
   },
   "splits": {
     "dev": {
-      "bundles": 24,
-      "tasks": 125
+      "bundles": 26,
+      "tasks": 130
     },
     "test": {
-      "bundles": 36,
-      "tasks": 244
+      "bundles": 42,
+      "tasks": 266
     },
     "train": {
-      "bundles": 60,
-      "tasks": 319
+      "bundles": 50,
+      "tasks": 260
     }
   },
   "strict_validation": {
@@ -117,43 +120,43 @@
     "train": "tasks/train.jsonl"
   },
   "tasks_per_expected_action": {
-    "ABSTAIN": 120,
-    "ACCEPT": 426,
-    "REJECT": 142
+    "ABSTAIN": 100,
+    "ACCEPT": 418,
+    "REJECT": 138
   },
   "tasks_per_protocol": {
-    "L1": 284,
-    "L2": 200,
-    "L3": 204
+    "L1": 261,
+    "L2": 197,
+    "L3": 198
   },
   "tasks_per_split": {
-    "dev": 125,
-    "test": 244,
-    "train": 319
+    "dev": 130,
+    "test": 266,
+    "train": 260
   },
   "tasks_per_task_type": {
-    "abstain_contradiction": 120,
-    "audit_accept": 120,
-    "audit_reject": 120,
+    "abstain_contradiction": 100,
+    "audit_accept": 118,
+    "audit_reject": 116,
     "boundary_precision": 44,
-    "construct_feasible": 120,
+    "construct_feasible": 116,
     "interrupt_resume": 27,
-    "repair_multi_violation": 30,
+    "repair_multi_violation": 29,
     "repair_near_miss": 36,
     "smiles_invariance": 44,
-    "tool_forced_l3": 27
+    "tool_forced_l3": 26
   },
   "test_task_type_counts": {
-    "abstain_contradiction": 36,
-    "audit_accept": 36,
-    "audit_reject": 36,
-    "boundary_precision": 20,
-    "construct_feasible": 36,
-    "interrupt_resume": 10,
-    "repair_multi_violation": 20,
-    "repair_near_miss": 20,
+    "abstain_contradiction": 35,
+    "audit_accept": 42,
+    "audit_reject": 41,
+    "boundary_precision": 22,
+    "construct_feasible": 41,
+    "interrupt_resume": 11,
+    "repair_multi_violation": 19,
+    "repair_near_miss": 22,
     "smiles_invariance": 20,
-    "tool_forced_l3": 10
+    "tool_forced_l3": 13
   },
   "test_task_type_minimums": {
     "abstain_contradiction": 25,
@@ -167,10 +170,10 @@
     "smiles_invariance": 20,
     "tool_forced_l3": 10
   },
-  "test_task_type_minimums_met": true,
+  "test_task_type_minimums_met": false,
   "anonymous_artifact_archive": {
     "path": "sgchem_v1.0_anonymous_artifact.zip",
-    "sha256": "72cfc87a97858bf3660414ca021bad89ad090d228dfa184d94b9f50a10139518",
+    "sha256": "c0e248e9a4e1b5f7be41082bfdbf186fb29f421aaf2878fe56c93f845fd70568",
     "identity_scan_passed": true
   }
 }

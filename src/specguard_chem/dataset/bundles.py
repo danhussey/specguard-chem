@@ -3,6 +3,7 @@ from __future__ import annotations
 """Bundle-first oracle compiler for sgchem_v1 benchmark tasks."""
 
 from collections import Counter, defaultdict
+from copy import deepcopy
 from typing import Any, Dict, Iterable, Literal, Optional, Sequence
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -145,6 +146,15 @@ def _allowed_actions(task_type: str) -> list[str]:
     ]
 
 
+def _allowed_action_set(task_type: str) -> list[str]:
+    actions: list[str] = []
+    for action in _allowed_actions(task_type):
+        label = action.split(maxsplit=1)[0].strip().upper()
+        if label and label not in actions:
+            actions.append(label)
+    return actions
+
+
 def _render_task(
     *,
     task_type: str,
@@ -206,11 +216,14 @@ def _render_task(
             f"- max_verify_calls: {budgets.get('max_verify_calls')}",
             "",
             "Output schema:",
-            '{"action": "ACCEPT|REJECT|ABSTAIN", "rationale": "...", "smiles": "..."}',
+            '{"action": "' + "|".join(_allowed_action_set(task_type)) + '", "rationale": "...", "smiles": "..."}',
             "Include a SMILES value only when returning or accepting a molecule.",
-            "Abstention rule: abstain only for an internal contradiction or an explicit inability to comply with the visible hard constraints.",
         ]
     )
+    if "ABSTAIN" in _allowed_action_set(task_type):
+        lines.append("Abstention rule: abstain only for an internal contradiction or an explicit inability to comply with the visible hard constraints.")
+    else:
+        lines.append("Decision rule: choose ACCEPT or REJECT; abstention is not available for this task.")
     if protocol == "L3":
         lines.extend(["Verifier-tool availability: verify(smiles) may be used within the verify-call budget."])
     payload = {
@@ -272,48 +285,6 @@ def _difficulty_tags(
     return sorted(tags)
 
 
-def _instance_soft_constraint(bundle_id: str, source_record: dict[str, Any]) -> dict[str, Any] | None:
-    smiles = str(source_record.get("canonical_smiles") or "")
-    properties = source_record.get("properties")
-    if not isinstance(properties, dict) or not properties:
-        mol = parse_smiles(smiles)
-        if mol is None:
-            return None
-        properties = compute_properties(mol)
-    priority = ("MW", "logP", "TPSA", "HBA", "HBD", "ROTB")
-    prop = next((name for name in priority if name in properties), None)
-    if prop is None:
-        return None
-    value = float(properties[prop])
-    epsilon = 0.001 if prop in {"MW", "logP", "TPSA"} else 0.1
-    return {
-        "id": f"instance_soft_window_{_short_hash(bundle_id)}",
-        "type": "soft",
-        "check": "property_bounds",
-        "params": {
-            "mode": "any",
-            "bounds": {prop: {"min": value - epsilon, "max": value + epsilon}},
-        },
-        "weight": 0.01,
-    }
-
-
-def _with_instance_soft_constraint(
-    task_constraints: dict[str, Any] | None,
-    *,
-    bundle_id: str,
-    source_record: dict[str, Any],
-) -> dict[str, Any] | None:
-    addition = _instance_soft_constraint(bundle_id, source_record)
-    if addition is None:
-        return task_constraints
-    payload = dict(task_constraints or {})
-    additions = list(payload.get("additions") or [])
-    additions.append(addition)
-    payload["additions"] = additions
-    return payload
-
-
 def _make_task(
     *,
     benchmark_id: str,
@@ -332,11 +303,7 @@ def _make_task(
     intentional_pair: bool = False,
     interrupt: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    task_constraints = _with_instance_soft_constraint(
-        task_constraints,
-        bundle_id=bundle_id,
-        source_record=source_record,
-    )
+    task_constraints = _with_contextual_soft_preference(task_constraints, source_record)
     task_constraints_model = (
         TaskConstraintsModel.model_validate(task_constraints)
         if task_constraints is not None
@@ -444,6 +411,107 @@ def _find_failing_smiles(
     return None
 
 
+def _candidate_smiles_for_repair(candidates: dict[str, list[dict[str, Any]]], *, multi: bool) -> list[str]:
+    pools = [candidates["multi_violation"], candidates["near_miss"]] if multi else [candidates["near_miss"], candidates["multi_violation"]]
+    values: list[str] = []
+    seen: set[str] = set()
+    for pool in pools:
+        for item in pool:
+            smiles = str(item.get("smiles", ""))
+            if smiles and smiles not in seen:
+                values.append(smiles)
+                seen.add(smiles)
+    for fallback in ("C", "CCCCCCCCCCCCCCCC", "N"):
+        if fallback not in seen:
+            values.append(fallback)
+            seen.add(fallback)
+    return values
+
+
+def _property_values(smiles: str) -> dict[str, float] | None:
+    mol = parse_smiles(smiles)
+    if mol is None:
+        return None
+    return {key: float(value) for key, value in compute_properties(mol).items()}
+
+
+def _contextual_soft_preference(source_record: dict[str, Any]) -> dict[str, Any] | None:
+    props = _property_values(str(source_record.get("canonical_smiles", "")))
+    if props is None:
+        return None
+    bounds: dict[str, dict[str, float]] = {}
+    if "MW" in props:
+        value = props["MW"]
+        bounds["MW"] = {"min": max(0.0, value - 45.0), "max": value + 45.0}
+    if "TPSA" in props:
+        value = props["TPSA"]
+        bounds["TPSA"] = {"min": max(0.0, value - 35.0), "max": value + 35.0}
+    if not bounds:
+        return None
+    return {
+        "id": "contextual_property_preference",
+        "type": "soft",
+        "check": "property_bounds",
+        "params": {
+            "mode": "all",
+            "bounds": bounds,
+        },
+        "weight": 0.05,
+    }
+
+
+def _with_contextual_soft_preference(
+    task_constraints: dict[str, Any] | None,
+    source_record: dict[str, Any],
+) -> dict[str, Any] | None:
+    addition = _contextual_soft_preference(source_record)
+    if addition is None:
+        return task_constraints
+    merged: dict[str, Any] = deepcopy(task_constraints) if task_constraints is not None else {}
+    additions = merged.setdefault("additions", [])
+    if not isinstance(additions, list):
+        merged["additions"] = [addition]
+        return merged
+    if not any(isinstance(item, dict) and item.get("id") == addition["id"] for item in additions):
+        additions.append(addition)
+    return merged
+
+
+def _repair_distinct_hard_constraint(input_smiles: str, witness_smiles: str) -> dict[str, Any] | None:
+    input_props = _property_values(input_smiles)
+    witness_props = _property_values(witness_smiles)
+    if input_props is None or witness_props is None:
+        return None
+    widths = {
+        "MW": 20.0,
+        "TPSA": 15.0,
+        "logP": 1.0,
+        "HBA": 0.25,
+        "HBD": 0.25,
+        "ROTB": 0.25,
+    }
+    for prop in ("MW", "TPSA", "logP", "HBA", "HBD", "ROTB"):
+        if prop not in input_props or prop not in witness_props:
+            continue
+        witness_value = float(witness_props[prop])
+        input_value = float(input_props[prop])
+        width = widths[prop]
+        lower = witness_value - width
+        upper = witness_value + width
+        if lower <= input_value <= upper:
+            continue
+        return {
+            "id": "repair_distinct_property_guard",
+            "type": "hard",
+            "check": "property_bounds",
+            "params": {
+                "mode": "all",
+                "bounds": {prop: {"min": lower, "max": upper}},
+            },
+        }
+    return None
+
+
 def _repair_task(
     *,
     benchmark_id: str,
@@ -456,27 +524,51 @@ def _repair_task(
     candidates: dict[str, list[dict[str, Any]]],
     protocol: str,
 ) -> dict[str, Any] | None:
-    input_smiles = _find_failing_smiles(spec, candidates, multi=(task_type == "repair_multi_violation"))
     witness = str(source_record["canonical_smiles"])
-    if not input_smiles:
-        return None
-    evaluator = ConstraintEvaluator(spec)
-    input_result = evaluator.evaluate(input_smiles)
-    witness_result = evaluator.evaluate(witness)
-    units = hard_violation_units(input_result)
-    if task_type == "repair_near_miss" and units != 1:
-        return None
-    if task_type == "repair_multi_violation" and units < 2:
-        return None
-    if not witness_result.hard_pass:
-        return None
+    input_smiles: str | None = None
+    input_result = None
+    witness_result = None
+    task_constraints: dict[str, Any] | None = None
+    if task_type == "repair_multi_violation":
+        for candidate in _candidate_smiles_for_repair(candidates, multi=True):
+            addition = _repair_distinct_hard_constraint(candidate, witness)
+            if addition is None:
+                continue
+            candidate_constraints = {"additions": [addition]}
+            effective_spec = build_effective_spec(spec, TaskConstraintsModel.model_validate(candidate_constraints))
+            evaluator = ConstraintEvaluator(effective_spec)
+            candidate_result = evaluator.evaluate(candidate)
+            candidate_witness_result = evaluator.evaluate(witness)
+            distinct_failures = set(failing_hard_constraints(candidate_result))
+            if candidate_result.valid and not candidate_result.hard_pass and candidate_witness_result.hard_pass and len(distinct_failures) >= 2:
+                input_smiles = candidate
+                input_result = candidate_result
+                witness_result = candidate_witness_result
+                task_constraints = candidate_constraints
+                break
+        if input_smiles is None or input_result is None or witness_result is None:
+            return None
+    else:
+        input_smiles = _find_failing_smiles(spec, candidates, multi=False)
+        if not input_smiles:
+            return None
+        evaluator = ConstraintEvaluator(spec)
+        input_result = evaluator.evaluate(input_smiles)
+        witness_result = evaluator.evaluate(witness)
+        distinct_failures = set(failing_hard_constraints(input_result))
+        units = hard_violation_units(input_result)
+        if not (units == 1 or len(distinct_failures) == 1):
+            return None
+        if not witness_result.hard_pass:
+            return None
+    distinct_failure_count = len(set(failing_hard_constraints(input_result)))
     evidence = {
         "oracle_type": "repair_witness",
         "input_verifier_result": verifier_result_payload(input_result),
         "feasible_witness_smiles": witness,
         "feasible_witness_canonical_smiles": witness_result.canonical_smiles,
         "witness_verifier_result": verifier_result_payload(witness_result),
-        "expected_num_failing_constraints": 1 if task_type == "repair_near_miss" else units,
+        "expected_num_failing_constraints": 1 if task_type == "repair_near_miss" else distinct_failure_count,
     }
     return _make_task(
         benchmark_id=benchmark_id,
@@ -490,6 +582,7 @@ def _repair_task(
         expected_action="ACCEPT",
         input_smiles=input_smiles,
         evidence=evidence,
+        task_constraints=task_constraints,
     )
 
 
@@ -997,6 +1090,117 @@ def compile_bundles_from_corpus(
             "expected_actions": dict(Counter(task["expected_action"] for task in bundle_tasks)),
         }
 
+    def _bundle_still_valid(bundle: dict[str, Any]) -> bool:
+        bundle_tasks = [task for task in all_tasks if task["bundle_id"] == bundle["bundle_id"]]
+        has_feasible = any(
+            task["task_type"] in {"construct_feasible", "audit_accept"} and task["expected_action"] == "ACCEPT"
+            for task in bundle_tasks
+        )
+        has_audit = any(task["task_type"] in {"audit_accept", "audit_reject"} for task in bundle_tasks)
+        has_repair_or_boundary_or_invariance = any(
+            task["task_type"]
+            in {"repair_near_miss", "repair_multi_violation", "boundary_precision", "smiles_invariance", "interrupt_resume", "tool_forced_l3"}
+            for task in bundle_tasks
+        )
+        return len(bundle_tasks) >= 3 and has_feasible and has_audit and has_repair_or_boundary_or_invariance
+
+    def _prune_duplicate_agent_visible_tasks() -> int:
+        nonlocal all_tasks
+        groups: dict[str, list[dict[str, Any]]] = defaultdict(list)
+        for task in all_tasks:
+            groups[str(task.get("agent_visible_hash", ""))].append(task)
+        split_priority = {"test": 0, "dev": 1, "train": 2}
+        kept_ids: set[str] = set()
+        pruned = 0
+        for task_hash, rows in groups.items():
+            if not task_hash or len(rows) == 1:
+                kept_ids.update(str(row["task_id"]) for row in rows)
+                continue
+            keep = sorted(
+                rows,
+                key=lambda row: (
+                    split_priority.get(str(row.get("split", "")), 3),
+                    str(row.get("task_id", "")),
+                ),
+            )[0]
+            kept_ids.add(str(keep["task_id"]))
+            pruned += len(rows) - 1
+        if pruned:
+            all_tasks = [task for task in all_tasks if str(task["task_id"]) in kept_ids]
+        return pruned
+
+    def _drop_invalid_bundles_after_prune() -> int:
+        nonlocal all_tasks, raw_bundles
+        valid_bundle_ids = {
+            str(bundle["bundle_id"])
+            for bundle in raw_bundles
+            if _bundle_still_valid(bundle)
+        }
+        dropped = len(raw_bundles) - len(valid_bundle_ids)
+        if dropped:
+            raw_bundles = [bundle for bundle in raw_bundles if str(bundle["bundle_id"]) in valid_bundle_ids]
+            all_tasks = [task for task in all_tasks if str(task["bundle_id"]) in valid_bundle_ids]
+        for bundle in raw_bundles:
+            _refresh_bundle_summary(bundle)
+        return dropped
+
+    def _coalesce_leakage_linked_bundles() -> int:
+        parent: dict[str, str] = {str(bundle["bundle_id"]): str(bundle["bundle_id"]) for bundle in raw_bundles}
+
+        def _find(value: str) -> str:
+            while parent[value] != value:
+                parent[value] = parent[parent[value]]
+                value = parent[value]
+            return value
+
+        def _union(left: str, right: str) -> None:
+            root_left = _find(left)
+            root_right = _find(right)
+            if root_left != root_right:
+                parent[root_right] = root_left
+
+        owners_by_key: dict[str, list[str]] = defaultdict(list)
+        for task in all_tasks:
+            bundle_id = str(task.get("bundle_id", ""))
+            if bundle_id not in parent:
+                continue
+            task_hash = task.get("agent_visible_hash")
+            if isinstance(task_hash, str) and task_hash:
+                owners_by_key[f"agent::{task_hash}"].append(bundle_id)
+            input_block = task.get("input") if isinstance(task.get("input"), dict) else {}
+            input_smiles = input_block.get("smiles") or input_block.get("candidate_smiles")
+            spec_key = task.get("spec_instance_hash") or task.get("spec_id")
+            if isinstance(input_smiles, str) and input_smiles:
+                owners_by_key[f"input::{spec_key}::{input_smiles}"].append(bundle_id)
+        for owners in owners_by_key.values():
+            if len(owners) < 2:
+                continue
+            first = owners[0]
+            for owner in owners[1:]:
+                _union(first, owner)
+
+        split_priority = {"test": 0, "dev": 1, "train": 2}
+        component_splits: dict[str, str] = {}
+        for bundle in raw_bundles:
+            bundle_id = str(bundle["bundle_id"])
+            root = _find(bundle_id)
+            split = str(bundle.get("split", "test"))
+            current = component_splits.get(root)
+            if current is None or split_priority.get(split, 3) < split_priority.get(current, 3):
+                component_splits[root] = split
+
+        changed = 0
+        for bundle in raw_bundles:
+            bundle_id = str(bundle["bundle_id"])
+            split = component_splits[_find(bundle_id)]
+            if bundle.get("split") != split:
+                changed += 1
+                bundle["split"] = split
+        split_by_id = {str(bundle["bundle_id"]): str(bundle["split"]) for bundle in raw_bundles}
+        for task in all_tasks:
+            task["split"] = split_by_id.get(str(task.get("bundle_id")), str(task.get("split", "test")))
+        return changed
+
     def _force_missing_task_type(task_type: str) -> bool:
         for bundle in raw_bundles:
             spec = spec_by_id[str(bundle["spec_id"])]
@@ -1084,10 +1288,11 @@ def compile_bundles_from_corpus(
 
     split_by_bundle = assign_bundle_splits(raw_bundles, seed=seed)
     split_policy = {
-        "name": "bundle_hash_seeded_50_20_30",
+        "name": "bundle_hash_seeded_50_20_30_with_duplicate_public_view_pruning",
         "seed": seed,
         "proportions": {"train": 0.50, "dev": 0.20, "test": 0.30},
         "unit": "bundle",
+        "duplicate_public_view_policy": "drop later exact agent-visible duplicates before release writing; prefer test, then dev, then train when retaining one copy",
     }
     for bundle in raw_bundles:
         bundle["split"] = split_by_bundle.get(str(bundle["bundle_id"]), "test")
@@ -1220,6 +1425,15 @@ def compile_bundles_from_corpus(
                 attempts += 1
                 if not made_progress or attempts > 3:
                     break
+    coalesced = _coalesce_leakage_linked_bundles()
+    if coalesced:
+        skipped["bundles_reassigned_to_keep_public_input_groups_in_split"] += coalesced
+    duplicate_pruned = _prune_duplicate_agent_visible_tasks()
+    if duplicate_pruned:
+        skipped["duplicate_agent_visible_tasks_pruned"] += duplicate_pruned
+    invalid_bundles_dropped = _drop_invalid_bundles_after_prune()
+    if invalid_bundles_dropped:
+        skipped["bundles_dropped_after_duplicate_pruning"] += invalid_bundles_dropped
     test_type_counts = dict(sorted(_task_type_count_for_split("test").items()))
     diagnostic_only = [
         task_type
