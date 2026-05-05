@@ -38,13 +38,13 @@ Strict validation checks schema fields, oracle evidence, bundle references, spli
 The compiler and hardening scripts write task inventory, duplicate, split leakage, oracle validation, safety scope, prompt-leakage, oracle-scrambling, claim-readiness, manual test-bundle dossier, artifact-preflight, and reviewer-attack reports under `benchmarks/releases/sgchem_v1.0/audits/`.
 
 ## Baseline Tracks
-Primary claims use `primary_closed_book` baselines. Tool-enabled baselines, retrieval upper bounds, oracle upper bounds, external model snapshots, and verifier-wrapper saturation baselines are reported in separate tracks so retrieval, oracle assistance, or direct public-spec engineering cannot be confused with ordinary model performance.
+Primary claims use `primary_closed_book` baselines. Tool-enabled baselines, molecule-retrieval baselines, oracle upper bounds, external model snapshots, and verifier/search-wrapper saturation baselines are reported in separate tracks so retrieval, oracle assistance, or direct public-spec engineering cannot be confused with ordinary model performance.
 
 ## Metric Denominators
 `paper_v1/tables/evaluation_denominators.md` classifies each paper-facing metric as `primary_reportable`, `diagnostic_only`, `appendix_only`, or `not_reportable` based on test denominator size.
 
 ## Known Limitations
-Scaffold overlap can occur across splits because the minimum viable split policy is bundle-hash based. The leakage report makes this visible. A deterministic wrapper can saturate the release by implementing the public rule contract, so the benchmark remains a rule-compliance evaluation contract and does not establish real-world molecular utility or intrinsic task hardness.
+Scaffold overlap can occur across splits because the minimum viable split policy is bundle-hash based. The leakage report makes this visible. A deterministic wrapper can saturate the release by implementing the public rule contract, so the benchmark remains a rule-compliance evaluation contract and does not establish real-world molecular utility or raw model difficulty.
 
 ## Reproducibility
 ```bash

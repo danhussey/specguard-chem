@@ -123,7 +123,7 @@ uv run python scripts/run_reality_check_experiments.py \
   --skip-wrapper
 ```
 
-The committed memo in `paper_v1/reality_check_decision_memo.md` reports that `well_engineered_wrapper` solves the 266-task test split. That is an intended evaluation-validity result: sgchem_v1.0 should be interpreted as an oracle-compiled specification-compliance contract, not an intrinsic chemistry-capability leaderboard.
+The committed memo in `paper_v1/reality_check_decision_memo.md` reports that `well_engineered_wrapper` saturates the 266-task test split under the public verifier/search-wrapper threat model. That is an intended evaluation-validity result: sgchem_v1.0 should be interpreted as an oracle-compiled specification-compliance contract, not an intrinsic chemistry-capability leaderboard.
 
 Create the anonymous reviewer archive:
 

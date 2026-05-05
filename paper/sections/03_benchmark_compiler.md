@@ -5,6 +5,7 @@ SpecGuard-Chem compiles tasks from bundles. A bundle is one underlying specifica
 The compiler is oracle-first. It creates tasks only when there is machine-checkable evidence:
 
 - feasible witnesses for construct and accept cases
+- repair witnesses for repair cases
 - violation certificates for reject and repair cases
 - explicit contradiction certificates for abstention
 - boundary certificates for paired pass/fail threshold cases

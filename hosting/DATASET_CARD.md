@@ -1,6 +1,6 @@
 # SpecGuard-Chem sgchem_v1.0
 
-SpecGuard-Chem sgchem_v1.0 is an oracle-first benchmark compiler release and evaluation package for agentic language models under chemically typed medicinal-chemistry specifications.
+SpecGuard-Chem sgchem_v1.0 is an oracle-first benchmark compiler release and evaluation package for agentic language models under chemically typed medicinal-chemistry-inspired rule cards.
 
 Authorship: anonymous for double-blind review.
 
@@ -12,7 +12,7 @@ Tasks are generated from machine-checkable witnesses and certificates. The bench
 
 ## Intended Use
 
-Use this dataset for offline evaluation of specification compliance under medicinal-chemistry rule constraints. The intended comparisons include closed-book model behavior, verifier-tool-enabled behavior, retrieval upper bounds, verifier-wrapper saturation, rejection, abstention, task-inconsistent acceptance, boundary precision, representation invariance, and interrupt/resume behavior. The dataset is an evaluation contract and audit artifact, not an intrinsic chemistry-capability leaderboard.
+Use this dataset for offline evaluation of specification compliance under medicinal-chemistry rule constraints. The intended comparisons include closed-book model behavior, verifier-tool-enabled behavior, molecule-retrieval baselines, verifier/search-wrapper saturation, rejection, abstention, task-inconsistent acceptance, boundary precision, representation invariance, and interrupt/resume behavior. The dataset is an evaluation contract and audit artifact, not an intrinsic chemistry-capability leaderboard.
 
 ## Out-of-Scope Use
 

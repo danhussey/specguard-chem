@@ -58,9 +58,9 @@ SpecGuard-Chem evaluates rule compliance, not real-world molecular quality. Pass
 
 A deterministic engineered verifier wrapper can solve the current test split when it directly implements the public specification contract. This is a saturation baseline, not a failure of validation: sgchem_v1.0 should be used to audit public/private isolation, action semantics, verifier-tool policies, and reporting discipline rather than to claim intrinsic benchmark hardness.
 
-Metric denominator reports classify paper claims as primary, diagnostic, appendix-only, or not reportable. Retrieval upper bounds, tool-enabled baselines, oracle upper bounds, and external snapshots are separated from the primary closed-book leaderboard.
+Metric denominator reports classify paper claims as primary, diagnostic, appendix-only, or not reportable. The corpus retrieval row is a molecule-retrieval upper bound, not an upper bound on action-correct task performance. Retrieval, tool-enabled, oracle, external snapshot, and wrapper-guarded rows are separated from the primary closed-book leaderboard.
 
-The structurally defined challenge slice uses `difficulty_tags` assigned from task/spec/oracle metadata before any baseline run. Boundary, invariance, and interrupt slices remain diagnostic when denominators are 10 to 20.
+The structurally defined challenge slice uses `difficulty_tags` assigned from task/spec/oracle metadata before any baseline run. Boundary, invariance, and interrupt slices remain diagnostic in sgchem_v1.0: boundary_precision has 22 test tasks, smiles_invariance has 20, and interrupt_resume has 11.
 
 ## Safety and Misuse
 Agent-visible tasks use scoped medicinal-chemistry language and avoid out-of-scope claims. Audit scans block forbidden claim terms only in agent-visible task text.

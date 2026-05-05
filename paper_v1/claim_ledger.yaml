@@ -105,7 +105,7 @@ claims:
     limitation: "Medicinal-chemistry terminology remains because property/substructure constraints are the benchmark domain."
     paper_section: "Scope"
   - claim_id: C11
-    text: "Baseline results are reported by separated primary_closed_book, tool_enabled, and retrieval_upper_bound tracks."
+    text: "Baseline results are reported by separated primary_closed_book, tool_enabled, and molecule-retrieval tracks."
     claim_type: empirical
     evidence_files:
       - baselines/paper_baselines.yaml
@@ -113,7 +113,7 @@ claims:
       - paper_v1/tables/primary_results.md
     metric_denominator: "11 configured deterministic baselines"
     support_status: primary_supported
-    limitation: "Retrieval and oracle-like upper bounds are not primary leaderboard entries."
+    limitation: "Molecule-retrieval and oracle-like rows are not primary leaderboard entries."
     paper_section: "Experiments"
   - claim_id: C12
     text: "Aggregate molecule acceptance hides action-specific failures."
@@ -148,7 +148,7 @@ claims:
     limitation: "Challenge membership is structural and does not imply human-perceived difficulty for every task."
     paper_section: "Results"
   - claim_id: C15
-    text: "A deterministic engineered verifier wrapper saturates sgchem_v1.0, so the artifact should be interpreted as an evaluation contract rather than a intrinsic chemistry-capability leaderboard."
+    text: "A deterministic engineered verifier/search wrapper saturates sgchem_v1.0, so the artifact should be interpreted as an evaluation contract rather than an intrinsic chemistry-capability leaderboard."
     claim_type: empirical
     evidence_files:
       - src/specguard_chem/models/well_engineered_wrapper.py

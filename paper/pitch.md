@@ -10,7 +10,7 @@ SpecGuard-Chem is an oracle-compiled evaluation contract for scientific language
 
 ## Why It Matters
 
-The benchmark shows that molecule acceptance alone is misleading. Deterministic local and verify-first baselines reach molecule_acceptance_rate=0.846, while the retrieval upper bound reaches 0.868. Their action accuracies are 0.650, 0.650, and 0.673, with REJECT_recall=0.000, ABSTAIN_recall=0.000, and task_inconsistent_accept_rate=0.598. A deterministic well_engineered_wrapper solves the full test split, so the paper should foreground verifier-wrapper saturation and action-aware evaluation rather than benchmark hardness.
+The benchmark shows that molecule acceptance alone is misleading. Deterministic local and verify-first baselines reach molecule_acceptance_rate=0.846, while the molecule-corpus retrieval baseline reaches 0.868. Their action accuracies are 0.650, 0.650, and 0.673, with REJECT_recall=0.000, ABSTAIN_recall=0.000, and task_inconsistent_accept_rate=0.598. A deterministic well_engineered_wrapper saturates the full test split, so the paper should foreground verifier/search-wrapper saturation and action-aware evaluation rather than benchmark hardness.
 
 ## Scope
 

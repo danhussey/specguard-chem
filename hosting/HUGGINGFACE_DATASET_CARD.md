@@ -12,7 +12,7 @@ size_categories:
 
 # SpecGuard-Chem sgchem_v1.0
 
-SpecGuard-Chem sgchem_v1.0 is an oracle-first compiler release and evaluation artifact for agentic language models under medicinal-chemistry specifications.
+SpecGuard-Chem sgchem_v1.0 is an oracle-first compiler release and evaluation artifact for agentic language models under chemically typed medicinal-chemistry-inspired rule cards.
 
 Authorship is anonymous for double-blind review.
 
@@ -26,7 +26,7 @@ Tasks include hidden oracle evidence such as witnesses and certificates, but nor
 
 - Offline benchmark evaluation of medicinal-chemistry specification compliance as an oracle-compiled evaluation contract.
 - Measuring ACCEPT, REJECT, and ABSTAIN behavior.
-- Measuring task-inconsistent acceptance, rejection recall, abstention recall, verifier-tool use, boundary precision, representation invariance, interrupt/resume behavior, and verifier-wrapper saturation.
+- Measuring task-inconsistent acceptance, rejection recall, abstention recall, verifier-tool use, boundary precision, representation invariance, interrupt/resume behavior, and verifier/search-wrapper saturation.
 - Reproducing the paper tables, figures, audits, and deterministic baseline runs.
 
 ## Out-of-Scope Uses

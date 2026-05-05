@@ -177,6 +177,6 @@ The build runs prompt-leakage, oracle-scrambling, negative-control, Croissant, a
 
 ## 9. Verifier-wrapper saturation
 
-The reality-check baseline `well_engineered_wrapper` is intentionally reported outside the primary model track. It consumes public task/spec fields and implements deterministic verifier/search behavior. Its saturation of the sgchem_v1.0 test split is a paper-facing result: the release is machine-checkable and should not be described as intrinsically hard for systems engineered directly around the public rule contract.
+The reality-check baseline `well_engineered_wrapper` is intentionally reported outside the primary model track. It consumes public task/spec fields and implements deterministic verifier/search behavior. Its saturation of the sgchem_v1.0 test split is a paper-facing result: the release is machine-checkable and should not be described as a hard chemistry leaderboard for systems engineered directly around the public rule contract.
 
 This motivates the intended interpretation. SpecGuard-Chem tests whether agent interfaces, action policies, verifier-tool use, rejection, abstention, and public/private task isolation preserve oracle-certified specification compliance. It does not rank systems as better at real-world chemistry.
