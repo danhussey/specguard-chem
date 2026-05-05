@@ -27,4 +27,4 @@ SpecGuard-Chem does not evaluate biological activity, toxicity, synthesis feasib
 - clean-clone reproduction: passed from anonymous archive
 - manual test-bundle review: A=36, B=0, C=0, D=0
 - reviewer attack report: no red flags
-- current yellow flag: hosted anonymous dataset URL pending
+- hosted anonymous dataset URL: passed artifact preflight; regenerate and reupload the final archive after the latest source/paper commits

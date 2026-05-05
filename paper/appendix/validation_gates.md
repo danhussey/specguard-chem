@@ -4,4 +4,4 @@ The release must pass strict validation, oracle validation, split leakage checks
 
 The generated validation table is `paper_v1/tables/validation_gates.md`.
 
-Current rc2-local status: strict validation valid=true and num_errors=0. Hosted anonymous dataset URL accessibility remains pending until upload.
+Current hosted status: strict validation valid=true and num_errors=0. The hosted anonymous dataset URL is recorded and artifact preflight reports `dataset_url_accessible=passed`. The final archive should be regenerated and reuploaded after the latest paper/source commits so the hosted artifact matches the submitted state.

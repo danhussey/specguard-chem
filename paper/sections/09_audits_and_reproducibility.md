@@ -10,4 +10,4 @@ Negative controls cover the corrupted release cases, including output-schema/act
 
 Clean-clone reproduction passed from the anonymous archive. The reproduction runs pytest, strict validation, prompt leakage audit, oracle scrambling audit, test baselines, and paper figure generation from the archive contents.
 
-The only rc2-local yellow flag is hosted anonymous dataset URL accessibility. After upload, run `scripts/finalize_hosted_url.py` and `scripts/check_paper_consistency.py --mode final`.
+The hosted anonymous dataset URL passed artifact preflight with `dataset_url_accessible=passed`. The final hosted archive should be regenerated after this commit and reuploaded so the reviewer-accessible artifact matches the committed source and paper state. After reupload, rerun `scripts/finalize_hosted_url.py`, `scripts/check_paper_consistency.py --mode final`, and the NeurIPS artifact preflight.
