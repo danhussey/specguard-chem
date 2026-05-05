@@ -52,7 +52,7 @@ def test_paper_skeleton_has_required_sections() -> None:
     assert f"{manifest['num_tasks']} tasks" in text
     assert f"{manifest['splits']['test']['tasks']} test tasks" in text
     assert "molecule_acceptance_rate=" in text
-    assert "unsafe_accept_rate=" in text
+    assert "task_inconsistent_accept_rate=" in text
     assert "does not evaluate biological activity" in text
 
 

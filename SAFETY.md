@@ -1,6 +1,6 @@
 # Safety & Scope
 
-SpecGuard-Chem uses medicinal-chemistry constraints such as molecular property ranges, substructure requirements, alert filters, similarity guards, and representation equivalence checks. It does not evaluate biological activity, toxicity, synthesis feasibility, therapeutic efficacy, clinical utility, dosing, or disease relevance.
+SpecGuard-Chem uses medicinal-chemistry constraints such as molecular property ranges, substructure requirements, alert filters, similarity guards, and representation equivalence checks as a chemically typed substrate for specification-compliance evaluation. It does not evaluate biological activity, toxicity, synthesis feasibility, therapeutic efficacy, clinical utility, dosing, or disease relevance.
 
 SpecGuard-Chem is a medicinal-chemistry evaluation benchmark for specification compliance. Its specifications use molecular property ranges, substructure constraints, alert filters, similarity guards, and representation-equivalence checks. It does not evaluate biological activity, toxicity, synthesizability, therapeutic efficacy, clinical utility, target binding, dosing, disease relevance, or drug-discovery success.
 
@@ -22,7 +22,8 @@ SpecGuard-Chem is a medicinal-chemistry evaluation benchmark for specification c
 - Agent-visible task text is scanned for out-of-scope claim terms.
 - Public task views isolate model adapters from hidden answers, witnesses, proofs, certificates, split labels, task IDs, bundle IDs, and answer-encoding internal task labels.
 - Baseline performance is run only after strict release validation and is not used for task selection.
-- Retrieval, tool-enabled, oracle, and external snapshot baselines are separated from the primary closed-book leaderboard.
+- Retrieval, tool-enabled, oracle, external snapshot, and verifier-wrapper saturation baselines are separated from the primary closed-book leaderboard.
+- Wrapper saturation must be reported as an evaluation-validity result, not as evidence of real-world molecular capability.
 
 ## sgchem_v1.0 Gate
 Before reporting results:

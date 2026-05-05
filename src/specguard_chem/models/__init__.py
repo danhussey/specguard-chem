@@ -14,6 +14,7 @@ from .openai_verify_l3 import OpenAIChatVerifyL3Adapter
 from .corpus_search import CorpusSearchAdapter
 from .local_mutation import LocalMutationAdapter
 from .verify_first import VerifyFirstAdapter
+from .well_engineered_wrapper import WellEngineeredWrapperAdapter
 from .simple_baselines import (
     AlwaysAbstainAdapter,
     AlwaysAcceptAdapter,
@@ -39,6 +40,7 @@ _ADAPTERS: Dict[str, Type[BaseAdapter]] = {
     RandomActionAdapter.name: RandomActionAdapter,
     SchemaValidDummyAdapter.name: SchemaValidDummyAdapter,
     VerifierGuidedGreedyAdapter.name: VerifierGuidedGreedyAdapter,
+    WellEngineeredWrapperAdapter.name: WellEngineeredWrapperAdapter,
 }
 
 

@@ -10,7 +10,7 @@ Challenge membership is structural. It is assigned from task type, oracle eviden
 
 ## Results
 
-| baseline | track | n | overall_task_success | action_accuracy | molecule_acceptance_rate | unsafe_accept_rate | REJECT_recall | ABSTAIN_recall | hard_violation_rate |
+| baseline | track | n | overall_task_success | action_accuracy | molecule_acceptance_rate | task_inconsistent_accept_rate | REJECT_recall | ABSTAIN_recall | hard_violation_rate |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | always_accept | primary_closed_book | 210 | 0.486 | 0.486 | 0.667 | 0.517 | 0.135 | 0.000 | 0.333 |
 | always_reject | primary_closed_book | 210 | 0.248 | 0.248 | 0.000 | 0.000 | 1.000 | 0.000 | 1.000 |

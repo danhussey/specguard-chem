@@ -1,12 +1,12 @@
 # SpecGuard-Chem
 
-Spec-driven, programmatically verifiable evaluation of agentic LLMs on safe medicinal-chemistry constraints.
+Oracle-compiled evaluation contracts for agentic language models under chemically typed scientific specifications.
 
-**What it is:** a model-agnostic benchmark harness for rule-following under explicit specs. Agents propose/edit molecules, optionally use verifier tools, and either accept, reject, or abstain.
+**What it is:** a model-agnostic compiler and benchmark harness for rule-following under explicit, machine-checkable specs. Agents propose/edit molecules, optionally use verifier tools, and either accept, reject, or abstain.
 
 **What it is NOT:** drug discovery, activity/toxicity prediction, synthesis planning, therapeutic selection, clinical evaluation, dosing guidance, disease modeling, or target-binding prediction.
 
-Prompts are optional rendering. Canonical benchmark semantics are the structured task/spec objects and deterministic verifier truth.
+Prompts are optional rendering. Canonical benchmark semantics are the structured task/spec objects, public task views, action contracts, and deterministic verifier truth.
 
 Alert checks support expanded deterministic families (`PAINS_A/B/C`, `BRENK`).
 
@@ -112,7 +112,18 @@ uv run python scripts/audit_metric_sanity.py \
   --paper paper_v1
 ```
 
-Metric sanity reports rename the internal `accept_rate` to `molecule_acceptance_rate` and demote it from headline status. The paper package should emphasize action accuracy, unsafe acceptance, reject/abstain recall, diagnostic denominators, and verifier/tool-economy differences.
+Metric sanity reports rename the internal `accept_rate` to `molecule_acceptance_rate` and demote it from headline status. The paper package should emphasize action accuracy, task-inconsistent acceptance, reject/abstain recall, diagnostic denominators, and verifier/tool-economy differences.
+
+Run the wrapper-saturation reality check:
+
+```bash
+uv run python scripts/run_reality_check_experiments.py \
+  --release benchmarks/releases/sgchem_v1.0 \
+  --out runs/reality_check/sgchem_v1.0 \
+  --skip-wrapper
+```
+
+The committed memo in `paper_v1/reality_check_decision_memo.md` reports that `well_engineered_wrapper` solves the 266-task test split. That is an intended evaluation-validity result: sgchem_v1.0 should be interpreted as an oracle-compiled specification-compliance contract, not an intrinsic chemistry-capability leaderboard.
 
 Create the anonymous reviewer archive:
 

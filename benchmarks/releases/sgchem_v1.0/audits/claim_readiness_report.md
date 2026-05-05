@@ -8,7 +8,7 @@ Every paper-facing metric below is mapped to a test-set denominator.
 | ACCEPT precision/recall | 179 | primary_reportable | main-text claim allowed |
 | REJECT precision/recall | 52 | primary_reportable | main-text claim allowed |
 | ABSTAIN precision/recall | 35 | primary_reportable | main-text claim allowed |
-| unsafe accept rate | 87 | primary_reportable | main-text claim allowed |
+| task-inconsistent accept rate | 87 | primary_reportable | main-text claim allowed |
 | hard violation rate | 266 | primary_reportable | main-text claim allowed |
 | repair success | 41 | primary_reportable | main-text claim allowed |
 | boundary precision | 22 | diagnostic_only | diagnostic claim only |

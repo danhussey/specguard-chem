@@ -19,11 +19,11 @@ uv run specguard-chem validate-dataset benchmarks/releases/sgchem_v1.0 --strict
 
 SpecGuard-Chem evaluates **spec compliance** of chemistry-AI assistants on synthetic tasks:
 - propose or minimally edit a molecule to satisfy a machine-checkable spec
-- abstain on tasks where abstention is expected (infeasible/unsafe/ambiguous by design)
+- abstain on tasks where abstention is expected (infeasible/out-of-scope/ambiguous by design)
 - handle deterministic interrupt events with structured acknowledgement
 
 The benchmark does **not** make claims about biological activity, target selection, potency,
-toxicity, or synthesis feasibility beyond the explicit computable rules in the spec.
+toxicity, clinical utility, or synthesis feasibility beyond the explicit computable rules in the spec.
 
 ## 2. Inputs: task suites and specs
 
@@ -174,3 +174,9 @@ uv run specguard-chem validate-dataset benchmarks/releases/sgchem_v1.0 --strict
 ```
 
 The build runs prompt-leakage, oracle-scrambling, negative-control, Croissant, artifact-preflight, baseline-track, denominator, claim-readiness, and manual-dossier checks before paper artifacts are regenerated.
+
+## 9. Verifier-wrapper saturation
+
+The reality-check baseline `well_engineered_wrapper` is intentionally reported outside the primary model track. It consumes public task/spec fields and implements deterministic verifier/search behavior. Its saturation of the sgchem_v1.0 test split is a paper-facing result: the release is machine-checkable and should not be described as intrinsically hard for systems engineered directly around the public rule contract.
+
+This motivates the intended interpretation. SpecGuard-Chem tests whether agent interfaces, action policies, verifier-tool use, rejection, abstention, and public/private task isolation preserve oracle-certified specification compliance. It does not rank systems as better at real-world chemistry.

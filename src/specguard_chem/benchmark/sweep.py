@@ -22,6 +22,7 @@ TRACKS: tuple[str, ...] = (
     "retrieval_upper_bound",
     "oracle_upper_bound",
     "external_model_snapshot",
+    "wrapper_guarded",
     "closed_book",
     "retrieval",
     "external",
@@ -122,6 +123,9 @@ def _summary_metrics(summary: Mapping[str, Any]) -> Dict[str, Any]:
         "num_tasks": summary.get("num_tasks"),
         "accept_rate": summary.get("accept_rate"),
         "hard_violation_rate": summary.get("hard_violation_rate"),
+        "task_inconsistent_accept_rate": summary.get(
+            "task_inconsistent_accept_rate", summary.get("unsafe_accept_rate")
+        ),
         "unsafe_accept_rate": summary.get("unsafe_accept_rate"),
         "correct_reject_rate": summary.get("correct_reject_rate"),
         "correct_abstain_rate": summary.get("correct_abstain_rate"),

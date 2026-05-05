@@ -147,5 +147,26 @@ claims:
     support_status: primary_supported
     limitation: "Challenge membership is structural and does not imply human-perceived difficulty for every task."
     paper_section: "Results"
+  - claim_id: C15
+    text: "A deterministic engineered verifier wrapper saturates sgchem_v1.0, so the artifact should be interpreted as an evaluation contract rather than a intrinsic chemistry-capability leaderboard."
+    claim_type: empirical
+    evidence_files:
+      - src/specguard_chem/models/well_engineered_wrapper.py
+      - scripts/run_reality_check_experiments.py
+      - paper_v1/reality_check_decision_memo.md
+    metric_denominator: "266 test tasks"
+    support_status: primary_supported
+    limitation: "The wrapper result applies to the implemented public specification language and current corpus/search machinery."
+    paper_section: "Results"
+  - claim_id: C16
+    text: "A small constrained-repair pilot was trivialized by nearest-corpus retrieval and local mutation, so repair-workflow expansion needs stronger structural constraints before scaling."
+    claim_type: limitation
+    evidence_files:
+      - experiments/repair_workflow_quick_pilot/decision_memo.md
+      - experiments/repair_workflow_quick_pilot/baseline_results.md
+    metric_denominator: "40 pilot tasks"
+    support_status: diagnostic_supported
+    limitation: "The pilot is disposable and should not be treated as part of the frozen sgchem_v1.0 release."
+    paper_section: "Limitations"
 
 remove_from_paper: []

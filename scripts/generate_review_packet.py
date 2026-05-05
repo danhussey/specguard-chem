@@ -421,13 +421,13 @@ def main() -> int:
         "baseline_tracks.md",
         "primary_results.md",
         "baseline_action_confusion_matrices.md",
-        "unsafe_accept_rate.md",
+        "task_inconsistent_accept_rate.md",
         "reject_abstain_metrics.md",
         "challenge_slice_results.md",
         "diagnostic_slice_results.md",
         "limitations_by_metric.md",
     ]
-    metric_text = ["# Metrics And Results", "", "- molecule_acceptance_rate is not task success.", "- task/action accuracy is the primary action-level metric.", "- unsafe_accept_rate, REJECT_recall, and ABSTAIN_recall must be prominent.", "- retrieval upper bound must be separated from primary baselines.", "- diagnostic slices must not be overclaimed.", ""]
+    metric_text = ["# Metrics And Results", "", "- molecule_acceptance_rate is not task success.", "- task/action accuracy is the primary action-level metric.", "- task_inconsistent_accept_rate, REJECT_recall, and ABSTAIN_recall must be prominent.", "- retrieval upper bound must be separated from primary baselines.", "- diagnostic slices must not be overclaimed.", ""]
     for name in metric_files:
         metric_text.extend([f"## {name}", "", _read(Path("paper_v1/tables") / name), ""])
     (args.review_packet / "06_metrics_and_results.md").write_text("\n".join(metric_text), encoding="utf-8")

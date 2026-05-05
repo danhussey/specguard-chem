@@ -9,7 +9,7 @@ test bundles: 42
 | ACCEPT precision/recall | expected_ACCEPT | 179 | primary_reportable |
 | REJECT precision/recall | expected_REJECT | 52 | primary_reportable |
 | ABSTAIN precision/recall | expected_ABSTAIN | 35 | primary_reportable |
-| unsafe accept rate | expected_REJECT_or_ABSTAIN | 87 | primary_reportable |
+| task-inconsistent accept rate | expected_REJECT_or_ABSTAIN | 87 | primary_reportable |
 | hard violation rate | all_test_tasks | 266 | primary_reportable |
 | repair success | repair_tasks | 41 | primary_reportable |
 | boundary precision | boundary_tasks | 22 | diagnostic_only |

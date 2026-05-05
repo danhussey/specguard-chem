@@ -29,7 +29,7 @@ def test_sanity_baselines_have_expected_failure_modes(v1_release: Path, tmp_path
     always_accept = rows["always_accept"]["metrics"]
     always_reject = rows["always_reject"]["metrics"]
     always_abstain = rows["always_abstain"]["metrics"]
-    assert always_accept["unsafe_accept_rate"] is not None
+    assert always_accept["task_inconsistent_accept_rate"] is not None
     assert always_accept["correct_reject_rate"] < 1.0
     assert always_reject["accept_rate"] < 1.0
     assert always_abstain["accept_rate"] == 0.0

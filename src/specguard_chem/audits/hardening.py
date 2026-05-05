@@ -14,7 +14,7 @@ METRIC_DENOMINATORS: tuple[tuple[str, str], ...] = (
     ("ACCEPT precision/recall", "expected_ACCEPT"),
     ("REJECT precision/recall", "expected_REJECT"),
     ("ABSTAIN precision/recall", "expected_ABSTAIN"),
-    ("unsafe accept rate", "expected_REJECT_or_ABSTAIN"),
+    ("task-inconsistent accept rate", "expected_REJECT_or_ABSTAIN"),
     ("hard violation rate", "all_test_tasks"),
     ("repair success", "repair_tasks"),
     ("boundary precision", "boundary_tasks"),

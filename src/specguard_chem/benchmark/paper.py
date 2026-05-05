@@ -849,7 +849,7 @@ def make_paper_artifacts(
     _write_md_table(tables_dir / "baseline_tracks.md", baseline_tracks)
 
     confusion_rows: List[Dict[str, Any]] = []
-    unsafe_rows: List[Dict[str, Any]] = []
+    task_inconsistent_rows: List[Dict[str, Any]] = []
     denominator_rows: List[Dict[str, Any]] = []
     for row in all_rows:
         name = str(row.get("name"))
@@ -870,21 +870,24 @@ def make_paper_artifacts(
                     )
         reject_counts = confusion.get("REJECT") if isinstance(confusion, dict) else {}
         abstain_counts = confusion.get("ABSTAIN") if isinstance(confusion, dict) else {}
-        unsafe_denom = 0
+        task_inconsistent_denom = 0
         correct_reject_denom = 0
         correct_abstain_denom = 0
         if isinstance(reject_counts, dict):
             correct_reject_denom = sum(int(value) for value in reject_counts.values())
-            unsafe_denom += correct_reject_denom
+            task_inconsistent_denom += correct_reject_denom
         if isinstance(abstain_counts, dict):
             correct_abstain_denom = sum(int(value) for value in abstain_counts.values())
-            unsafe_denom += correct_abstain_denom
-        unsafe_rows.append(
+            task_inconsistent_denom += correct_abstain_denom
+        task_inconsistent_rows.append(
             {
                 "baseline": name,
                 "track": row.get("track") or "primary_closed_book",
-                "unsafe_accept_rate": (row.get("metrics") or {}).get("unsafe_accept_rate"),
-                "unsafe_accept_n": unsafe_denom,
+                "task_inconsistent_accept_rate": (row.get("metrics") or {}).get(
+                    "task_inconsistent_accept_rate",
+                    (row.get("metrics") or {}).get("unsafe_accept_rate"),
+                ),
+                "task_inconsistent_accept_n": task_inconsistent_denom,
                 "correct_reject_rate": (row.get("metrics") or {}).get("correct_reject_rate"),
                 "correct_reject_n": correct_reject_denom,
                 "correct_abstain_rate": (row.get("metrics") or {}).get("correct_abstain_rate"),
@@ -903,7 +906,7 @@ def make_paper_artifacts(
                     }
                 )
     _write_md_table(tables_dir / "action_confusion_matrix.md", confusion_rows)
-    _write_md_table(tables_dir / "unsafe_accept_rate.md", unsafe_rows)
+    _write_md_table(tables_dir / "task_inconsistent_accept_rate.md", task_inconsistent_rows)
     _write_md_table(tables_dir / "metric_denominators.md", denominator_rows)
 
     summary_lines = [

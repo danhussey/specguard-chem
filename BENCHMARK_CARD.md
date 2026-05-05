@@ -4,7 +4,7 @@
 SpecGuard-Chem sgchem_v1.0.
 
 ## Intended Use
-Offline evaluation of whether agents follow machine-checkable medicinal-chemistry specifications under bounded protocols.
+Offline evaluation of whether agents follow machine-checkable, chemically typed specifications under bounded protocols. The benchmark is intended as an evaluation contract and audit harness, not as a measure of real-world chemistry capability.
 
 ## Out-of-Scope Use
 SpecGuard-Chem must not be used to claim biological activity, toxicity, synthesis feasibility, therapeutic efficacy, clinical utility, dosing, disease relevance, or target-binding behavior.
@@ -27,9 +27,9 @@ Tasks use task-level `expected_action` values: `ACCEPT`, `REJECT`, and `ABSTAIN`
 `L1` is one-shot without verifier tools. `L2` allows multi-step coarse feedback without direct verifier access. `L3` allows bounded `verify(smiles)` calls.
 
 ## Metrics
-Reports include pass@budget where appropriate, expected-action confusion matrix, hard violation rate, unsafe accept rate, correct reject rate, correct abstain rate, abstention utility, tool-call economy, edit economy, calibration metrics, boundary precision, invariance consistency, and interrupt/resume success.
+Reports include pass@budget where appropriate, expected-action confusion matrix, hard violation rate, task-inconsistent accept rate, correct reject rate, correct abstain rate, abstention utility, tool-call economy, edit economy, calibration metrics, boundary precision, invariance consistency, and interrupt/resume success.
 
-The internal sweep field `accept_rate` is reported in paper tables as `molecule_acceptance_rate`. It is the share of tasks ending in a verifier-accepted molecule, not overall task success. Paper-facing empirical claims should use action accuracy, unsafe acceptance, reject/abstain recall, denominators, and diagnostic-slice reports rather than aggregate molecule acceptance alone.
+The internal sweep field `accept_rate` is reported in paper tables as `molecule_acceptance_rate`. It is the share of tasks ending in a verifier-accepted molecule, not overall task success. Paper-facing empirical claims should use action accuracy, task-inconsistent acceptance, reject/abstain recall, denominators, and diagnostic-slice reports rather than aggregate molecule acceptance alone.
 
 ## Generation Process
 `sgchem_v1.0` is compiled by `bundle_compiler_v1`. Each bundle represents one underlying specification scenario and emits controlled task views. There is no clone-fill padding; shortfalls are recorded in `MANIFEST.json`.
@@ -55,6 +55,8 @@ Generated tasks are retained only if schema, oracle, protocol, split, safety-sco
 
 ## Limitations
 SpecGuard-Chem evaluates rule compliance, not real-world molecular quality. Passing a task does not imply usefulness, safety, efficacy, synthesizability, or developability.
+
+A deterministic engineered verifier wrapper can solve the current test split when it directly implements the public specification contract. This is a saturation baseline, not a failure of validation: sgchem_v1.0 should be used to audit public/private isolation, action semantics, verifier-tool policies, and reporting discipline rather than to claim intrinsic benchmark hardness.
 
 Metric denominator reports classify paper claims as primary, diagnostic, appendix-only, or not reportable. Retrieval upper bounds, tool-enabled baselines, oracle upper bounds, and external snapshots are separated from the primary closed-book leaderboard.
 

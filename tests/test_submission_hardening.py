@@ -67,8 +67,8 @@ def test_detailed_baseline_metrics_exposes_denominators() -> None:
     ]
     metrics = detailed_baseline_metrics(records)
     assert metrics["overall_task_success"] == 2 / 3
-    assert metrics["unsafe_accept_rate"] == 0.5
-    assert metrics["unsafe_accept_denominator"] == 2
+    assert metrics["task_inconsistent_accept_rate"] == 0.5
+    assert metrics["task_inconsistent_accept_denominator"] == 2
     assert metrics["pass_at_1_denominator"] == 1
     assert metrics["molecule_acceptance_rate"] == 2 / 3
 

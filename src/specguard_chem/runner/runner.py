@@ -55,6 +55,7 @@ class RoundLog:
     schema_error: bool = False
     schema_error_type: Optional[str] = None
     normalized_action: Optional[str] = None
+    declared_public_action: Optional[str] = None
     invalid_action: bool = False
     invalid_tool_call: bool = False
 
@@ -219,6 +220,13 @@ def normalize_agent_response(
     interrupt_ack = payload.get("interrupt_ack")
     if not isinstance(interrupt_ack, dict):
         interrupt_ack = None
+    declared_public_action = payload.get("declared_public_action")
+    if isinstance(declared_public_action, str):
+        declared_public_action = declared_public_action.strip().upper()
+        if declared_public_action not in {"ACCEPT", "REJECT", "ABSTAIN"}:
+            declared_public_action = None
+    else:
+        declared_public_action = None
 
     def _schema_abstain(
         *,
@@ -233,6 +241,7 @@ def normalize_agent_response(
             "schema_error": True,
             "schema_error_type": schema_error_type,
             "normalized_action": "ABSTAIN",
+            "declared_public_action": declared_public_action,
             "invalid_action": invalid_action,
             "invalid_tool_call": invalid_tool_call,
         }
@@ -267,6 +276,7 @@ def normalize_agent_response(
             "smiles": smiles.strip(),
             "schema_error": False,
             "normalized_action": None,
+            "declared_public_action": declared_public_action,
             "invalid_action": False,
             "invalid_tool_call": False,
         }
@@ -304,6 +314,7 @@ def normalize_agent_response(
             "args": args,
             "schema_error": False,
             "normalized_action": None,
+            "declared_public_action": declared_public_action,
             "invalid_action": False,
             "invalid_tool_call": False,
         }
@@ -319,6 +330,7 @@ def normalize_agent_response(
         "reason": reason.strip(),
         "schema_error": False,
         "normalized_action": None,
+        "declared_public_action": declared_public_action,
         "invalid_action": False,
         "invalid_tool_call": False,
     }
@@ -679,6 +691,7 @@ class TaskRunner:
                             schema_error=round_schema_error,
                             schema_error_type=round_schema_error_type,
                             normalized_action=response.get("normalized_action"),
+                            declared_public_action=response.get("declared_public_action"),
                             invalid_action=round_invalid_action,
                             invalid_tool_call=round_invalid_tool_call,
                         )
@@ -701,6 +714,7 @@ class TaskRunner:
                             schema_error=round_schema_error,
                             schema_error_type=round_schema_error_type,
                             normalized_action=response.get("normalized_action"),
+                            declared_public_action=response.get("declared_public_action"),
                             invalid_action=round_invalid_action,
                             invalid_tool_call=round_invalid_tool_call,
                         )
@@ -726,6 +740,7 @@ class TaskRunner:
                         schema_error=round_schema_error,
                         schema_error_type=round_schema_error_type,
                         normalized_action=response.get("normalized_action"),
+                        declared_public_action=response.get("declared_public_action"),
                         invalid_action=round_invalid_action,
                         invalid_tool_call=round_invalid_tool_call,
                     )
@@ -758,6 +773,7 @@ class TaskRunner:
                         schema_error=round_schema_error,
                         schema_error_type=round_schema_error_type,
                         normalized_action=response.get("normalized_action"),
+                        declared_public_action=response.get("declared_public_action"),
                         invalid_action=round_invalid_action,
                         invalid_tool_call=round_invalid_tool_call,
                     )
@@ -782,6 +798,7 @@ class TaskRunner:
                         schema_error=round_schema_error,
                         schema_error_type=round_schema_error_type,
                         normalized_action=response.get("normalized_action"),
+                        declared_public_action=response.get("declared_public_action"),
                         invalid_action=round_invalid_action,
                         invalid_tool_call=round_invalid_tool_call,
                     )
@@ -804,6 +821,7 @@ class TaskRunner:
                         schema_error=round_schema_error,
                         schema_error_type=round_schema_error_type,
                         normalized_action=response.get("normalized_action"),
+                        declared_public_action=response.get("declared_public_action"),
                         invalid_action=round_invalid_action,
                         invalid_tool_call=round_invalid_tool_call,
                     )
@@ -832,6 +850,7 @@ class TaskRunner:
                     schema_error=round_schema_error,
                     schema_error_type=round_schema_error_type,
                     normalized_action=response.get("normalized_action"),
+                    declared_public_action=response.get("declared_public_action"),
                     invalid_action=round_invalid_action,
                     invalid_tool_call=round_invalid_tool_call,
                 )

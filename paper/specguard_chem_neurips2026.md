@@ -1,6 +1,6 @@
-# SpecGuard-Chem: Oracle-First Evaluation Under Medicinal-Chemistry Specifications
+# SpecGuard-Chem: Oracle-Compiled Evaluation Contracts for Scientific Language Agents
 
-This markdown manuscript skeleton is numerically aligned with `benchmarks/releases/sgchem_v1.0/MANIFEST.json` and the generated tables in `paper_v1/tables/`.
+This markdown manuscript skeleton is numerically aligned with `benchmarks/releases/sgchem_v1.0/MANIFEST.json`, the generated tables in `paper_v1/tables/`, and the reality-check memo in `paper_v1/reality_check_decision_memo.md`.
 
 Sections:
 

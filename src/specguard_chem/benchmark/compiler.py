@@ -127,9 +127,9 @@ Repair semantics: `repair_near_miss` has one hard violation unit or one configur
 Split policy: {json.dumps(manifest.get("split_policy", {}), sort_keys=True)}
 Validation policy: strict schema, oracle, split, protocol, and safety-scope validation must pass before reporting results.
 Curation policy: generated tasks are retained only when oracle checks and bundle minimums pass; shortfalls are reported rather than clone-filled.
-Metrics: paper-facing tables report action accuracy, unsafe acceptance, reject/abstain recall, diagnostic denominators, and molecule_acceptance_rate. The internal accept_rate is only molecule acceptance, not overall task success.
+Metrics: paper-facing tables report action accuracy, task-inconsistent acceptance, reject/abstain recall, diagnostic denominators, verifier-wrapper saturation, and molecule_acceptance_rate. The internal accept_rate is only molecule acceptance, not overall task success.
 Challenge slice: structural difficulty_tags are assigned from task/spec/oracle metadata before any baseline run.
-Limitations: this benchmark measures rule compliance and protocol behavior, not real-world molecular quality.
+Limitations: this benchmark measures rule compliance and protocol behavior, not real-world molecular quality or intrinsic chemistry task hardness.
 Safety and misuse considerations: outputs must not be interpreted as therapeutic candidates or biological claims.
 
 Reproducibility commands:

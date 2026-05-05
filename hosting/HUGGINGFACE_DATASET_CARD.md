@@ -24,9 +24,9 @@ Tasks include hidden oracle evidence such as witnesses and certificates, but nor
 
 ## Intended Uses
 
-- Offline benchmark evaluation of medicinal-chemistry specification compliance.
+- Offline benchmark evaluation of medicinal-chemistry specification compliance as an oracle-compiled evaluation contract.
 - Measuring ACCEPT, REJECT, and ABSTAIN behavior.
-- Measuring unsafe acceptance, rejection recall, abstention recall, verifier-tool use, boundary precision, representation invariance, and interrupt/resume behavior.
+- Measuring task-inconsistent acceptance, rejection recall, abstention recall, verifier-tool use, boundary precision, representation invariance, interrupt/resume behavior, and verifier-wrapper saturation.
 - Reproducing the paper tables, figures, audits, and deterministic baseline runs.
 
 ## Out-of-Scope Uses

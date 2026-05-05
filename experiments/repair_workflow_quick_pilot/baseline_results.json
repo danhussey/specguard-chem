@@ -1,0 +1,87 @@
+{
+  "summaries": [
+    {
+      "baseline": "no_op_starting_molecule",
+      "failure_counts": {
+        "abstained": 4,
+        "hard_constraint_failure": 36
+      },
+      "hard_pass_rate": 0.0,
+      "median_edit_distance_on_successes": null,
+      "median_similarity_on_successes": null,
+      "n": 40,
+      "no_op_rate": 1.0,
+      "scaffold_preservation_rate": 1.0,
+      "similarity_preservation_rate": 1.0,
+      "success@1": 0.0,
+      "unrelated_valid_molecule_rate": 0.0,
+      "valid_smiles_rate": 0.9
+    },
+    {
+      "baseline": "random_valid_corpus",
+      "failure_counts": {
+        "hard_constraint_failure": 38,
+        "success": 2
+      },
+      "hard_pass_rate": 0.05,
+      "median_edit_distance_on_successes": null,
+      "median_similarity_on_successes": null,
+      "n": 40,
+      "no_op_rate": 0.0,
+      "scaffold_preservation_rate": 0.825,
+      "similarity_preservation_rate": 0.0,
+      "success@1": 0.05,
+      "unrelated_valid_molecule_rate": 0.875,
+      "valid_smiles_rate": 1.0
+    },
+    {
+      "baseline": "nearest_passing_corpus_by_similarity",
+      "failure_counts": {
+        "abstained": 7,
+        "success": 33
+      },
+      "hard_pass_rate": 0.825,
+      "median_edit_distance_on_successes": 2,
+      "median_similarity_on_successes": 0.6538461538461539,
+      "n": 40,
+      "no_op_rate": 0.0,
+      "scaffold_preservation_rate": 0.975,
+      "similarity_preservation_rate": 0.8055555555555556,
+      "success@1": 0.825,
+      "unrelated_valid_molecule_rate": 0.0,
+      "valid_smiles_rate": 0.825
+    },
+    {
+      "baseline": "local_mutation_search",
+      "failure_counts": {
+        "success": 40
+      },
+      "hard_pass_rate": 1.0,
+      "median_edit_distance_on_successes": 3.5,
+      "median_similarity_on_successes": 0.782608695652174,
+      "n": 40,
+      "no_op_rate": 0.0,
+      "scaffold_preservation_rate": 1.0,
+      "similarity_preservation_rate": 1.0,
+      "success@1": 1.0,
+      "unrelated_valid_molecule_rate": 0.0,
+      "valid_smiles_rate": 1.0
+    },
+    {
+      "baseline": "verifier_guided_greedy",
+      "failure_counts": {
+        "success": 40
+      },
+      "hard_pass_rate": 1.0,
+      "median_edit_distance_on_successes": 4.5,
+      "median_similarity_on_successes": 0.782608695652174,
+      "n": 40,
+      "no_op_rate": 0.0,
+      "scaffold_preservation_rate": 1.0,
+      "similarity_preservation_rate": 1.0,
+      "success@1": 1.0,
+      "unrelated_valid_molecule_rate": 0.0,
+      "valid_smiles_rate": 1.0
+    }
+  ]
+}

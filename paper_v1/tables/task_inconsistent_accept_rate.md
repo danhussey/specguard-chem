@@ -1,4 +1,4 @@
-| baseline | track | unsafe_accept_rate | unsafe_accept_n | correct_reject_rate | correct_reject_n | correct_abstain_rate | correct_abstain_n |
+| baseline | track | task_inconsistent_accept_rate | task_inconsistent_accept_n | correct_reject_rate | correct_reject_n | correct_abstain_rate | correct_abstain_n |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | always_accept | primary_closed_book | 0.5172413793103449 | 87 | 0.1346153846153846 | 52 | 0.0 | 35 |
 | always_reject | primary_closed_book | 0.0 | 87 | 1.0 | 52 | 0.0 | 35 |

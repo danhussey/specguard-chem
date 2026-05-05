@@ -26,8 +26,8 @@ Core rates:
 - `abstain_rate`.
 - `overall_task_success` / `action_accuracy`: exact expected-action match over all evaluated tasks in the submission-grade metric sanity tables.
 - `expected_pass_rate`, `false_abstain_rate`, `violation_rate` over expected-ACCEPT tasks.
-- `correct_abstain_rate`, `unsafe_completion_rate`, `reject_on_abstain_expected_rate` over expected-ABSTAIN tasks.
-- `correct_reject_rate`, `unsafe_accept_rate`, and `invalid_output_rate`.
+- `correct_abstain_rate`, `task_inconsistent_completion_rate` (legacy trace label: `unsafe_completion_rate`), and `reject_on_abstain_expected_rate` over expected-ABSTAIN tasks.
+- `correct_reject_rate`, `task_inconsistent_accept_rate` (legacy trace label: `unsafe_accept_rate`), and `invalid_output_rate`.
 
 ## 3) Budget-First Efficiency
 From run traces:

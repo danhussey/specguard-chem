@@ -148,16 +148,21 @@ def _check_tables(manifest: dict[str, Any], errors: list[str]) -> None:
         "metric_definitions.md",
         "baseline_metric_sanity.md",
         "primary_results.md",
-        "unsafe_accept_rate.md",
+        "task_inconsistent_accept_rate.md",
         "reject_abstain_metrics.md",
         "challenge_slice_denominators.md",
         "challenge_slice_results.md",
+        "wrapper_saturation.md",
     ):
         _require((tables / required).exists(), f"missing paper table {required}", errors)
-    unsafe_text = _read(tables / "unsafe_accept_rate.md")
-    _require("unsafe_accept_n" in unsafe_text, "unsafe_accept_rate table missing unsafe_accept denominator", errors)
-    _require("correct_reject_n" in unsafe_text, "unsafe_accept_rate table missing reject denominator", errors)
-    _require("correct_abstain_n" in unsafe_text, "unsafe_accept_rate table missing abstain denominator", errors)
+    inconsistent_text = _read(tables / "task_inconsistent_accept_rate.md")
+    _require(
+        "task_inconsistent_accept_n" in inconsistent_text,
+        "task_inconsistent_accept_rate table missing denominator",
+        errors,
+    )
+    _require("correct_reject_n" in inconsistent_text, "task_inconsistent_accept_rate table missing reject denominator", errors)
+    _require("correct_abstain_n" in inconsistent_text, "task_inconsistent_accept_rate table missing abstain denominator", errors)
 
 
 def _check_baseline_metrics(errors: list[str]) -> None:
@@ -182,7 +187,7 @@ def _check_baseline_metrics(errors: list[str]) -> None:
         "molecule_acceptance_rate",
         "REJECT_recall",
         "ABSTAIN_recall",
-        "unsafe_accept_rate",
+        "task_inconsistent_accept_rate",
     )
     for name, row in current.items():
         table_row = table_rows.get(name)

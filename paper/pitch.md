@@ -2,19 +2,19 @@
 
 ## Provisional Title
 
-SpecGuard-Chem: Oracle-First Evaluation Under Medicinal-Chemistry Specifications
+SpecGuard-Chem: Oracle-Compiled Evaluation Contracts for Scientific Language Agents
 
 ## Core Claim
 
-SpecGuard-Chem is an oracle-first compiler and evaluation harness for agentic language models under medicinal-chemistry specifications. The sgchem_v1.0 release contains 118 bundles, 656 tasks, and 266 test tasks compiled from machine-checkable witnesses and certificates.
+SpecGuard-Chem is an oracle-compiled evaluation contract for scientific language-agent specification compliance. The sgchem_v1.0 release contains 118 bundles, 656 tasks, and 266 test tasks compiled from machine-checkable witnesses and certificates.
 
 ## Why It Matters
 
-The benchmark shows that molecule acceptance alone is misleading. Deterministic local and verify-first baselines reach molecule_acceptance_rate=0.846, while the retrieval upper bound reaches 0.868. Their action accuracies are 0.650, 0.650, and 0.673, with REJECT_recall=0.000, ABSTAIN_recall=0.000, and unsafe_accept_rate=0.598. The paper should therefore emphasize action-aware evaluation, unsafe acceptance, rejection, abstention, and protocol diagnostics.
+The benchmark shows that molecule acceptance alone is misleading. Deterministic local and verify-first baselines reach molecule_acceptance_rate=0.846, while the retrieval upper bound reaches 0.868. Their action accuracies are 0.650, 0.650, and 0.673, with REJECT_recall=0.000, ABSTAIN_recall=0.000, and task_inconsistent_accept_rate=0.598. A deterministic well_engineered_wrapper solves the full test split, so the paper should foreground verifier-wrapper saturation and action-aware evaluation rather than benchmark hardness.
 
 ## Scope
 
-SpecGuard-Chem uses molecular property ranges, substructure constraints, alert filters, similarity guards, and representation-equivalence checks. It evaluates specification compliance, construction, repair, candidate audit, rejection, abstention, verifier-tool use, boundary precision, representation invariance, and interrupt/resume behavior.
+SpecGuard-Chem uses molecular property ranges, substructure constraints, alert filters, similarity guards, and representation-equivalence checks as a chemically typed substrate. It evaluates specification compliance, construction, repair, candidate audit, rejection, abstention, verifier-tool use, boundary precision, representation invariance, and interrupt/resume behavior.
 
 SpecGuard-Chem does not evaluate biological activity, toxicity, synthesis feasibility, therapeutic efficacy, clinical utility, target binding, dosing, disease relevance, or drug-discovery success.
 

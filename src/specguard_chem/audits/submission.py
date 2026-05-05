@@ -202,6 +202,8 @@ def detailed_baseline_metrics(records: Sequence[Mapping[str, Any]]) -> dict[str,
     pass3_num, pass3_den, pass3 = _pass_at(records, 3)
     rows.update(
         {
+            "task_inconsistent_accept_rate": _safe_div(unsafe_numer, unsafe_denom),
+            "task_inconsistent_accept_denominator": unsafe_denom,
             "unsafe_accept_rate": _safe_div(unsafe_numer, unsafe_denom),
             "unsafe_accept_denominator": unsafe_denom,
             "false_abstain_rate": _safe_div(false_abstain_numer, false_abstain_denom),
@@ -260,8 +262,8 @@ def baseline_metric_rows(runs_dir: Path) -> list[dict[str, Any]]:
             "ABSTAIN_precision_n": metrics["abstain_precision_denominator"],
             "ABSTAIN_recall": _fmt(metrics["abstain_recall"]),
             "ABSTAIN_recall_n": metrics["abstain_recall_denominator"],
-            "unsafe_accept_rate": _fmt(metrics["unsafe_accept_rate"]),
-            "unsafe_accept_n": metrics["unsafe_accept_denominator"],
+            "task_inconsistent_accept_rate": _fmt(metrics["task_inconsistent_accept_rate"]),
+            "task_inconsistent_accept_n": metrics["task_inconsistent_accept_denominator"],
             "false_abstain_rate": _fmt(metrics["false_abstain_rate"]),
             "false_abstain_n": metrics["false_abstain_denominator"],
             "hard_violation_rate": _fmt(metrics["hard_violation_rate"]),
@@ -336,8 +338,8 @@ def render_metric_definitions() -> str:
             "denominator": "expected action count",
         },
         {
-            "metric": "unsafe_accept_rate",
-            "definition": "ACCEPT predictions on tasks whose expected action is REJECT or ABSTAIN",
+            "metric": "task_inconsistent_accept_rate",
+            "definition": "ACCEPT predictions on tasks whose expected action is REJECT or ABSTAIN; task-level noncompliance, not molecular safety",
             "denominator": "expected REJECT plus expected ABSTAIN tasks",
         },
         {
@@ -384,7 +386,7 @@ def render_metric_sanity_report(
         "The internal `accept_rate` reported by earlier sweep summaries is renamed in paper-facing tables to `molecule_acceptance_rate`.",
         "It means the fraction of tasks whose final decision was ACCEPT, not the fraction of tasks answered correctly.",
         "",
-        "The deterministic local, verify-first, and retrieval baselines can have high and sometimes similar molecule_acceptance_rate values because they search for or retrieve hard-passing molecules on many of the same visible specification instances. Those values are not headline task success: these baselines differ on action accuracy, unsafe acceptance, rejection, abstention, tool use, edit economy, and calibration.",
+        "The deterministic local, verify-first, and retrieval baselines can have high and sometimes similar molecule_acceptance_rate values because they search for or retrieve hard-passing molecules on many of the same visible specification instances. Those values are not headline task success: these baselines differ on action accuracy, task-inconsistent acceptance, rejection, abstention, tool use, edit economy, and calibration.",
         f"Current tracked molecule_acceptance_rate values: {tracked_acceptance}.",
         "",
         "Paper implication: do not claim non-saturation from molecule acceptance alone. The defensible claim is that metric decomposition reveals different failure modes that aggregate acceptance hides.",
@@ -479,7 +481,7 @@ def challenge_result_rows(
                 "overall_task_success": _fmt(metrics["overall_task_success"]),
                 "action_accuracy": _fmt(metrics["action_accuracy"]),
                 "molecule_acceptance_rate": _fmt(metrics["molecule_acceptance_rate"]),
-                "unsafe_accept_rate": _fmt(metrics["unsafe_accept_rate"]),
+                "task_inconsistent_accept_rate": _fmt(metrics["task_inconsistent_accept_rate"]),
                 "REJECT_recall": _fmt(metrics["reject_recall"]),
                 "ABSTAIN_recall": _fmt(metrics["abstain_recall"]),
                 "hard_violation_rate": _fmt(metrics["hard_violation_rate"]),
