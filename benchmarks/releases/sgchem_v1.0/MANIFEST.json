@@ -173,7 +173,7 @@
   "test_task_type_minimums_met": false,
   "anonymous_artifact_archive": {
     "path": "sgchem_v1.0_anonymous_artifact.zip",
-    "sha256": "c0e248e9a4e1b5f7be41082bfdbf186fb29f421aaf2878fe56c93f845fd70568",
+    "sha256": "4ce28350f1bfd6cffbe2ac0283b4fbf8c6d737df1039010f19743d5f2d995997",
     "identity_scan_passed": true
   }
 }

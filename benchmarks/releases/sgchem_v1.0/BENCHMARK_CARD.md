@@ -37,6 +37,6 @@ uv run specguard-chem validate-dataset benchmarks/releases/sgchem_v1.0 --strict
 - Dataset URL: https://huggingface.co/datasets/anon2389434/specguard-chem-sgchem-v1-anonymous
 - Review access: anonymous reviewer-accessible dataset page.
 - Archive: `sgchem_v1.0_anonymous_artifact.zip`
-- Archive SHA256: `c0e248e9a4e1b5f7be41082bfdbf186fb29f421aaf2878fe56c93f845fd70568`
+- Archive SHA256: `4ce28350f1bfd6cffbe2ac0283b4fbf8c6d737df1039010f19743d5f2d995997`
 - Croissant metadata: `benchmarks/releases/sgchem_v1.0/croissant.json`
 <!-- sgchem-hosted-url:end -->

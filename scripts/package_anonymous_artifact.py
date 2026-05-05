@@ -54,6 +54,31 @@ EXCLUDE_PARTS = {
     ".mypy_cache",
     ".ruff_cache",
 }
+ARCHIVE_SHA_RECORDED_EXTERNALLY = "RECORDED_EXTERNALLY_AFTER_PACKAGING"
+
+
+def neutralize_archive_self_hash(root: Path, archive_name: str) -> None:
+    """Avoid embedding a stale hash for an archive inside that same archive."""
+
+    for rel in (
+        "README.md",
+        "benchmarks/releases/sgchem_v1.0/BENCHMARK_CARD.md",
+        "benchmarks/releases/sgchem_v1.0/RELEASE_NOTES.md",
+    ):
+        path = root / rel
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8")
+        text = re.sub(
+            rf"- Archive SHA256: `?[0-9a-f]{{64}}`?",
+            "- Archive SHA256: recorded externally after packaging.",
+            text,
+        )
+        text = text.replace(
+            f"- Archive: `{archive_name}`",
+            f"- Archive: `{archive_name}`",
+        )
+        path.write_text(text, encoding="utf-8")
 
 
 def iter_artifact_files(root: Path) -> list[Path]:
@@ -186,6 +211,7 @@ def main() -> int:
         or os.environ.get("SGCHEM_ANONYMOUS_DATASET_URL")
         or "PENDING_ANONYMOUS_HOSTED_URL"
     )
+    neutralize_archive_self_hash(root, args.out.name)
     audits_dir = args.release / "audits"
     audits_dir.mkdir(parents=True, exist_ok=True)
     for stale in ("anonymous_hosting_preflight.md", "archive_contents_manifest.md"):
@@ -197,7 +223,7 @@ def main() -> int:
     manifest = jsonio.read_json(manifest_path)
     manifest["anonymous_artifact_archive"] = {
         "path": args.out.as_posix(),
-        "sha256": "ARCHIVE_SHA256_RECORDED_AFTER_PACKAGING",
+        "sha256": ARCHIVE_SHA_RECORDED_EXTERNALLY,
         "identity_scan_passed": None,
     }
     jsonio.write_json(manifest_path, manifest)
