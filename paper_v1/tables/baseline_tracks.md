@@ -11,3 +11,5 @@
 | verify_first | verify_first | tool_enabled | false |
 | verifier_guided_greedy | verifier_guided_greedy | tool_enabled | false |
 | corpus_retrieval_upper_bound | corpus_search | retrieval_upper_bound | false |
+
+Display note: `corpus_retrieval_upper_bound` should appear in prose and final paper tables as the molecule-corpus retrieval baseline. It is a molecule-retrieval ceiling from the available corpus, not an upper bound on action-correct task performance.

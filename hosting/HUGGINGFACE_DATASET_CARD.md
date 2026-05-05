@@ -85,4 +85,4 @@ MIT.
 
 ## Citation
 
-Citation placeholder for double-blind review. Full citation will be provided after review.
+Full citation will be provided after review.
