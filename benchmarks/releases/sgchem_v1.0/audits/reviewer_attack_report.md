@@ -17,10 +17,8 @@
 | Are retrieval and oracle baselines separated? | pass |
 | Are headline results supported by denominators? | pass |
 | Does Croissant validation pass? | pass |
-| Is the hosted anonymous artifact accessible? | yellow |
+| Is the hosted anonymous artifact accessible? | pass |
 | Does clean-clone reproduction pass? | pass |
 | Are all abstract claims supported by the claim ledger? | pass |
 
 Unresolved red flags: none
-Yellow flags are reflected in claim readiness or pending artifact-hosting notes.
-- Is the hosted anonymous artifact accessible?

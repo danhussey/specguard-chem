@@ -224,3 +224,13 @@ CI runs lint/tests, coverage, smoke runs (`run` + `report`), and baseline smoke 
 
 For architecture details see `docs/overview.md`. For formulas see `METRICS.md`. For scope guardrails see `SAFETY.md`.
 Benchmark positioning and release policy are documented in `BENCHMARK_CARD.md`.
+
+<!-- sgchem-hosted-url:start -->
+## Anonymous Hosted Artifact
+
+- Dataset URL: https://huggingface.co/datasets/anon2389434/specguard-chem-sgchem-v1-anonymous
+- Review access: anonymous reviewer-accessible dataset page.
+- Archive: `sgchem_v1.0_anonymous_artifact.zip`
+- Archive SHA256: `c0e248e9a4e1b5f7be41082bfdbf186fb29f421aaf2878fe56c93f845fd70568`
+- Croissant metadata: `benchmarks/releases/sgchem_v1.0/croissant.json`
+<!-- sgchem-hosted-url:end -->

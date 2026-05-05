@@ -43,7 +43,7 @@
     "num_errors": 0,
     "valid": true
   },
-  "dataset_url": "PENDING_ANONYMOUS_HOSTED_URL",
+  "dataset_url": "https://huggingface.co/datasets/anon2389434/specguard-chem-sgchem-v1-anonymous",
   "deterministic_rebuild_checked": true,
   "deterministic_rebuild_checksum_match": true,
   "diagnostic_only_test_task_types": [
@@ -64,7 +64,7 @@
     "anonymous_scan_passed": true,
     "croissant_local_validation_passed": true,
     "external_croissant_validation_status": "pending",
-    "dataset_url_accessible": "pending",
+    "dataset_url_accessible": "passed",
     "one_command_reproduction_passed": true
   },
   "num_bundles": 118,
@@ -76,7 +76,7 @@
   "release_type": "oracle_compiled_gold",
   "requested_bundles": 120,
   "requested_tasks": 650,
-  "reviewer_accessibility": "Upload the release archive to anonymous hosting and verify access before submission.",
+  "reviewer_accessibility": "Anonymous hosted artifact URL has been recorded; verify access from a clean browser session before submission.",
   "safety_scope_checks": {
     "agent_visible_forbidden_matches": 0
   },

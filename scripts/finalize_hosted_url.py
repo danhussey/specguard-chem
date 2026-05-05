@@ -12,6 +12,10 @@ from specguard_chem.dataset.validate_v1 import validate_croissant_metadata
 from specguard_chem.utils import jsonio
 
 
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 MARKER_START = "<!-- sgchem-hosted-url:start -->"
 MARKER_END = "<!-- sgchem-hosted-url:end -->"
 
