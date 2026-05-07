@@ -1,0 +1,13 @@
+{
+  "generated_at": "2026-05-07T11:01:28.759027",
+  "suite": "sgchem_v1.0_test",
+  "protocol": "L2",
+  "num_tasks": 85,
+  "hard_pass_rate": 0.7058823529411765,
+  "avg_spec_score": 0.8332346033250151,
+  "avg_rounds": 1.588235294117647,
+  "avg_edit_distance": 1.2777777777777777,
+  "avg_final_edit_cost_brics": 0.7222222222222222,
+  "avg_trajectory_edit_distance": 1.2777777777777777,
+  "avg_trajectory_edit_cost_brics": 0.7222222222222222
+}

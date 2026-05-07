@@ -1,0 +1,97 @@
+objective_metric,adapter,access_model,value,rank
+action_accuracy,well_engineered_wrapper,verifier/search wrapper,1.0,1
+action_accuracy,corpus_search,retrieval,0.6729323308270677,2
+action_accuracy,local_mutation,closed-book,0.650375939849624,3
+action_accuracy,verify_first,public-verifier,0.650375939849624,4
+action_accuracy,abstention_guard,closed-book,0.6127819548872181,5
+action_accuracy,heuristic,closed-book,0.6015037593984962,6
+action_accuracy,always_accept,closed-book,0.5639097744360902,7
+action_accuracy,always_abstain,closed-book,0.13157894736842105,8
+balanced_action_accuracy,well_engineered_wrapper,verifier/search wrapper,1.0,1
+balanced_action_accuracy,heuristic,closed-book,0.5344506517690876,2
+balanced_action_accuracy,abstention_guard,closed-book,0.38085517834121185,3
+balanced_action_accuracy,always_abstain,closed-book,0.3333333333333333,4
+balanced_action_accuracy,corpus_search,retrieval,0.3333333333333333,5
+balanced_action_accuracy,local_mutation,closed-book,0.3221601489757914,6
+balanced_action_accuracy,verify_first,public-verifier,0.3221601489757914,7
+balanced_action_accuracy,always_accept,closed-book,0.3111660220598768,8
+molecule_acceptance_rate,corpus_search,retrieval,0.868421052631579,1
+molecule_acceptance_rate,local_mutation,closed-book,0.8458646616541353,2
+molecule_acceptance_rate,verify_first,public-verifier,0.8458646616541353,3
+molecule_acceptance_rate,always_accept,closed-book,0.706766917293233,4
+molecule_acceptance_rate,abstention_guard,closed-book,0.6804511278195489,5
+molecule_acceptance_rate,well_engineered_wrapper,verifier/search wrapper,0.6729323308270677,6
+molecule_acceptance_rate,heuristic,closed-book,0.40601503759398494,7
+molecule_acceptance_rate,always_abstain,closed-book,0.0,8
+task_inconsistent_accept_rate,always_abstain,closed-book,0.0,1
+task_inconsistent_accept_rate,heuristic,closed-book,0.0,2
+task_inconsistent_accept_rate,well_engineered_wrapper,verifier/search wrapper,0.0,3
+task_inconsistent_accept_rate,abstention_guard,closed-book,0.40229885057471265,4
+task_inconsistent_accept_rate,always_accept,closed-book,0.5172413793103449,5
+task_inconsistent_accept_rate,local_mutation,closed-book,0.5977011494252874,6
+task_inconsistent_accept_rate,verify_first,public-verifier,0.5977011494252874,7
+task_inconsistent_accept_rate,corpus_search,retrieval,0.5977011494252874,8
+reject_recall,heuristic,closed-book,1.0,1
+reject_recall,well_engineered_wrapper,verifier/search wrapper,1.0,2
+reject_recall,abstention_guard,closed-book,0.3269230769230769,3
+reject_recall,always_accept,closed-book,0.1346153846153846,4
+reject_recall,always_abstain,closed-book,0.0,5
+reject_recall,local_mutation,closed-book,0.0,6
+reject_recall,verify_first,public-verifier,0.0,7
+reject_recall,corpus_search,retrieval,0.0,8
+abstain_recall,always_abstain,closed-book,1.0,1
+abstain_recall,well_engineered_wrapper,verifier/search wrapper,1.0,2
+abstain_recall,always_accept,closed-book,0.0,3
+abstain_recall,heuristic,closed-book,0.0,4
+abstain_recall,abstention_guard,closed-book,0.0,5
+abstain_recall,local_mutation,closed-book,0.0,6
+abstain_recall,verify_first,public-verifier,0.0,7
+abstain_recall,corpus_search,retrieval,0.0,8
+hard_violation_rate,corpus_search,retrieval,0.13157894736842105,1
+hard_violation_rate,local_mutation,closed-book,0.15413533834586465,2
+hard_violation_rate,verify_first,public-verifier,0.15413533834586465,3
+hard_violation_rate,well_engineered_wrapper,verifier/search wrapper,0.22510822510822512,4
+hard_violation_rate,abstention_guard,closed-book,0.2901960784313726,5
+hard_violation_rate,always_accept,closed-book,0.2932330827067669,6
+hard_violation_rate,heuristic,closed-book,0.5764705882352941,7
+schema_error_rate,always_accept,closed-book,0.0,1
+schema_error_rate,always_abstain,closed-book,0.0,2
+schema_error_rate,heuristic,closed-book,0.0,3
+schema_error_rate,abstention_guard,closed-book,0.0,4
+schema_error_rate,local_mutation,closed-book,0.0,5
+schema_error_rate,verify_first,public-verifier,0.0,6
+schema_error_rate,corpus_search,retrieval,0.0,7
+schema_error_rate,well_engineered_wrapper,verifier/search wrapper,0.0,8
+mean_verify_calls,well_engineered_wrapper,verifier/search wrapper,0.2631578947368421,1
+balanced_action_score,well_engineered_wrapper,verifier/search wrapper,1.0,1
+balanced_action_score,heuristic,closed-book,0.5344506517690876,2
+balanced_action_score,abstention_guard,closed-book,0.38085517834121185,3
+balanced_action_score,always_abstain,closed-book,0.3333333333333333,4
+balanced_action_score,corpus_search,retrieval,0.3333333333333333,5
+balanced_action_score,local_mutation,closed-book,0.3221601489757914,6
+balanced_action_score,verify_first,public-verifier,0.3221601489757914,7
+balanced_action_score,always_accept,closed-book,0.3111660220598768,8
+safe_action_score,well_engineered_wrapper,verifier/search wrapper,0.7748917748917749,1
+safe_action_score,always_abstain,closed-book,0.13157894736842105,2
+safe_action_score,heuristic,closed-book,0.02503317116320214,3
+safe_action_score,corpus_search,retrieval,-0.056347765966640734,4
+safe_action_score,abstention_guard,closed-book,-0.07971297411886713,5
+safe_action_score,local_mutation,closed-book,-0.101460547921528,6
+safe_action_score,verify_first,public-verifier,-0.101460547921528,7
+safe_action_score,always_accept,closed-book,-0.2465646875810215,8
+cost_adjusted_action_score_lambda_0_01,well_engineered_wrapper,verifier/search wrapper,0.9916666666666667,1
+cost_adjusted_action_score_lambda_0_01,corpus_search,retrieval,0.6729323308270677,2
+cost_adjusted_action_score_lambda_0_01,local_mutation,closed-book,0.650375939849624,3
+cost_adjusted_action_score_lambda_0_01,verify_first,public-verifier,0.640375939849624,4
+cost_adjusted_action_score_lambda_0_01,abstention_guard,closed-book,0.6127819548872181,5
+cost_adjusted_action_score_lambda_0_01,heuristic,closed-book,0.6015037593984962,6
+cost_adjusted_action_score_lambda_0_01,always_accept,closed-book,0.5639097744360902,7
+cost_adjusted_action_score_lambda_0_01,always_abstain,closed-book,0.13157894736842105,8
+cost_adjusted_action_score_lambda_0_05,well_engineered_wrapper,verifier/search wrapper,0.9583333333333334,1
+cost_adjusted_action_score_lambda_0_05,corpus_search,retrieval,0.6729323308270677,2
+cost_adjusted_action_score_lambda_0_05,local_mutation,closed-book,0.650375939849624,3
+cost_adjusted_action_score_lambda_0_05,abstention_guard,closed-book,0.6127819548872181,4
+cost_adjusted_action_score_lambda_0_05,heuristic,closed-book,0.6015037593984962,5
+cost_adjusted_action_score_lambda_0_05,verify_first,public-verifier,0.600375939849624,6
+cost_adjusted_action_score_lambda_0_05,always_accept,closed-book,0.5639097744360902,7
+cost_adjusted_action_score_lambda_0_05,always_abstain,closed-book,0.13157894736842105,8

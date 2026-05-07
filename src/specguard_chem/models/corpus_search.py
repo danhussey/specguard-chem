@@ -64,7 +64,11 @@ class CorpusSearchAdapter(BaseAdapter):
         evaluator = ConstraintEvaluator(spec, input_smiles=input_smiles)
         spec_key = json.dumps(
             {
-                "spec": spec_payload,
+                "hard_constraints": [
+                    constraint.model_dump(mode="json")
+                    for constraint in spec.constraints
+                    if constraint.type == "hard"
+                ],
                 "input_canonical": input_canonical,
             },
             sort_keys=True,

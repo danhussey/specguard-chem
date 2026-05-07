@@ -1,0 +1,11 @@
+| adapter | expected_accept_pred_accept | expected_reject_pred_accept | expected_abstain_pred_accept | expected_accept_pred_abstain | expected_reject_pred_abstain | expected_abstain_pred_abstain | reject_to_accept_rate | abstain_to_accept_rate | accept_to_abstain_rate |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| always_accept | 143 | 45 | 0 | 0 | 0 | 0 | 0.865 | 0.000 | 0.000 |
+| always_abstain | 0 | 0 | 0 | 179 | 52 | 35 | 0.000 | 0.000 | 1.000 |
+| local_mutation | 173 | 52 | 0 | 0 | 0 | 0 | 1.000 | 0.000 | 0.000 |
+| verify_first | 173 | 52 | 0 | 0 | 0 | 0 | 1.000 | 0.000 | 0.000 |
+| corpus_search | 179 | 52 | 0 | 0 | 0 | 0 | 1.000 | 0.000 | 0.000 |
+| well_engineered_wrapper | 179 | 0 | 0 | 0 | 0 | 35 | 0.000 | 0.000 | 0.000 |
+| heuristic | 108 | 0 | 0 | 11 | 0 | 0 | 0.000 | 0.000 | 0.061 |
+| abstention_guard | 146 | 35 | 0 | 11 | 0 | 0 | 0.673 | 0.000 | 0.061 |
+| verifier_guided_greedy | 152 | 34 | 0 | 0 | 0 | 0 | 0.654 | 0.000 | 0.000 |

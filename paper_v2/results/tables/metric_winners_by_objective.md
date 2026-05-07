@@ -1,0 +1,15 @@
+| objective_metric | rank_1_system | rank_1_access_model | rank_1_value | rank_2_system | rank_2_value | hidden_failure_mode | paper_interpretation |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| action_accuracy | well_engineered_wrapper | verifier/search wrapper | 1.000 | corpus_search | 0.673 | None specific; inspect confusion and family slices. | Ceiling under public verifier/search access; do not mix into closed-book leaderboard. |
+| balanced_action_accuracy | well_engineered_wrapper | verifier/search wrapper | 1.000 | heuristic | 0.534 | None specific; inspect confusion and family slices. | Ceiling under public verifier/search access; do not mix into closed-book leaderboard. |
+| molecule_acceptance_rate | corpus_search | retrieval | 0.868 | local_mutation | 0.846 | May reward accept-biased systems that fail REJECT/ABSTAIN semantics. | Molecule acceptance is not task success. |
+| task_inconsistent_accept_rate | always_abstain | closed-book | 0.000 | heuristic | 0.000 | None specific; inspect confusion and family slices. | Use with explicit access-model label. |
+| reject_recall | heuristic | closed-book | 1.000 | well_engineered_wrapper | 1.000 | Exposes action semantics hidden by molecule-only acceptance. | Use with explicit access-model label. |
+| abstain_recall | always_abstain | closed-book | 1.000 | well_engineered_wrapper | 1.000 | Exposes action semantics hidden by molecule-only acceptance. | Use with explicit access-model label. |
+| hard_violation_rate | corpus_search | retrieval | 0.132 | local_mutation | 0.154 | None specific; inspect confusion and family slices. | Use with explicit access-model label. |
+| schema_error_rate | always_accept | closed-book | 0.000 | always_abstain | 0.000 | None specific; inspect confusion and family slices. | Use with explicit access-model label. |
+| mean_verify_calls | well_engineered_wrapper | verifier/search wrapper | 0.263 | NA | NA | Cost-only ranking is meaningful only after an accuracy threshold. | Ceiling under public verifier/search access; do not mix into closed-book leaderboard. |
+| balanced_action_score | well_engineered_wrapper | verifier/search wrapper | 1.000 | heuristic | 0.534 | None specific; inspect confusion and family slices. | Ceiling under public verifier/search access; do not mix into closed-book leaderboard. |
+| safe_action_score | well_engineered_wrapper | verifier/search wrapper | 0.775 | always_abstain | 0.132 | None specific; inspect confusion and family slices. | Ceiling under public verifier/search access; do not mix into closed-book leaderboard. |
+| cost_adjusted_action_score_lambda_0_01 | well_engineered_wrapper | verifier/search wrapper | 0.992 | corpus_search | 0.673 | None specific; inspect confusion and family slices. | Ceiling under public verifier/search access; do not mix into closed-book leaderboard. |
+| cost_adjusted_action_score_lambda_0_05 | well_engineered_wrapper | verifier/search wrapper | 0.958 | corpus_search | 0.673 | None specific; inspect confusion and family slices. | Ceiling under public verifier/search access; do not mix into closed-book leaderboard. |

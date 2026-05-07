@@ -1,0 +1,85 @@
+suite	task_id	hard_pass	spec_score	decision	final_decision	p_hard_pass	steps_used	proposals_used	verify_calls_used	total_verifier_calls	termination_reason	edit_distance	final_edit_cost_brics	trajectory_edit_distance	trajectory_edit_cost_brics
+sgchem_v1.0	sgchem_v1.0__bundle__00002__audit_accept__02	1	1.200	accept	ACCEPT	0.969	2	1	1	2	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00002__interrupt_resume__08	1	1.200	accept	ACCEPT	0.010	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00002__repair_multi_violation__05	1	1.200	accept	ACCEPT	0.010	2	1	1	2	accepted	10	5	10	5
+sgchem_v1.0	sgchem_v1.0__bundle__00002__tool_forced_l3__12	1	1.200	accept	ACCEPT	0.010	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00003__construct_feasible__01	0	0.000	reject	REJECT	0.550	4	3	1	4	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00003__interrupt_resume__07	1	1.200	accept	ACCEPT	0.010	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00003__repair_multi_violation__08	0	0.000	reject	REJECT	0.550	4	3	1	4	budget_exhausted:max_steps	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00003__tool_forced_l3__12	1	1.200	accept	ACCEPT	0.010	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00008__audit_accept__02	1	1.200	accept	ACCEPT	0.969	2	1	1	2	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00008__interrupt_resume__08	1	1.200	accept	ACCEPT	0.086	2	1	1	2	accepted	6	8	6	8
+sgchem_v1.0	sgchem_v1.0__bundle__00008__repair_multi_violation__05	1	1.200	accept	ACCEPT	0.326	2	1	1	2	accepted	6	2	6	2
+sgchem_v1.0	sgchem_v1.0__bundle__00008__tool_forced_l3__10	1	1.200	accept	ACCEPT	0.086	2	1	1	2	accepted	6	8	6	8
+sgchem_v1.0	sgchem_v1.0__bundle__00010__audit_reject__03	1	1.200	accept	ACCEPT	0.010	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00010__interrupt_resume__07	1	1.200	accept	ACCEPT	0.010	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00010__repair_multi_violation__08	0	0.000	reject	REJECT	0.550	4	3	1	4	budget_exhausted:max_steps	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00010__tool_forced_l3__10	1	1.200	accept	ACCEPT	0.010	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00012__construct_feasible__01	1	1.182	accept	ACCEPT	0.500	2	1	1	2	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00012__tool_forced_l3__05	1	1.182	accept	ACCEPT	0.010	2	1	1	2	accepted	9	2	9	2
+sgchem_v1.0	sgchem_v1.0__bundle__00016__audit_reject__03	1	1.200	accept	ACCEPT	0.010	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00016__interrupt_resume__07	1	1.200	accept	ACCEPT	0.010	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00016__repair_multi_violation__08	1	1.200	accept	ACCEPT	0.010	2	1	1	2	accepted	3	2	3	2
+sgchem_v1.0	sgchem_v1.0__bundle__00016__tool_forced_l3__10	1	1.200	accept	ACCEPT	0.010	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00017__audit_accept__02	1	1.200	accept	ACCEPT	0.973	2	1	1	2	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00017__interrupt_resume__05	1	1.200	accept	ACCEPT	0.010	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00017__repair_multi_violation__06	1	1.200	accept	ACCEPT	0.010	2	1	1	2	accepted	11	5	11	5
+sgchem_v1.0	sgchem_v1.0__bundle__00017__tool_forced_l3__08	1	1.200	accept	ACCEPT	0.010	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00020__audit_accept__02	1	1.200	accept	ACCEPT	0.852	2	1	1	2	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00020__interrupt_resume__06	1	1.194	accept	ACCEPT	0.362	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00020__repair_multi_violation__05	1	1.200	accept	ACCEPT	0.010	2	1	1	2	accepted	10	4	10	4
+sgchem_v1.0	sgchem_v1.0__bundle__00020__tool_forced_l3__08	1	1.194	accept	ACCEPT	0.362	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00021__construct_feasible__01	1	1.200	accept	ACCEPT	0.982	2	1	1	2	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00021__interrupt_resume__07	1	1.200	accept	ACCEPT	0.086	2	1	1	2	accepted	6	8	6	8
+sgchem_v1.0	sgchem_v1.0__bundle__00021__repair_multi_violation__08	1	1.200	accept	ACCEPT	0.326	2	1	1	2	accepted	6	2	6	2
+sgchem_v1.0	sgchem_v1.0__bundle__00022__audit_reject__03	1	1.200	accept	ACCEPT	0.982	2	1	1	2	accepted	6	8	6	8
+sgchem_v1.0	sgchem_v1.0__bundle__00022__repair_multi_violation__07	1	1.200	accept	ACCEPT	0.982	2	1	1	2	accepted	10	4	10	4
+sgchem_v1.0	sgchem_v1.0__bundle__00027__construct_feasible__01	1	1.200	accept	ACCEPT	0.500	2	1	1	2	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00030__construct_feasible__01	1	1.200	accept	ACCEPT	0.982	2	1	1	2	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00030__repair_multi_violation__06	1	1.200	accept	ACCEPT	0.010	2	1	1	2	accepted	11	5	11	5
+sgchem_v1.0	sgchem_v1.0__bundle__00030__tool_forced_l3__05	1	1.200	accept	ACCEPT	0.010	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00036__construct_feasible__01	1	1.071	accept	ACCEPT	0.982	2	1	1	2	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00036__repair_multi_violation__06	0	0.000	reject	REJECT	0.550	4	3	1	4	budget_exhausted:max_steps	10	6	10	6
+sgchem_v1.0	sgchem_v1.0__bundle__00036__tool_forced_l3__05	1	1.200	accept	ACCEPT	0.010	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00037__audit_reject__03	1	1.000	accept	ACCEPT	0.086	2	1	1	2	accepted	6	8	6	8
+sgchem_v1.0	sgchem_v1.0__bundle__00037__repair_multi_violation__06	1	1.012	accept	ACCEPT	0.010	2	1	1	2	accepted	6	2	6	2
+sgchem_v1.0	sgchem_v1.0__bundle__00038__audit_accept__02	1	1.200	accept	ACCEPT	0.982	2	1	1	2	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00038__repair_multi_violation__05	0	0.000	reject	REJECT	0.550	4	3	1	4	budget_exhausted:max_steps	9	2	9	2
+sgchem_v1.0	sgchem_v1.0__bundle__00040__audit_reject__03	1	1.200	accept	ACCEPT	0.470	2	1	1	2	accepted	3	2	3	2
+sgchem_v1.0	sgchem_v1.0__bundle__00040__repair_multi_violation__07	1	1.200	accept	ACCEPT	0.010	2	1	1	2	accepted	12	5	12	5
+sgchem_v1.0	sgchem_v1.0__bundle__00041__audit_accept__02	1	1.200	accept	ACCEPT	0.940	2	1	1	2	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00041__interrupt_resume__05	1	1.200	accept	ACCEPT	0.010	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00043__audit_reject__03	1	1.200	accept	ACCEPT	0.010	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00044__audit_accept__02	1	1.200	accept	ACCEPT	0.882	2	1	1	2	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00044__repair_multi_violation__05	1	1.200	accept	ACCEPT	0.010	2	1	1	2	accepted	6	2	6	2
+sgchem_v1.0	sgchem_v1.0__bundle__00046__audit_reject__03	1	1.194	accept	ACCEPT	0.362	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00049__audit_reject__03	1	1.200	accept	ACCEPT	0.010	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00050__audit_accept__02	1	1.012	accept	ACCEPT	0.882	2	1	1	2	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00050__repair_multi_violation__05	1	1.012	accept	ACCEPT	0.010	2	1	1	2	accepted	6	2	6	2
+sgchem_v1.0	sgchem_v1.0__bundle__00051__construct_feasible__01	1	1.200	accept	ACCEPT	0.500	2	1	1	2	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00058__audit_reject__03	1	1.015	accept	ACCEPT	0.010	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00060__construct_feasible__01	1	1.200	accept	ACCEPT	0.982	2	1	1	2	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00060__tool_forced_l3__05	1	1.200	accept	ACCEPT	0.010	2	1	1	2	accepted	6	8	6	8
+sgchem_v1.0	sgchem_v1.0__bundle__00062__audit_accept__02	1	1.200	accept	ACCEPT	0.843	2	1	1	2	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00062__repair_multi_violation__05	0	0.000	reject	REJECT	0.550	4	3	1	4	budget_exhausted:max_steps	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00063__construct_feasible__01	1	1.200	accept	ACCEPT	0.982	2	1	1	2	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00066__construct_feasible__01	1	1.200	accept	ACCEPT	0.500	2	1	1	2	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00066__tool_forced_l3__05	1	1.200	accept	ACCEPT	0.470	2	1	1	2	accepted	3	2	3	2
+sgchem_v1.0	sgchem_v1.0__bundle__00069__construct_feasible__01	1	1.200	accept	ACCEPT	0.982	2	1	1	2	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00070__audit_reject__03	1	1.182	accept	ACCEPT	0.010	2	1	1	2	accepted	6	8	6	8
+sgchem_v1.0	sgchem_v1.0__bundle__00075__construct_feasible__01	1	1.071	accept	ACCEPT	0.982	2	1	1	2	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00085__audit_reject__03	1	1.200	accept	ACCEPT	0.010	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00092__audit_accept__02	1	1.200	accept	ACCEPT	0.500	2	1	1	2	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00092__repair_multi_violation__05	1	1.200	accept	ACCEPT	0.013	2	1	1	2	accepted	6	8	6	8
+sgchem_v1.0	sgchem_v1.0__bundle__00093__construct_feasible__01	1	1.200	accept	ACCEPT	0.982	2	1	1	2	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00095__audit_accept__02	1	1.200	accept	ACCEPT	0.990	2	1	1	2	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00095__interrupt_resume__05	1	1.182	accept	ACCEPT	0.010	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00101__audit_accept__02	1	1.200	accept	ACCEPT	0.940	2	1	1	2	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00101__interrupt_resume__05	1	1.200	accept	ACCEPT	0.010	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00103__audit_reject__03	1	1.182	accept	ACCEPT	0.010	2	1	1	2	accepted	9	2	9	2
+sgchem_v1.0	sgchem_v1.0__bundle__00109__audit_reject__03	1	1.200	accept	ACCEPT	0.086	2	1	1	2	accepted	6	8	6	8
+sgchem_v1.0	sgchem_v1.0__bundle__00110__audit_accept__02	1	1.200	accept	ACCEPT	0.860	2	1	1	2	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00110__repair_multi_violation__05	1	1.015	accept	ACCEPT	0.010	2	1	1	2	accepted	6	2	6	2
+sgchem_v1.0	sgchem_v1.0__bundle__00112__audit_reject__03	1	1.200	accept	ACCEPT	0.086	2	1	1	2	accepted	6	8	6	8
+sgchem_v1.0	sgchem_v1.0__bundle__00114__construct_feasible__01	1	1.071	accept	ACCEPT	0.982	2	1	1	2	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00114__tool_forced_l3__05	1	1.200	accept	ACCEPT	0.010	2	1	1	2	accepted	2	2	2	2

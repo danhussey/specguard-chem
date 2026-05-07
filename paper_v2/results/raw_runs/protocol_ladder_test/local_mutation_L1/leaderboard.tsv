@@ -1,0 +1,98 @@
+suite	task_id	hard_pass	spec_score	decision	final_decision	p_hard_pass	steps_used	proposals_used	verify_calls_used	total_verifier_calls	termination_reason	edit_distance	final_edit_cost_brics	trajectory_edit_distance	trajectory_edit_cost_brics
+sgchem_v1.0	sgchem_v1.0__bundle__00002__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00002__audit_reject__03	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00002__smiles_invariance__10	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00002__smiles_invariance__11	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00003__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00003__audit_accept__02	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00003__smiles_invariance__10	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00003__smiles_invariance__11	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00008__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00008__audit_reject__03	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	6	8	6	8
+sgchem_v1.0	sgchem_v1.0__bundle__00010__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00010__construct_feasible__01	1	1.071	accept	ACCEPT	0.750	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00010__smiles_invariance__05	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00010__smiles_invariance__06	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00012__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00012__audit_accept__02	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00016__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00016__construct_feasible__01	1	1.012	accept	ACCEPT	0.750	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00016__smiles_invariance__05	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00016__smiles_invariance__06	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00017__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00017__audit_reject__03	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00020__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00020__audit_reject__03	1	1.194	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00021__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00021__audit_accept__02	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00022__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00022__construct_feasible__01	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00022__smiles_invariance__05	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00022__smiles_invariance__06	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00027__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00027__audit_accept__02	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00030__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00030__audit_accept__02	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00036__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00036__audit_accept__02	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00037__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00037__construct_feasible__01	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00038__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00038__audit_reject__03	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	9	2	9	2
+sgchem_v1.0	sgchem_v1.0__bundle__00040__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00040__construct_feasible__01	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00040__smiles_invariance__05	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00040__smiles_invariance__06	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00041__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00041__audit_reject__03	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00043__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00043__construct_feasible__01	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00044__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00044__audit_reject__03	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	6	8	6	8
+sgchem_v1.0	sgchem_v1.0__bundle__00046__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00046__construct_feasible__01	1	1.194	accept	ACCEPT	0.750	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00046__smiles_invariance__05	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00046__smiles_invariance__06	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00049__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00049__construct_feasible__01	1	1.071	accept	ACCEPT	0.750	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00050__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00050__audit_reject__03	1	1.012	accept	ACCEPT	0.750	1	1	0	1	accepted	6	8	6	8
+sgchem_v1.0	sgchem_v1.0__bundle__00051__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00051__audit_accept__02	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00058__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00058__construct_feasible__01	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00058__smiles_invariance__05	1	1.015	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00058__smiles_invariance__06	1	1.015	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00060__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00060__audit_accept__02	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00062__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00062__audit_reject__03	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00063__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00063__audit_accept__02	1	1.012	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00066__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00066__audit_accept__02	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00069__audit_accept__02	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00070__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00070__construct_feasible__01	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00070__smiles_invariance__05	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00070__smiles_invariance__06	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00075__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00075__audit_accept__02	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00085__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00085__construct_feasible__01	1	1.194	accept	ACCEPT	0.750	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00092__audit_reject__03	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	3	2	3	2
+sgchem_v1.0	sgchem_v1.0__bundle__00093__audit_accept__02	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00095__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00095__audit_reject__03	1	1.182	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00101__audit_reject__03	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00103__construct_feasible__01	1	1.182	accept	ACCEPT	0.750	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00105__audit_accept__02	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00109__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00109__construct_feasible__01	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00110__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00110__audit_reject__03	1	1.015	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00112__abstain_contradiction__04	0	0.000	reject	REJECT	0.750	1	1	0	1	budget_exhausted:max_steps				
+sgchem_v1.0	sgchem_v1.0__bundle__00112__construct_feasible__01	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00112__smiles_invariance__05	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00112__smiles_invariance__06	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00114__audit_accept__02	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
