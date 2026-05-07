@@ -1,40 +1,82 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "SpecGuard Task",
+  "title": "SpecGuard-Chem sgchem_v1 Task",
   "type": "object",
   "required": [
     "task_id",
     "suite",
+    "bundle_id",
+    "task_type",
+    "task_family",
     "protocol",
-    "prompt",
+    "prompt_template",
+    "rendered_agent_input",
+    "agent_visible_hash",
     "input",
     "spec_id",
+    "spec_instance_hash",
     "scoring",
-    "expected"
+    "expected",
+    "expected_action",
+    "oracle_type",
+    "evidence",
+    "budgets",
+    "generation"
   ],
   "properties": {
     "task_id": {"type": "string"},
     "suite": {"type": "string"},
+    "bundle_id": {"type": "string"},
+    "task_type": {
+      "type": "string",
+      "enum": [
+        "construct_feasible",
+        "repair_near_miss",
+        "repair_multi_violation",
+        "audit_accept",
+        "audit_reject",
+        "abstain_contradiction",
+        "boundary_precision",
+        "smiles_invariance",
+        "interrupt_resume",
+        "tool_forced_l3"
+      ]
+    },
+    "task_family": {"type": "string"},
     "protocol": {"enum": ["L1", "L2", "L3"]},
     "prompt": {"type": "string"},
+    "prompt_template": {"type": "string"},
+    "rendered_agent_input": {"type": "string", "minLength": 1},
+    "agent_visible_payload": {"type": "object"},
+    "agent_visible_hash": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
     "input": {"type": "object"},
     "spec_id": {"type": "string"},
-    "task_family": {"type": "string"},
-    "evidence": {
+    "spec_instance_hash": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "scoring": {
       "type": "object",
+      "required": ["primary"],
       "properties": {
-        "feasible_witness_smiles": {"type": "string"},
-        "contradiction_proof": {"type": "object"},
-        "budget_infeasible_note": {"type": "string"},
-        "invariance_group_id": {"type": "string"},
-        "invariance_canonical_smiles": {"type": "string"},
-        "invariance_variant_label": {"type": "string"},
-        "boundary_property": {"type": "string"},
-        "boundary_side": {"type": "string", "enum": ["lower", "upper"]},
-        "boundary_distance": {"type": "number", "minimum": 0}
+        "primary": {"type": "string"},
+        "secondary": {"type": "string"}
       },
       "additionalProperties": false
     },
+    "expected": {"type": "string", "enum": ["PASS", "ABSTAIN", "FAIL"]},
+    "expected_action": {"type": "string", "enum": ["ACCEPT", "REJECT", "ABSTAIN"]},
+    "oracle_type": {
+      "type": "string",
+      "enum": [
+        "feasible_witness",
+        "repair_witness",
+        "violation_certificate",
+        "unsat_certificate",
+        "equivalence_certificate",
+        "boundary_certificate",
+        "interrupt_certificate"
+      ]
+    },
+    "evidence": {"type": "object"},
+    "task_constraints": {"type": "object"},
     "budgets": {
       "type": "object",
       "required": ["max_steps", "max_proposals", "max_verify_calls", "max_total_verifier_calls"],
@@ -47,52 +89,62 @@
       },
       "additionalProperties": false
     },
-    "expected": {"type": "string", "enum": ["PASS", "ABSTAIN", "FAIL"]},
-    "expected_action": {
-      "type": "string",
-      "enum": ["ACCEPT", "ABSTAIN", "REJECT"]
-    },
-    "scoring": {
+    "generation": {
       "type": "object",
-      "required": ["primary"],
+      "required": [
+        "seed",
+        "stage",
+        "source_molecule_id",
+        "source_canonical_smiles",
+        "curation_status"
+      ],
       "properties": {
-        "primary": {"type": "string"},
-        "secondary": {"type": "string"}
+        "seed": {"type": "integer"},
+        "stage": {"type": "string"},
+        "source_molecule_id": {"type": ["string", "null"]},
+        "source_canonical_smiles": {"type": ["string", "null"]},
+        "scaffold_hash": {"type": ["string", "null"]},
+        "curation_status": {"type": "string"},
+        "curation_reason": {"type": ["string", "null"]}
       },
-      "additionalProperties": false
+      "additionalProperties": true
     },
-    "interrupt_at_step": {"type": "integer", "minimum": 0},
-    "interrupt": {
-      "type": "object",
-      "properties": {
-        "enabled": {"type": "boolean", "default": false},
-        "after_step": {"type": "integer", "minimum": 1},
-        "signal_text": {"type": "string"},
-        "expected_behavior": {
-          "type": "object",
-          "properties": {
-            "must_ack": {"type": "boolean", "default": true},
-            "must_restate_goal": {"type": "boolean", "default": false},
-            "must_report_state": {"type": "boolean", "default": true},
-            "allowed_actions": {
-              "type": "array",
-              "items": {"type": "string", "enum": ["ABSTAIN", "CONTINUE"]},
-              "default": ["ABSTAIN"]
-            }
-          },
-          "additionalProperties": false
-        }
-      },
-      "additionalProperties": false
+    "interrupt": {"type": "object"},
+    "intentional_pair": {"type": "boolean"},
+    "difficulty_tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "tight_property_boundary",
+          "multi_constraint_violation",
+          "minimal_edit_required",
+          "low_margin_feasible",
+          "reject_near_miss",
+          "abstain_explicit_contradiction",
+          "invariance_equivalent_representation",
+          "tool_required_by_protocol",
+          "interrupt_state_required",
+          "high_similarity_guard",
+          "mixed_hard_soft_tradeoff"
+        ]
+      }
     },
-    "expected_fields": {
-      "type": "object",
-      "properties": {
-        "must_return_smiles": {"type": "boolean", "default": true}
-      },
-      "additionalProperties": false
-    },
-    "notes": {"type": "string"}
+    "challenge_slice": {"type": "boolean"}
   },
-  "additionalProperties": false
+  "allOf": [
+    {
+      "if": {"properties": {"task_type": {"const": "construct_feasible"}}},
+      "then": {"properties": {"oracle_type": {"const": "feasible_witness"}}}
+    },
+    {
+      "if": {"properties": {"task_type": {"const": "audit_reject"}}},
+      "then": {"properties": {"expected_action": {"const": "REJECT"}, "oracle_type": {"const": "violation_certificate"}}}
+    },
+    {
+      "if": {"properties": {"task_type": {"const": "abstain_contradiction"}}},
+      "then": {"properties": {"expected_action": {"const": "ABSTAIN"}, "oracle_type": {"const": "unsat_certificate"}}}
+    }
+  ],
+  "additionalProperties": true
 }

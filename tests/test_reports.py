@@ -96,9 +96,9 @@ def test_summarise_computes_extended_metrics(tmp_path: Path) -> None:
     assert summary["n_trajectory_edit_distance_measured"] == 2
     assert summary["n_trajectory_edit_cost_brics_measured"] == 2
     assert summary["confusion"] == {
-        "ACCEPT": {"ACCEPT": 1, "REJECT": 1, "ABSTAIN": 0},
-        "ABSTAIN": {"ACCEPT": 0, "REJECT": 0, "ABSTAIN": 1},
-        "REJECT": {"ACCEPT": 0, "REJECT": 0, "ABSTAIN": 0},
+        "ACCEPT": {"ACCEPT": 1, "REJECT": 1, "ABSTAIN": 0, "INVALID": 0},
+        "ABSTAIN": {"ACCEPT": 0, "REJECT": 0, "ABSTAIN": 1, "INVALID": 0},
+        "REJECT": {"ACCEPT": 0, "REJECT": 0, "ABSTAIN": 0, "INVALID": 0},
     }
     assert summary["legacy_confusion"] == {"TA": 1, "FA": 0, "FV": 1, "TB": 1, "UA": 0}
     assert summary["n_expected_pass"] == 2
@@ -221,9 +221,9 @@ def test_decision_confusion_and_utility_cover_all_action_decision_pairs() -> Non
     summary = summarise(records)
 
     assert summary["confusion"] == {
-        "ACCEPT": {"ACCEPT": 1, "REJECT": 1, "ABSTAIN": 1},
-        "ABSTAIN": {"ACCEPT": 1, "REJECT": 1, "ABSTAIN": 1},
-        "REJECT": {"ACCEPT": 0, "REJECT": 0, "ABSTAIN": 0},
+        "ACCEPT": {"ACCEPT": 1, "REJECT": 1, "ABSTAIN": 1, "INVALID": 0},
+        "ABSTAIN": {"ACCEPT": 1, "REJECT": 1, "ABSTAIN": 1, "INVALID": 0},
+        "REJECT": {"ACCEPT": 0, "REJECT": 0, "ABSTAIN": 0, "INVALID": 0},
     }
     assert summary["abstention_utility"] == pytest.approx(-14.0)
     assert "legacy_confusion" not in summary

@@ -5,12 +5,15 @@ This file defines the report metrics emitted by `specguard-chem report` (`report
 ## 1) Decision Semantics
 Per task:
 - `expected_action ∈ {ACCEPT, ABSTAIN, REJECT}`
-- `final_decision ∈ {ACCEPT, REJECT, ABSTAIN}`
+- `final_decision ∈ {ACCEPT, REJECT, ABSTAIN, INVALID}`
 
 Decision-level confusion matrix:
 - `confusion[expected_action][final_decision]`
 
 Legacy task labels (`expected: PASS|ABSTAIN|FAIL`) are mapped to `expected_action` for compatibility.
+For `sgchem_v1.0`, task-level REJECT is meaningful: audit-reject and boundary-fail tasks provide a candidate that violates at least one hard constraint. Invalid or malformed model output is counted as `INVALID`, not silently converted into a correct abstention.
+
+Repair task semantics are checked at oracle-validation time. `repair_near_miss` inputs must fail exactly one hard violation unit or one configured failing hard constraint. `repair_multi_violation` inputs must fail at least two distinct hard constraint IDs; the metric reports them as distinct-constraint repair cases, not merely multiple units inside one aggregate constraint.
 
 ## 2) Hard/Soft Compliance
 - `hard_pass = 1` iff every hard constraint passes.
@@ -19,9 +22,12 @@ Legacy task labels (`expected: PASS|ABSTAIN|FAIL`) are mapped to `expected_actio
 
 Core rates:
 - `hard_violation_rate`: hard-fail fraction over attempted decisions only (`final_decision != ABSTAIN`).
-- `accept_rate`, `abstain_rate`.
+- `molecule_acceptance_rate`: paper-facing name for the internal `accept_rate`; the fraction of tasks whose final decision is `ACCEPT`. This is not task success and must not be used as the headline metric.
+- `abstain_rate`.
+- `overall_task_success` / `action_accuracy`: exact expected-action match over all evaluated tasks in the submission-grade metric sanity tables.
 - `expected_pass_rate`, `false_abstain_rate`, `violation_rate` over expected-ACCEPT tasks.
-- `correct_abstain_rate`, `unsafe_completion_rate`, `reject_on_abstain_expected_rate` over expected-ABSTAIN tasks.
+- `correct_abstain_rate`, `task_inconsistent_completion_rate` (legacy trace label: `unsafe_completion_rate`), and `reject_on_abstain_expected_rate` over expected-ABSTAIN tasks.
+- `correct_reject_rate`, `task_inconsistent_accept_rate` (legacy trace label: `unsafe_accept_rate`), and `invalid_output_rate`.
 
 ## 3) Budget-First Efficiency
 From run traces:
@@ -35,6 +41,8 @@ From run traces:
 - `accept_rate_by_protocol`
 - `hard_violation_rate_by_protocol`
 
+Paper-facing reports use `molecule_acceptance_rate_by_protocol` wording where space permits. Internal JSON fields keep `accept_rate_by_protocol` for compatibility.
+
 ## 4) Utility
 Utility is negative total decision cost:
 - `abstention_utility = - Σ cost(expected_action, final_decision)`
@@ -43,6 +51,14 @@ Default cost table:
 - expected `ACCEPT`: `ACCEPT=0`, `ABSTAIN=1`, `REJECT=2`
 - expected `ABSTAIN`: `ABSTAIN=0`, `REJECT=1`, `ACCEPT=10`
 - expected `REJECT`: `REJECT=0`, `ABSTAIN=1`, `ACCEPT=10`
+- `INVALID=3` for all expected actions by default.
+
+Reproduce the primary release before metric reporting:
+
+```bash
+uv run specguard-chem compile-benchmark --benchmark-id sgchem_v1.0 --out benchmarks/releases/sgchem_v1.0 --seed 7 --target-bundles 80 --anonymous
+uv run specguard-chem validate-dataset benchmarks/releases/sgchem_v1.0 --strict
+```
 
 Sensitivity sweep (`utility_sensitivity`) over:
 - `C_ACCEPT_INFEASIBLE ∈ {10, 20, 50}`
@@ -133,3 +149,29 @@ Per-slice aggregates:
 - suite/spec hashes
 - dataset version hashes/IDs (`taskset`, `spec_family`, optional `corpus`)
 - utility cost table used for scoring
+
+## 13) sgchem_v1.0 denominator policy
+
+Paper-facing `sgchem_v1.0` metrics must cite denominators from `paper_v1/tables/evaluation_denominators.md` and `benchmarks/releases/sgchem_v1.0/audits/claim_readiness_report.md`.
+
+Classification:
+- `primary_reportable`: n >= 25
+- `diagnostic_only`: 10 <= n < 25
+- `appendix_only`: 0 < n < 10
+- `not_reportable`: n == 0
+
+Baseline tracks are reported separately:
+- `primary_closed_book`
+- `tool_enabled`
+- `retrieval_upper_bound`
+- `oracle_upper_bound`
+- `external_model_snapshot`
+
+Retrieval and oracle-assisted rows must not be mixed into the primary leaderboard. The expected-action confusion matrix uses rows and columns `ACCEPT`, `REJECT`, `ABSTAIN`, and `INVALID`, so invalid model output is not silently converted to abstention.
+
+Reproduce the release and metrics with:
+
+```bash
+uv run python scripts/build_and_check_sgchem_v1.py
+uv run specguard-chem validate-dataset benchmarks/releases/sgchem_v1.0 --strict
+```

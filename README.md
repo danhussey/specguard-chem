@@ -1,13 +1,12 @@
 # SpecGuard-Chem
-[![CI](https://img.shields.io/github/actions/workflow/status/danhussey/specguard-chem/ci.yml?label=CI)](https://github.com/danhussey/specguard-chem/actions/workflows/ci.yml) ![Coverage](https://img.shields.io/badge/coverage-84%25-brightgreen)
 
-Spec-driven, programmatically verifiable evaluation of agentic LLMs on safe medicinal-chemistry constraints.
+Oracle-compiled evaluation contracts for agentic language models under chemically typed scientific specifications.
 
-**What it is:** a model-agnostic benchmark harness for rule-following under explicit specs. Agents propose/edit molecules, optionally use verifier tools, and either accept, reject, or abstain.
+**What it is:** a model-agnostic compiler and benchmark harness for rule-following under explicit, machine-checkable specs. Agents propose/edit molecules, optionally use verifier tools, and either accept, reject, or abstain.
 
-**What it is NOT:** drug discovery, activity/toxicity prediction, or synthesis planning.
+**What it is NOT:** drug discovery, activity/toxicity prediction, synthesis planning, therapeutic selection, clinical evaluation, dosing guidance, disease modeling, or target-binding prediction.
 
-Prompts are optional rendering. Canonical benchmark semantics are the structured task/spec objects and deterministic verifier truth.
+Prompts are optional rendering. Canonical benchmark semantics are the structured task/spec objects, public task views, action contracts, and deterministic verifier truth.
 
 Alert checks support expanded deterministic families (`PAINS_A/B/C`, `BRENK`).
 
@@ -65,57 +64,128 @@ Stratify aggregate rows with `--group-by` (fields: `name,model,protocol,suite,sp
 specguard-chem compare-baselines runs/baselines --group-by name,spec_split -o runs/baseline_compare_by_split.json
 ```
 
-## Frozen Benchmark Release (sgchem_v0.3)
-Create a deterministic frozen release artifact:
+## Primary Benchmark Release (sgchem_v1.0)
+Compile the oracle-backed bundle release:
 
 ```bash
-specguard-chem freeze-benchmark \
-  --benchmark-id sgchem_v0.3 \
-  --out benchmarks/releases/sgchem_v0.3 \
-  --target-tasks 1000 \
-  --seed 7
+uv run specguard-chem compile-benchmark \
+  --benchmark-id sgchem_v1.0 \
+  --out benchmarks/releases/sgchem_v1.0 \
+  --seed 7 \
+  --target-bundles 120 \
+  --min-tasks 650 \
+  --max-tasks 900 \
+  --anonymous
+```
+
+Strictly validate the frozen release:
+
+```bash
+uv run specguard-chem validate-dataset benchmarks/releases/sgchem_v1.0 --strict
+```
+
+Run prompt-isolation and artifact hardening audits:
+
+```bash
+uv run python scripts/audit_model_prompt_leakage.py --release benchmarks/releases/sgchem_v1.0
+uv run python scripts/audit_oracle_scrambling.py --release benchmarks/releases/sgchem_v1.0
+uv run python scripts/preflight_neurips_ed_artifact.py --release benchmarks/releases/sgchem_v1.0
 ```
 
 Run the primary paper sweep (track-separated: closed-book + retrieval):
 
 ```bash
-specguard-chem run-benchmark \
-  --benchmark benchmarks/releases/sgchem_v0.3 \
+uv run specguard-chem run-benchmark \
+  --benchmark benchmarks/releases/sgchem_v1.0 \
   --split test \
   --baselines baselines/paper_baselines.yaml \
-  --out runs/paper_sweeps/sgchem_v0.3_test
+  --out runs/paper_sweeps/sgchem_v1.0_test \
+  --seed 7
+
+uv run specguard-chem paper-figures \
+  --runs runs/paper_sweeps/sgchem_v1.0_test \
+  --out paper_v1
+
+uv run python scripts/audit_metric_sanity.py \
+  --release benchmarks/releases/sgchem_v1.0 \
+  --runs runs/paper_sweeps/sgchem_v1.0_test \
+  --paper paper_v1
+```
+
+Metric sanity reports rename the internal `accept_rate` to `molecule_acceptance_rate` and demote it from headline status. The paper package should emphasize action accuracy, task-inconsistent acceptance, reject/abstain recall, diagnostic denominators, and verifier/tool-economy differences.
+
+Run the wrapper-saturation reality check:
+
+```bash
+uv run python scripts/run_reality_check_experiments.py \
+  --release benchmarks/releases/sgchem_v1.0 \
+  --out runs/reality_check/sgchem_v1.0 \
+  --skip-wrapper
+```
+
+The committed memo in `paper_v1/reality_check_decision_memo.md` reports that `well_engineered_wrapper` saturates the 266-task test split under the public verifier/search-wrapper threat model. That is an intended evaluation-validity result: sgchem_v1.0 should be interpreted as an oracle-compiled specification-compliance contract, not an intrinsic chemistry-capability leaderboard.
+
+Create the anonymous reviewer archive:
+
+```bash
+uv run python scripts/package_anonymous_artifact.py \
+  --release benchmarks/releases/sgchem_v1.0 \
+  --out sgchem_v1.0_anonymous_artifact.zip
+```
+
+After uploading the archive to anonymous hosting, rerun the package/preflight command with `--dataset-url <anonymous-url>` and run the clean reviewer reproduction:
+
+```bash
+uv run python scripts/test_clean_reviewer_reproduction.py
 ```
 
 Run external/LLM snapshot baselines with cache capture (optional):
 
 ```bash
-specguard-chem run-benchmark \
-  --benchmark benchmarks/releases/sgchem_v0.3 \
+uv run specguard-chem run-benchmark \
+  --benchmark benchmarks/releases/sgchem_v1.0 \
   --split test \
   --baselines baselines/external_baselines.yaml \
-  --out runs/paper_sweeps/sgchem_v0.3_external \
+  --out runs/paper_sweeps/sgchem_v1.0_external \
   --allow-external \
-  --cache-dir runs/paper_sweeps/sgchem_v0.3_external/cache
+  --cache-dir runs/paper_sweeps/sgchem_v1.0_external/cache
 ```
 
 Replay external baselines offline from cache:
 
 ```bash
-specguard-chem run-benchmark \
-  --benchmark benchmarks/releases/sgchem_v0.3 \
+uv run specguard-chem run-benchmark \
+  --benchmark benchmarks/releases/sgchem_v1.0 \
   --split test \
   --baselines baselines/external_baselines.yaml \
-  --out runs/paper_sweeps/sgchem_v0.3_external_replay \
-  --replay-cache runs/paper_sweeps/sgchem_v0.3_external/cache
+  --out runs/paper_sweeps/sgchem_v1.0_external_replay \
+  --replay-cache runs/paper_sweeps/sgchem_v1.0_external/cache
 ```
 
 Generate paper figures/tables (track-separated leaderboards + CI columns):
 
 ```bash
-specguard-chem paper-figures \
-  --runs runs/paper_sweeps/sgchem_v0.3_test \
-  --out paper
+uv run specguard-chem paper-figures \
+  --runs runs/paper_sweeps/sgchem_v1.0_test \
+  --out paper_v1
 ```
+
+One-command rc2-local reproduction and artifact preflight:
+
+```bash
+uv run python scripts/build_and_check_sgchem_v1.py
+```
+
+Prepare the anonymous hosted artifact upload from `hosting/` and finalize the URL after upload:
+
+```bash
+uv run python scripts/finalize_hosted_url.py \
+  --release benchmarks/releases/sgchem_v1.0 \
+  --dataset-url "<ANONYMOUS_HOSTED_DATASET_URL>"
+uv run python scripts/check_paper_consistency.py --mode final
+```
+
+Inspect one test bundle manually in `benchmarks/releases/sgchem_v1.0/audits/manual_test_bundle_dossiers.md`. Each dossier shows rendered public inputs, hidden oracle summaries, hashes, suggested reviewer objections, manual grade, decision, and paper-safe status.
 
 ## Included Adapters
 - `heuristic`: deterministic mutator using failure-vector feedback in L2/L3.
@@ -131,9 +201,11 @@ specguard-chem paper-figures \
 See `docs/adapters.md` for integration details.
 
 ### Tracks
-- `closed_book`: no retrieval, no external calls (primary leaderboard).
-- `retrieval`: retrieval-allowed baselines (`corpus_search`) reported separately as upper bound.
-- `external`: API/process snapshot baselines; optional and replayable from cache.
+- `primary_closed_book`: no retrieval, no external calls (primary leaderboard).
+- `tool_enabled`: verifier-tool baselines reported separately from closed-book models.
+- `retrieval_upper_bound`: retrieval-allowed baselines (`corpus_search`) reported separately as an upper bound.
+- `oracle_upper_bound`: oracle-assisted controls, if present, never mixed into model leaderboards.
+- `external_model_snapshot`: API/process snapshot baselines; optional and replayable from cache.
 
 ## Included Task Suites
 - `basic_plain` (10): mixed L1/L2/L3 tasks.
@@ -152,3 +224,13 @@ CI runs lint/tests, coverage, smoke runs (`run` + `report`), and baseline smoke 
 
 For architecture details see `docs/overview.md`. For formulas see `METRICS.md`. For scope guardrails see `SAFETY.md`.
 Benchmark positioning and release policy are documented in `BENCHMARK_CARD.md`.
+
+<!-- sgchem-hosted-url:start -->
+## Anonymous Hosted Artifact
+
+- Dataset URL: https://huggingface.co/datasets/anon2389434/specguard-chem-sgchem-v1-anonymous
+- Review access: anonymous reviewer-accessible dataset page.
+- Archive: `sgchem_v1.0_anonymous_artifact.zip`
+- Archive SHA256: `4ce28350f1bfd6cffbe2ac0283b4fbf8c6d737df1039010f19743d5f2d995997`
+- Croissant metadata: `benchmarks/releases/sgchem_v1.0/croissant.json`
+<!-- sgchem-hosted-url:end -->

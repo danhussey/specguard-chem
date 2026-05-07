@@ -11,7 +11,16 @@ import numpy as np
 
 from ..utils import jsonio
 
-TRACKS: tuple[str, ...] = ("closed_book", "retrieval", "external")
+TRACKS: tuple[str, ...] = (
+    "primary_closed_book",
+    "tool_enabled",
+    "retrieval_upper_bound",
+    "oracle_upper_bound",
+    "external_model_snapshot",
+    "closed_book",
+    "retrieval",
+    "external",
+)
 
 
 def _clear_generated_outputs(figures_dir: Path, tables_dir: Path) -> None:
@@ -21,6 +30,8 @@ def _clear_generated_outputs(figures_dir: Path, tables_dir: Path) -> None:
                 path.unlink()
     for pattern in ("*.csv", "*.md"):
         for path in tables_dir.glob(pattern):
+            if path.name == "evaluation_denominators.md":
+                continue
             if path.is_file():
                 path.unlink()
 
@@ -341,7 +352,7 @@ def _plot_edit_economy(
             continue
         ax.scatter([x], [y], label=name, s=55)
     ax.set_xlabel("Avg Final BRICS Edit Cost")
-    ax.set_ylabel("Accept Rate")
+    ax.set_ylabel("Molecule Acceptance Rate")
     ax.set_ylim(0.0, 1.0)
     ax.set_title(title)
     ax.grid(True, alpha=0.25)
@@ -426,6 +437,150 @@ def _plot_invariance_failure(
     _save_figure(fig, figures_dir, stem)
 
 
+def _plot_evaluation_pipeline(figures_dir: Path) -> None:
+    fig, ax = plt.subplots(figsize=(8.2, 2.4))
+    ax.axis("off")
+    labels = [
+        "Specs",
+        "Oracle bundles",
+        "Public task views",
+        "Runner protocols",
+        "Audits and metrics",
+    ]
+    xs = np.linspace(0.08, 0.92, len(labels))
+    for index, (x, label) in enumerate(zip(xs, labels)):
+        ax.text(
+            x,
+            0.5,
+            label,
+            ha="center",
+            va="center",
+            bbox={"boxstyle": "round,pad=0.35", "fc": "#f5f5f5", "ec": "#333333"},
+            fontsize=10,
+        )
+        if index < len(labels) - 1:
+            ax.annotate(
+                "",
+                xy=(xs[index + 1] - 0.08, 0.5),
+                xytext=(x + 0.08, 0.5),
+                arrowprops={"arrowstyle": "->", "lw": 1.2},
+            )
+    _save_figure(fig, figures_dir, "evaluation_pipeline")
+
+
+def _plot_bundle_structure(figures_dir: Path) -> None:
+    fig, ax = plt.subplots(figsize=(7.6, 3.2))
+    ax.axis("off")
+    ax.text(
+        0.5,
+        0.78,
+        "One specification scenario bundle",
+        ha="center",
+        va="center",
+        bbox={"boxstyle": "round,pad=0.4", "fc": "#eef4f8", "ec": "#333333"},
+        fontsize=11,
+    )
+    leaves = ["construct", "repair", "candidate_audit", "abstain", "boundary", "invariance", "protocol"]
+    xs = np.linspace(0.08, 0.92, len(leaves))
+    for x, label in zip(xs, leaves):
+        ax.plot([0.5, x], [0.68, 0.34], color="#555555", linewidth=1.0)
+        ax.text(
+            x,
+            0.25,
+            label,
+            ha="center",
+            va="center",
+            bbox={"boxstyle": "round,pad=0.25", "fc": "#f7f7f7", "ec": "#777777"},
+            fontsize=9,
+        )
+    _save_figure(fig, figures_dir, "bundle_structure")
+
+
+def _plot_action_confusion_matrix(
+    *, reports: Mapping[str, Dict[str, Any]], rows: Sequence[Mapping[str, Any]], figures_dir: Path
+) -> None:
+    selected = next((row for row in rows if row.get("name") == "local_mutation_or_repair"), rows[0] if rows else None)
+    if selected is None:
+        return
+    name = str(selected.get("name"))
+    confusion = ((reports.get(name) or {}).get("summary") or {}).get("confusion")
+    if not isinstance(confusion, dict):
+        return
+    labels = ["ACCEPT", "REJECT", "ABSTAIN", "INVALID"]
+    matrix = np.array(
+        [
+            [float((confusion.get(expected) or {}).get(predicted, 0)) for predicted in labels]
+            for expected in ["ACCEPT", "REJECT", "ABSTAIN"]
+        ]
+    )
+    fig, ax = plt.subplots(figsize=(6.4, 4.0))
+    im = ax.imshow(matrix, cmap="Blues")
+    ax.set_xticks(np.arange(len(labels)))
+    ax.set_xticklabels(labels)
+    ax.set_yticks(np.arange(3))
+    ax.set_yticklabels(["ACCEPT", "REJECT", "ABSTAIN"])
+    ax.set_xlabel("Predicted Action")
+    ax.set_ylabel("Expected Action")
+    ax.set_title(f"Action Confusion Matrix ({name})")
+    for row_idx in range(matrix.shape[0]):
+        for col_idx in range(matrix.shape[1]):
+            ax.text(col_idx, row_idx, int(matrix[row_idx, col_idx]), ha="center", va="center")
+    fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+    _save_figure(fig, figures_dir, "action_confusion_matrix")
+
+
+def _plot_protocol_comparison(*, rows: Sequence[Mapping[str, Any]], figures_dir: Path) -> None:
+    selected = [row for row in rows if row.get("track") == "primary_closed_book"][:5]
+    if not selected:
+        selected = list(rows)[:5]
+    protocols = ["L1", "L2", "L3"]
+    fig, ax = plt.subplots(figsize=(7.2, 4.2))
+    width = 0.8 / max(len(selected), 1)
+    xs = np.arange(len(protocols))
+    for offset, row in enumerate(selected):
+        metrics = row.get("metrics") or {}
+        rates = metrics.get("accept_rate_by_protocol") if isinstance(metrics, dict) else {}
+        values = [float((rates or {}).get(protocol, 0.0)) for protocol in protocols]
+        ax.bar(xs - 0.4 + width / 2 + offset * width, values, width=width, label=str(row.get("name")))
+    ax.set_xticks(xs)
+    ax.set_xticklabels(protocols)
+    ax.set_ylim(0.0, 1.0)
+    ax.set_ylabel("Molecule Acceptance Rate")
+    ax.set_title("Protocol Comparison")
+    ax.legend(loc="best", fontsize=8)
+    ax.grid(True, axis="y", alpha=0.25)
+    _save_figure(fig, figures_dir, "protocol_comparison")
+
+
+def _plot_diagnostic_slices(*, rows: Sequence[Mapping[str, Any]], figures_dir: Path) -> None:
+    selected = [row for row in rows if row.get("track") == "primary_closed_book"][:5]
+    if not selected:
+        selected = list(rows)[:5]
+    metrics = [
+        ("boundary_precision_failure_rate", "Boundary fail"),
+        ("invariance_failure_rate", "Invariance fail"),
+        ("resume_success_rate", "Resume success"),
+    ]
+    fig, ax = plt.subplots(figsize=(7.2, 4.2))
+    xs = np.arange(len(metrics))
+    width = 0.8 / max(len(selected), 1)
+    for offset, row in enumerate(selected):
+        payload = row.get("metrics") or {}
+        values = [
+            float(payload.get(key) if payload.get(key) is not None else 0.0)
+            for key, _label in metrics
+        ]
+        ax.bar(xs - 0.4 + width / 2 + offset * width, values, width=width, label=str(row.get("name")))
+    ax.set_xticks(xs)
+    ax.set_xticklabels([label for _key, label in metrics])
+    ax.set_ylim(0.0, 1.0)
+    ax.set_ylabel("Rate")
+    ax.set_title("Diagnostic Slices")
+    ax.legend(loc="best", fontsize=8)
+    ax.grid(True, axis="y", alpha=0.25)
+    _save_figure(fig, figures_dir, "diagnostic_slices")
+
+
 def _topline_row(row: Mapping[str, Any]) -> Dict[str, Any]:
     metrics = row.get("metrics") or {}
     if not isinstance(metrics, dict):
@@ -455,7 +610,7 @@ def _topline_row(row: Mapping[str, Any]) -> Dict[str, Any]:
         "pass_at_1_ci95": _ci_text("pass_at_1"),
         "pass_at_3": metrics.get("pass_at_3"),
         "pass_at_3_ci95": _ci_text("pass_at_3"),
-        "accept_rate": metrics.get("accept_rate"),
+        "molecule_acceptance_rate": metrics.get("accept_rate"),
         "hard_violation_rate": metrics.get("hard_violation_rate"),
         "hard_violation_rate_ci95": _ci_text("hard_violation_rate"),
         "abstention_utility": metrics.get("abstention_utility"),
@@ -502,7 +657,7 @@ def _family_rows(
                     "baseline": baseline,
                     "track": track,
                     "num_tasks": metrics.get("num_tasks"),
-                    "accept_rate": metrics.get("accept_rate"),
+                    "molecule_acceptance_rate": metrics.get("accept_rate"),
                     "hard_violation_rate": metrics.get("hard_violation_rate"),
                     "avg_spec_score": metrics.get("avg_spec_score"),
                 }
@@ -615,6 +770,15 @@ def make_paper_artifacts(
 
     # Backward-compatible overall figures.
     if all_rows:
+        _plot_evaluation_pipeline(figures_dir)
+        _plot_bundle_structure(figures_dir)
+        _plot_action_confusion_matrix(
+            reports=reports,
+            rows=all_rows,
+            figures_dir=figures_dir,
+        )
+        _plot_protocol_comparison(rows=all_rows, figures_dir=figures_dir)
+        _plot_diagnostic_slices(rows=all_rows, figures_dir=figures_dir)
         _plot_pass_at_budget(
             reports=reports,
             rows=all_rows,
@@ -673,6 +837,78 @@ def make_paper_artifacts(
     _write_csv(tables_dir / "invariance_subfamily_summary.csv", invariance_subfamily)
     _write_md_table(tables_dir / "invariance_subfamily_summary.md", invariance_subfamily)
 
+    baseline_tracks = [
+        {
+            "baseline": row.get("name"),
+            "model": row.get("model"),
+            "track": row.get("track") or "primary_closed_book",
+            "primary_leaderboard": str(row.get("track") == "primary_closed_book").lower(),
+        }
+        for row in all_rows
+    ]
+    _write_md_table(tables_dir / "baseline_tracks.md", baseline_tracks)
+
+    confusion_rows: List[Dict[str, Any]] = []
+    task_inconsistent_rows: List[Dict[str, Any]] = []
+    denominator_rows: List[Dict[str, Any]] = []
+    for row in all_rows:
+        name = str(row.get("name"))
+        summary = (reports.get(name) or {}).get("summary") or {}
+        confusion = summary.get("confusion")
+        if isinstance(confusion, dict):
+            for expected, predicted_counts in sorted(confusion.items()):
+                if not isinstance(predicted_counts, dict):
+                    continue
+                for predicted, count in sorted(predicted_counts.items()):
+                    confusion_rows.append(
+                        {
+                            "baseline": name,
+                            "expected_action": expected,
+                            "predicted_action": predicted,
+                            "count": count,
+                        }
+                    )
+        reject_counts = confusion.get("REJECT") if isinstance(confusion, dict) else {}
+        abstain_counts = confusion.get("ABSTAIN") if isinstance(confusion, dict) else {}
+        task_inconsistent_denom = 0
+        correct_reject_denom = 0
+        correct_abstain_denom = 0
+        if isinstance(reject_counts, dict):
+            correct_reject_denom = sum(int(value) for value in reject_counts.values())
+            task_inconsistent_denom += correct_reject_denom
+        if isinstance(abstain_counts, dict):
+            correct_abstain_denom = sum(int(value) for value in abstain_counts.values())
+            task_inconsistent_denom += correct_abstain_denom
+        task_inconsistent_rows.append(
+            {
+                "baseline": name,
+                "track": row.get("track") or "primary_closed_book",
+                "task_inconsistent_accept_rate": (row.get("metrics") or {}).get(
+                    "task_inconsistent_accept_rate",
+                    (row.get("metrics") or {}).get("unsafe_accept_rate"),
+                ),
+                "task_inconsistent_accept_n": task_inconsistent_denom,
+                "correct_reject_rate": (row.get("metrics") or {}).get("correct_reject_rate"),
+                "correct_reject_n": correct_reject_denom,
+                "correct_abstain_rate": (row.get("metrics") or {}).get("correct_abstain_rate"),
+                "correct_abstain_n": correct_abstain_denom,
+            }
+        )
+        definitions = (reports.get(name) or {}).get("definitions") or {}
+        rates = definitions.get("rates") if isinstance(definitions, dict) else {}
+        if isinstance(rates, dict):
+            for metric, denominator in sorted(rates.items()):
+                denominator_rows.append(
+                    {
+                        "baseline": name,
+                        "metric": metric,
+                        "denominator": denominator,
+                    }
+                )
+    _write_md_table(tables_dir / "action_confusion_matrix.md", confusion_rows)
+    _write_md_table(tables_dir / "task_inconsistent_accept_rate.md", task_inconsistent_rows)
+    _write_md_table(tables_dir / "metric_denominators.md", denominator_rows)
+
     summary_lines = [
         "# Paper Metrics Summary",
         "",
@@ -693,6 +929,11 @@ def make_paper_artifacts(
         [
             "",
             "Generated figure stems:",
+            "- evaluation_pipeline",
+            "- bundle_structure",
+            "- action_confusion_matrix",
+            "- protocol_comparison",
+            "- diagnostic_slices",
             "- pass_at_budget[_<track>]",
             "- risk_coverage[_<track>]",
             "- calibration_reliability[_<track>]",

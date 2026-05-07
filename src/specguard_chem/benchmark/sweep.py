@@ -16,7 +16,17 @@ from ..scoring.metrics import decision_utility
 from ..utils import jsonio
 from .release import load_benchmark_release
 
-TRACKS: tuple[str, ...] = ("closed_book", "retrieval", "external")
+TRACKS: tuple[str, ...] = (
+    "primary_closed_book",
+    "tool_enabled",
+    "retrieval_upper_bound",
+    "oracle_upper_bound",
+    "external_model_snapshot",
+    "wrapper_guarded",
+    "closed_book",
+    "retrieval",
+    "external",
+)
 
 
 @dataclass(frozen=True)
@@ -31,10 +41,12 @@ class BaselineEntry:
 
 def _infer_track(model: str) -> str:
     if model == "corpus_search":
-        return "retrieval"
+        return "retrieval_upper_bound"
+    if model in {"verify_first", "verifier_guided_greedy"}:
+        return "tool_enabled"
     if model in {"openai_chat", "openai_chat_verify_l3", "process"}:
-        return "external"
-    return "closed_book"
+        return "external_model_snapshot"
+    return "primary_closed_book"
 
 
 def load_baseline_matrix(path: Path) -> List[BaselineEntry]:
@@ -111,6 +123,12 @@ def _summary_metrics(summary: Mapping[str, Any]) -> Dict[str, Any]:
         "num_tasks": summary.get("num_tasks"),
         "accept_rate": summary.get("accept_rate"),
         "hard_violation_rate": summary.get("hard_violation_rate"),
+        "task_inconsistent_accept_rate": summary.get(
+            "task_inconsistent_accept_rate", summary.get("unsafe_accept_rate")
+        ),
+        "unsafe_accept_rate": summary.get("unsafe_accept_rate"),
+        "correct_reject_rate": summary.get("correct_reject_rate"),
+        "correct_abstain_rate": summary.get("correct_abstain_rate"),
         "abstention_utility": summary.get("abstention_utility"),
         "pass_at_1": pass_at_1,
         "pass_at_3": pass_at_3,
@@ -148,10 +166,12 @@ def _resolve_expected_action(record: Mapping[str, Any]) -> str:
 
 
 def _resolve_final_decision(record: Mapping[str, Any]) -> str:
+    if record.get("schema_error") or record.get("invalid_action") or record.get("invalid_tool_call"):
+        return "INVALID"
     final_decision = record.get("final_decision")
     if isinstance(final_decision, str):
         value = final_decision.strip().upper()
-        if value in {"ACCEPT", "ABSTAIN", "REJECT"}:
+        if value in {"ACCEPT", "ABSTAIN", "REJECT", "INVALID"}:
             return value
     decision = str(record.get("decision", "")).strip().lower()
     if decision == "accept":

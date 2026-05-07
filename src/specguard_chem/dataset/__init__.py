@@ -10,6 +10,7 @@ from .tasks import (
     write_tasks_jsonl,
 )
 from .validate import validate_dataset_file, validate_dataset_records
+from .bundles import BundleModel, compile_bundles_from_corpus
 
 __all__ = [
     "build_corpus_records",
@@ -21,4 +22,6 @@ __all__ = [
     "write_tasks_jsonl",
     "validate_dataset_file",
     "validate_dataset_records",
+    "BundleModel",
+    "compile_bundles_from_corpus",
 ]
