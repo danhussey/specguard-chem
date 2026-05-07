@@ -3,7 +3,7 @@ from __future__ import annotations
 """Deterministic corpus-search baseline adapter."""
 
 import json
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from ..config import SpecModel
 from ..dataset.corpus import build_corpus_records
@@ -64,7 +64,9 @@ class CorpusSearchAdapter(BaseAdapter):
         )
         evaluator = ConstraintEvaluator(spec, input_smiles=input_smiles)
         family = str(task.get("visible_task_name") or task.get("task_family") or "")
-        requires_input = _requires_input_context(spec_payload) or family.startswith("repair")
+        requires_input = _requires_input_context(spec_payload) or family.startswith(
+            "repair"
+        )
         spec_key = json.dumps(
             {
                 "spec": spec_payload,
@@ -86,7 +88,11 @@ class CorpusSearchAdapter(BaseAdapter):
             return "CC(=O)NC1=CC=CC=C1O"
 
         candidate_pool = list(passers)
-        if isinstance(input_smiles, str) and input_smiles and family.startswith("repair"):
+        if (
+            isinstance(input_smiles, str)
+            and input_smiles
+            and family.startswith("repair")
+        ):
             if input_canonical:
                 best_smiles = candidate_pool[0]
                 best_score = -1.0

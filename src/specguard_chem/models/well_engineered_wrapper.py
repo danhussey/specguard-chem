@@ -58,7 +58,11 @@ class WellEngineeredWrapperAdapter(BaseAdapter):
         round_index = int(req.get("round") or 1)
         interrupt = req.get("interrupt") or {}
         candidate = _public_input_smiles(task)
-        failure = req.get("failure_vector") if isinstance(req.get("failure_vector"), dict) else None
+        failure = (
+            req.get("failure_vector")
+            if isinstance(req.get("failure_vector"), dict)
+            else None
+        )
 
         if (
             self.use_verifier_calls
@@ -82,11 +86,15 @@ class WellEngineeredWrapperAdapter(BaseAdapter):
         if effective_name in {"candidate_audit", "representation_invariance"} or (
             effective_name == "boundary_audit" and self.use_boundary_special_case
         ):
-            response = self._audit_candidate(req=req, candidate=candidate, failure=failure)
+            response = self._audit_candidate(
+                req=req, candidate=candidate, failure=failure
+            )
         elif effective_name == "feasibility_check":
             response = self._feasibility_check(req=req)
         else:
-            response = self._construct_or_repair(req=req, candidate=candidate, failure=failure)
+            response = self._construct_or_repair(
+                req=req, candidate=candidate, failure=failure
+            )
 
         if interrupt:
             response["interrupt_ack"] = _interrupt_ack(interrupt)
@@ -156,7 +164,11 @@ class WellEngineeredWrapperAdapter(BaseAdapter):
                 return local_response
         if candidate and _passes_public(req, candidate):
             return {"action": "propose", "smiles": candidate, "p_hard_pass": 0.9}
-        return {"action": "abstain", "reason": "No passing candidate found by wrapper search.", "p_hard_pass": 0.05}
+        return {
+            "action": "abstain",
+            "reason": "No passing candidate found by wrapper search.",
+            "p_hard_pass": 0.05,
+        }
 
     def _verify_budget_allows(self, req: AgentRequest) -> bool:
         if self.verify_budget is None:
@@ -173,11 +185,16 @@ class WellEngineeredWrapperAdapter(BaseAdapter):
         task = req.get("task") or {}
         if not isinstance(task, dict):
             return "evaluation_task"
-        allowed_actions = " ".join(str(item) for item in task.get("allowed_actions", []))
+        allowed_actions = " ".join(
+            str(item) for item in task.get("allowed_actions", [])
+        )
         input_payload = task.get("input") if isinstance(task.get("input"), dict) else {}
         if "REJECT if the provided molecule violates" in allowed_actions:
             return "candidate_audit"
-        if "ABSTAIN if the hard constraints are internally contradictory" in allowed_actions:
+        if (
+            "ABSTAIN if the hard constraints are internally contradictory"
+            in allowed_actions
+        ):
             return "feasibility_check"
         if input_payload.get("candidate_smiles") or input_payload.get("smiles"):
             return "repair"
@@ -186,7 +203,9 @@ class WellEngineeredWrapperAdapter(BaseAdapter):
 
 def _has_verify_tool(req: AgentRequest) -> bool:
     tools = req.get("tools") or []
-    return any(isinstance(tool, dict) and tool.get("name") == "verify" for tool in tools)
+    return any(
+        isinstance(tool, dict) and tool.get("name") == "verify" for tool in tools
+    )
 
 
 def _public_input_smiles(task: Dict[str, Any]) -> Optional[str]:
@@ -247,7 +266,9 @@ def _has_property_bounds_contradiction(spec_payload: Dict[str, Any]) -> bool:
                 continue
             lower = raw.get("min")
             upper = raw.get("max")
-            entry = bounds.setdefault(str(prop), {"min": float("-inf"), "max": float("inf")})
+            entry = bounds.setdefault(
+                str(prop), {"min": float("-inf"), "max": float("inf")}
+            )
             try:
                 if lower is not None:
                     entry["min"] = max(entry["min"], float(lower))

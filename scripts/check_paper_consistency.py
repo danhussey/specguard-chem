@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-import re
 from pathlib import Path
 from typing import Any
 
@@ -48,7 +47,12 @@ def _paper_texts() -> list[tuple[Path, str]]:
         if not root.exists():
             continue
         for path in sorted(root.rglob("*")):
-            if path.is_file() and path.suffix.lower() in {".md", ".tex", ".yaml", ".yml"}:
+            if path.is_file() and path.suffix.lower() in {
+                ".md",
+                ".tex",
+                ".yaml",
+                ".yml",
+            }:
                 texts.append((path, path.read_text(encoding="utf-8")))
     return texts
 
@@ -108,9 +112,14 @@ def _check_banned_phrases(errors: list[str], warnings: list[str]) -> None:
             for phrase in BANNED_PHRASES:
                 if phrase not in lower:
                     continue
-                if phrase in {"therapeutic efficacy", "clinical utility"} and _line_is_nonclaim(line):
+                if phrase in {
+                    "therapeutic efficacy",
+                    "clinical utility",
+                } and _line_is_nonclaim(line):
                     continue
-                errors.append(f"{path}:{line_no}: banned or overclaim phrase `{phrase}`")
+                errors.append(
+                    f"{path}:{line_no}: banned or overclaim phrase `{phrase}`"
+                )
 
 
 def _check_manifest_numbers(manifest: dict[str, Any], errors: list[str]) -> None:
@@ -122,29 +131,50 @@ def _check_manifest_numbers(manifest: dict[str, Any], errors: list[str]) -> None
     ]
     required_snippets.extend(
         f"{action}={count}"
-        for action, count in sorted((manifest.get("tasks_per_expected_action") or {}).items())
+        for action, count in sorted(
+            (manifest.get("tasks_per_expected_action") or {}).items()
+        )
     )
     required_snippets.extend(
         f"{task_type}={count}"
-        for task_type, count in sorted((manifest.get("tasks_per_task_type") or {}).items())
+        for task_type, count in sorted(
+            (manifest.get("tasks_per_task_type") or {}).items()
+        )
     )
     for snippet in required_snippets:
-        _require(snippet in paper_text, f"paper text missing required release number `{snippet}`", errors)
+        _require(
+            snippet in paper_text,
+            f"paper text missing required release number `{snippet}`",
+            errors,
+        )
 
 
 def _check_tables(manifest: dict[str, Any], errors: list[str]) -> None:
     tables = Path("paper_v1") / "tables"
     release_summary = _parse_release_summary(tables / "release_summary.md")
-    _require(release_summary.get("num_tasks") == manifest.get("num_tasks"), "release_summary num_tasks mismatch", errors)
     _require(
-        release_summary.get("test_tasks") == manifest.get("splits", {}).get("test", {}).get("tasks"),
+        release_summary.get("num_tasks") == manifest.get("num_tasks"),
+        "release_summary num_tasks mismatch",
+        errors,
+    )
+    _require(
+        release_summary.get("test_tasks")
+        == manifest.get("splits", {}).get("test", {}).get("tasks"),
         "release_summary test_tasks mismatch",
         errors,
     )
     expected = _parse_count_table(tables / "expected_action_distribution.md")
-    _require(expected == manifest.get("tasks_per_expected_action"), "expected_action_distribution mismatch", errors)
+    _require(
+        expected == manifest.get("tasks_per_expected_action"),
+        "expected_action_distribution mismatch",
+        errors,
+    )
     task_types = _parse_count_table(tables / "task_type_distribution.md")
-    _require(task_types == manifest.get("tasks_per_task_type"), "task_type_distribution mismatch", errors)
+    _require(
+        task_types == manifest.get("tasks_per_task_type"),
+        "task_type_distribution mismatch",
+        errors,
+    )
     for required in (
         "metric_definitions.md",
         "baseline_metric_sanity.md",
@@ -155,15 +185,25 @@ def _check_tables(manifest: dict[str, Any], errors: list[str]) -> None:
         "challenge_slice_results.md",
         "wrapper_saturation.md",
     ):
-        _require((tables / required).exists(), f"missing paper table {required}", errors)
+        _require(
+            (tables / required).exists(), f"missing paper table {required}", errors
+        )
     inconsistent_text = _read(tables / "task_inconsistent_accept_rate.md")
     _require(
         "task_inconsistent_accept_n" in inconsistent_text,
         "task_inconsistent_accept_rate table missing denominator",
         errors,
     )
-    _require("correct_reject_n" in inconsistent_text, "task_inconsistent_accept_rate table missing reject denominator", errors)
-    _require("correct_abstain_n" in inconsistent_text, "task_inconsistent_accept_rate table missing abstain denominator", errors)
+    _require(
+        "correct_reject_n" in inconsistent_text,
+        "task_inconsistent_accept_rate table missing reject denominator",
+        errors,
+    )
+    _require(
+        "correct_abstain_n" in inconsistent_text,
+        "task_inconsistent_accept_rate table missing abstain denominator",
+        errors,
+    )
 
 
 def _check_baseline_metrics(errors: list[str]) -> None:
@@ -175,11 +215,14 @@ def _check_baseline_metrics(errors: list[str]) -> None:
     current = {
         str(row["baseline"]): row
         for row in rows
-        if row.get("baseline") in {"local_mutation_or_repair", "verify_first", "corpus_retrieval_upper_bound"}
+        if row.get("baseline")
+        in {"local_mutation_or_repair", "verify_first", "corpus_retrieval_upper_bound"}
     }
     table_rows = {
         str(row.get("baseline")): row
-        for row in _parse_markdown_rows(Path("paper_v1") / "tables" / "baseline_metric_sanity.md")
+        for row in _parse_markdown_rows(
+            Path("paper_v1") / "tables" / "baseline_metric_sanity.md"
+        )
     }
     fields = (
         "num_tasks",
@@ -192,19 +235,37 @@ def _check_baseline_metrics(errors: list[str]) -> None:
     )
     for name, row in current.items():
         table_row = table_rows.get(name)
-        _require(table_row is not None, f"baseline_metric_sanity missing row for {name}", errors)
+        _require(
+            table_row is not None,
+            f"baseline_metric_sanity missing row for {name}",
+            errors,
+        )
         if table_row is None:
             continue
         for field in fields:
-            _require(str(table_row.get(field)) == str(row.get(field)), f"{name} {field} table value is stale", errors)
+            _require(
+                str(table_row.get(field)) == str(row.get(field)),
+                f"{name} {field} table value is stale",
+                errors,
+            )
 
 
 def _check_final_url(manifest: dict[str, Any], mode: str, errors: list[str]) -> None:
     url = str(manifest.get("dataset_url") or "")
-    status = str(manifest.get("neurips_ed_preflight", {}).get("dataset_url_accessible") or "")
+    status = str(
+        manifest.get("neurips_ed_preflight", {}).get("dataset_url_accessible") or ""
+    )
     if mode == "final":
-        _require(url.startswith(("http://", "https://")) and not url.startswith("PENDING"), "final mode requires hosted dataset URL", errors)
-        _require(status == "passed", "final mode requires dataset_url_accessible=passed", errors)
+        _require(
+            url.startswith(("http://", "https://")) and not url.startswith("PENDING"),
+            "final mode requires hosted dataset URL",
+            errors,
+        )
+        _require(
+            status == "passed",
+            "final mode requires dataset_url_accessible=passed",
+            errors,
+        )
 
 
 def _check_no_local_paths(errors: list[str]) -> None:
@@ -301,7 +362,9 @@ def _check_paper_v2(release: Path, results: Path) -> int:
 
     tasks = _load_release_tasks(release)
     test_tasks = tasks.get("test", [])
-    require(len(test_tasks) == 266, f"test denominator is {len(test_tasks)}, expected 266")
+    require(
+        len(test_tasks) == 266, f"test denominator is {len(test_tasks)}, expected 266"
+    )
     release_expected = _expected_counts(test_tasks)
 
     normalized_path = results / "summaries" / "normalized_task_results.jsonl"
@@ -311,7 +374,10 @@ def _check_paper_v2(release: Path, results: Path) -> int:
         for row in normalized
         if row.get("split") == "test" and row.get("adapter") == "always_accept"
     ]
-    require(len(test_normalized) == 266, "normalized test denominator for always_accept is not 266")
+    require(
+        len(test_normalized) == 266,
+        "normalized test denominator for always_accept is not 266",
+    )
     normalized_expected = _expected_counts(test_normalized)
     require(
         normalized_expected == release_expected,
@@ -319,7 +385,9 @@ def _check_paper_v2(release: Path, results: Path) -> int:
     )
 
     table = _read_csv_rows(results / "tables" / "full_offline_baseline_matrix_test.csv")
-    normalized_metrics = _read_csv_rows(results / "summaries" / "normalized_run_metrics.csv")
+    normalized_metrics = _read_csv_rows(
+        results / "summaries" / "normalized_run_metrics.csv"
+    )
     metrics_by_key = {
         (row.get("split"), row.get("adapter"), row.get("protocol")): row
         for row in normalized_metrics
@@ -344,21 +412,30 @@ def _check_paper_v2(release: Path, results: Path) -> int:
                 f"{key} {metric} table value does not match normalized metrics",
             )
 
-    wrapper_rows = [row for row in table if row.get("adapter") == "well_engineered_wrapper"]
-    require(wrapper_rows, "missing well_engineered_wrapper row in full offline test table")
+    wrapper_rows = [
+        row for row in table if row.get("adapter") == "well_engineered_wrapper"
+    ]
+    require(
+        wrapper_rows, "missing well_engineered_wrapper row in full offline test table"
+    )
     for row in wrapper_rows:
         require(
             row.get("access_model") == "verifier/search wrapper",
             "wrapper row is mixed into closed-book leaderboard",
         )
 
-    external_rows = _read_csv_rows(results / "tables" / "external_diagnostic_snapshot.csv")
+    external_rows = _read_csv_rows(
+        results / "tables" / "external_diagnostic_snapshot.csv"
+    )
     if external_rows:
         for row in external_rows:
             cache_mode = str(row.get("cache_mode") or "").lower()
             notes = str(row.get("notes") or "").lower()
             require(
-                "skipped" in cache_mode or "diagnostic" in notes or row.get("adapter") in {"openai_chat", "openai_chat_verify_l3", "process"},
+                "skipped" in cache_mode
+                or "diagnostic" in notes
+                or row.get("adapter")
+                in {"openai_chat", "openai_chat_verify_l3", "process"},
                 "external diagnostics are not labelled diagnostic/skipped",
             )
     else:
@@ -372,7 +449,7 @@ def _check_paper_v2(release: Path, results: Path) -> int:
     for name, label in validation_logs.items():
         require((results / "validation" / name).exists(), f"missing {label} log")
 
-    hidden_log = (results / "validation" / "model_prompt_leakage_audit.log")
+    hidden_log = results / "validation" / "model_prompt_leakage_audit.log"
     if hidden_log.exists():
         text = hidden_log.read_text(encoding="utf-8", errors="replace").lower()
         require(
@@ -393,8 +470,14 @@ def _check_paper_v2(release: Path, results: Path) -> int:
     }
     for stem, source in figure_sources.items():
         for suffix in (".pdf", ".png"):
-            require((results / "figures" / f"{stem}{suffix}").exists(), f"missing figure {stem}{suffix}")
-        require((results / "tables" / source).exists(), f"missing source CSV {source} for figure {stem}")
+            require(
+                (results / "figures" / f"{stem}{suffix}").exists(),
+                f"missing figure {stem}{suffix}",
+            )
+        require(
+            (results / "tables" / source).exists(),
+            f"missing source CSV {source} for figure {stem}",
+        )
 
     print(
         json.dumps(

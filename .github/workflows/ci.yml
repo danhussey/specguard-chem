@@ -5,13 +5,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: astral-sh/setup-uv@v2
         with:
           version: "latest"
       - run: uv python install 3.11
       - run: uv venv --seed
       - run: uv pip install -e .[dev]
-      - run: uv run pre-commit run --all-files
+      - name: Resolve changed-file lint base
+        id: lint-base
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            git fetch origin "${{ github.base_ref }}" --depth=1
+            echo "base=origin/${{ github.base_ref }}" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.event.before }}" =~ ^0+$ ]] || ! git cat-file -e "${{ github.event.before }}^{commit}" 2>/dev/null; then
+            echo "base=HEAD~1" >> "$GITHUB_OUTPUT"
+          else
+            echo "base=${{ github.event.before }}" >> "$GITHUB_OUTPUT"
+          fi
+      - run: uv run pre-commit run black --from-ref "${{ steps.lint-base.outputs.base }}" --to-ref HEAD
+      - run: uv run pre-commit run ruff --from-ref "${{ steps.lint-base.outputs.base }}" --to-ref HEAD
+      - name: Compile changed Python files
+        shell: bash
+        run: |
+          mapfile -t changed_py < <(git diff --name-only --diff-filter=ACM "${{ steps.lint-base.outputs.base }}" HEAD -- '*.py')
+          if (( ${#changed_py[@]} )); then
+            uv run python -m py_compile "${changed_py[@]}"
+          fi
       - run: uv run pytest --cov=src/specguard_chem --cov-report=term-missing --cov-report=xml
       - name: Upload coverage report
         if: ${{ env.ACT != 'true' }}
