@@ -226,11 +226,10 @@ For architecture details see `docs/overview.md`. For formulas see `METRICS.md`. 
 Benchmark positioning and release policy are documented in `BENCHMARK_CARD.md`.
 
 <!-- sgchem-hosted-url:start -->
-## Anonymous Hosted Artifact
+## Hosted Artifact
 
-- Dataset URL: https://huggingface.co/datasets/anon2389434/specguard-chem-sgchem-v1-anonymous
-- Review access: anonymous reviewer-accessible dataset page.
-- Archive: `sgchem_v1.0_anonymous_artifact.zip`
-- Archive SHA256: `4ce28350f1bfd6cffbe2ac0283b4fbf8c6d737df1039010f19743d5f2d995997`
-- Croissant metadata: `benchmarks/releases/sgchem_v1.0/croissant.json`
+The double-blind review artifact URL is maintained outside this named public
+repository until anonymity is no longer required. The release metadata and
+Croissant files can be finalized with `scripts/finalize_hosted_url.py` in an
+anonymous artifact copy.
 <!-- sgchem-hosted-url:end -->
