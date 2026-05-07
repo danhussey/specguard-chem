@@ -1,0 +1,13 @@
+{
+  "counts": {
+    "boundary_repair": 4,
+    "construct_under_rule_card": 4,
+    "repair_multi_violation": 12,
+    "repair_near_miss": 12,
+    "scaffold_or_similarity_preserving_repair": 8
+  },
+  "errors": [],
+  "num_errors": 0,
+  "num_tasks": 40,
+  "valid": true
+}

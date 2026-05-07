@@ -1,0 +1,12 @@
+baseline,track,invariance_subfamily,failure_rate,n_tasks,n_failures
+always_accept,primary_closed_book,unspecified,0.1,20,2
+always_reject,primary_closed_book,unspecified,1.0,20,20
+always_abstain,primary_closed_book,unspecified,1.0,20,20
+random_action,primary_closed_book,unspecified,0.55,20,11
+schema_valid_dummy,primary_closed_book,unspecified,0.1,20,2
+heuristic,primary_closed_book,unspecified,0.0,20,0
+abstention_guard,primary_closed_book,unspecified,0.0,20,0
+local_mutation_or_repair,primary_closed_book,unspecified,0.0,20,0
+verify_first,tool_enabled,unspecified,0.0,20,0
+verifier_guided_greedy,tool_enabled,unspecified,0.0,20,0
+corpus_retrieval_upper_bound,retrieval_upper_bound,unspecified,0.0,20,0
