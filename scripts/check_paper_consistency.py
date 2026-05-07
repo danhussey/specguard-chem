@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import re
 from pathlib import Path
@@ -217,7 +218,11 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", choices=("rc", "final"), default="rc")
     parser.add_argument("--release", type=Path, default=RELEASE)
+    parser.add_argument("--results", type=Path, default=None)
     args = parser.parse_args()
+
+    if args.results is not None:
+        return _check_paper_v2(args.release, args.results)
 
     errors: list[str] = []
     warnings: list[str] = []
@@ -234,6 +239,168 @@ def main() -> int:
             {
                 "valid": not errors,
                 "mode": args.mode,
+                "num_errors": len(errors),
+                "num_warnings": len(warnings),
+                "errors": errors,
+                "warnings": warnings,
+            },
+            indent=2,
+            sort_keys=True,
+        )
+    )
+    return 0 if not errors else 1
+
+
+def _read_csv_rows(path: Path) -> list[dict[str, str]]:
+    if not path.exists():
+        return []
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        return list(csv.DictReader(handle))
+
+
+def _as_float(value: Any) -> float | None:
+    if value in {None, "", "NA", "nan"}:
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _close(a: Any, b: Any, *, tol: float = 5e-4) -> bool:
+    left = _as_float(a)
+    right = _as_float(b)
+    if left is None or right is None:
+        return left is None and right is None
+    return abs(left - right) <= tol
+
+
+def _load_release_tasks(release: Path) -> dict[str, list[dict[str, Any]]]:
+    tasks: dict[str, list[dict[str, Any]]] = {}
+    for split in ("train", "dev", "test"):
+        path = release / "tasks" / f"{split}.jsonl"
+        tasks[split] = jsonio.read_jsonl(path) if path.exists() else []
+    return tasks
+
+
+def _expected_counts(rows: list[dict[str, Any]]) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for row in rows:
+        action = str(row.get("expected_action") or "")
+        counts[action] = counts.get(action, 0) + 1
+    return dict(sorted(counts.items()))
+
+
+def _check_paper_v2(release: Path, results: Path) -> int:
+    errors: list[str] = []
+    warnings: list[str] = []
+
+    def require(condition: bool, message: str) -> None:
+        if not condition:
+            errors.append(message)
+
+    tasks = _load_release_tasks(release)
+    test_tasks = tasks.get("test", [])
+    require(len(test_tasks) == 266, f"test denominator is {len(test_tasks)}, expected 266")
+    release_expected = _expected_counts(test_tasks)
+
+    normalized_path = results / "summaries" / "normalized_task_results.jsonl"
+    normalized = jsonio.read_jsonl(normalized_path) if normalized_path.exists() else []
+    test_normalized = [
+        row
+        for row in normalized
+        if row.get("split") == "test" and row.get("adapter") == "always_accept"
+    ]
+    require(len(test_normalized) == 266, "normalized test denominator for always_accept is not 266")
+    normalized_expected = _expected_counts(test_normalized)
+    require(
+        normalized_expected == release_expected,
+        f"expected-action counts mismatch: normalized={normalized_expected}, release={release_expected}",
+    )
+
+    table = _read_csv_rows(results / "tables" / "full_offline_baseline_matrix_test.csv")
+    normalized_metrics = _read_csv_rows(results / "summaries" / "normalized_run_metrics.csv")
+    metrics_by_key = {
+        (row.get("split"), row.get("adapter"), row.get("protocol")): row
+        for row in normalized_metrics
+        if row.get("split") == "test"
+    }
+    for row in table:
+        key = (row.get("split"), row.get("adapter"), row.get("protocol"))
+        source = metrics_by_key.get(key)
+        require(source is not None, f"missing normalized metrics for {key}")
+        if not source:
+            continue
+        for metric in (
+            "action_accuracy",
+            "molecule_acceptance_rate",
+            "task_inconsistent_accept_rate",
+            "reject_recall",
+            "abstain_recall",
+            "schema_error_rate",
+        ):
+            require(
+                _close(row.get(metric), source.get(metric)),
+                f"{key} {metric} table value does not match normalized metrics",
+            )
+
+    wrapper_rows = [row for row in table if row.get("adapter") == "well_engineered_wrapper"]
+    require(wrapper_rows, "missing well_engineered_wrapper row in full offline test table")
+    for row in wrapper_rows:
+        require(
+            row.get("access_model") == "verifier/search wrapper",
+            "wrapper row is mixed into closed-book leaderboard",
+        )
+
+    external_rows = _read_csv_rows(results / "tables" / "external_diagnostic_snapshot.csv")
+    if external_rows:
+        for row in external_rows:
+            cache_mode = str(row.get("cache_mode") or "").lower()
+            notes = str(row.get("notes") or "").lower()
+            require(
+                "skipped" in cache_mode or "diagnostic" in notes or row.get("adapter") in {"openai_chat", "openai_chat_verify_l3", "process"},
+                "external diagnostics are not labelled diagnostic/skipped",
+            )
+    else:
+        warnings.append("external diagnostic snapshot table is empty")
+
+    validation_logs = {
+        "validate_dataset_strict.log": "strict validation",
+        "model_prompt_leakage_audit.log": "prompt leakage audit",
+        "oracle_scrambling_audit.log": "oracle scrambling audit",
+    }
+    for name, label in validation_logs.items():
+        require((results / "validation" / name).exists(), f"missing {label} log")
+
+    hidden_log = (results / "validation" / "model_prompt_leakage_audit.log")
+    if hidden_log.exists():
+        text = hidden_log.read_text(encoding="utf-8", errors="replace").lower()
+        require(
+            "oracle_field_leaks: 0" in text or '"oracle_field_leaks": 0' in text,
+            "model prompt leakage audit does not report zero oracle field leaks",
+        )
+        require(
+            "literal_witness_leaks: 0" in text or '"literal_witness_leaks": 0' in text,
+            "model prompt leakage audit does not report zero literal witness leaks",
+        )
+
+    figure_sources = {
+        "per_family_action_accuracy_heatmap": "per_family_metrics_test.csv",
+        "wrapper_ablation_budget_curve": "wrapper_ablation_test.csv",
+        "metric_rank_shift": "metric_ranking_sensitivity.csv",
+        "protocol_ladder_action_accuracy": "protocol_ladder_test.csv",
+        "wrapper_ablation_action_accuracy": "wrapper_ablation_test.csv",
+    }
+    for stem, source in figure_sources.items():
+        for suffix in (".pdf", ".png"):
+            require((results / "figures" / f"{stem}{suffix}").exists(), f"missing figure {stem}{suffix}")
+        require((results / "tables" / source).exists(), f"missing source CSV {source} for figure {stem}")
+
+    print(
+        json.dumps(
+            {
+                "valid": not errors,
+                "mode": "paper_v2",
                 "num_errors": len(errors),
                 "num_warnings": len(warnings),
                 "errors": errors,

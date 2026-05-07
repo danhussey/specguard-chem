@@ -1,0 +1,25 @@
+                                Benchmark Sweep                                 
+┏━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━┓
+┃ baseline ┃ model    ┃ track     ┃ protocol ┃ num_tas… ┃ accept_r… ┃ hard_vi… ┃
+┡━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━┩
+│ heurist… │ heurist… │ primary_… │ L1       │       97 │     0.485 │    0.515 │
+│ heurist… │ heurist… │ primary_… │ L2       │       85 │     0.424 │    0.576 │
+│ heurist… │ heurist… │ primary_… │ L3       │       84 │     0.298 │    0.658 │
+│ abstent… │ abstent… │ primary_… │ L1       │       97 │     0.474 │    0.526 │
+│ abstent… │ abstent… │ primary_… │ L2       │       85 │     0.929 │    0.071 │
+│ abstent… │ abstent… │ primary_… │ L3       │       84 │     0.667 │    0.233 │
+│ local_m… │ local_m… │ primary_… │ L1       │       97 │     0.639 │    0.361 │
+│ local_m… │ local_m… │ primary_… │ L2       │       85 │     1.000 │    0.000 │
+│ local_m… │ local_m… │ primary_… │ L3       │       84 │     0.929 │    0.071 │
+│ verify_… │ verify_… │ tool_ena… │ L1       │       97 │     0.639 │    0.361 │
+│ verify_… │ verify_… │ tool_ena… │ L2       │       85 │     1.000 │    0.000 │
+│ verify_… │ verify_… │ tool_ena… │ L3       │       84 │     0.929 │    0.071 │
+│ verifie… │ verifie… │ tool_ena… │ L1       │       97 │     0.485 │    0.515 │
+│ verifie… │ verifie… │ tool_ena… │ L2       │       85 │     0.894 │    0.106 │
+│ verifie… │ verifie… │ tool_ena… │ L3       │       84 │     0.750 │    0.250 │
+│ well_en… │ well_en… │ wrapper_… │ L1       │       97 │     0.505 │    0.210 │
+│ well_en… │ well_en… │ wrapper_… │ L2       │       85 │     0.706 │    0.294 │
+│ well_en… │ well_en… │ wrapper_… │ L3       │       84 │     0.833 │    0.167 │
+└──────────┴──────────┴───────────┴──────────┴──────────┴───────────┴──────────┘
+Aggregate written to 
+paper_v2/results/raw_runs/protocol_ladder_test/aggregate.json

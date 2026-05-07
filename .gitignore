@@ -16,6 +16,8 @@ htmlcov/
 .pytest_cache/
 *.log
 runs/
+paper_v2/results/raw_runs/
+paper_v2/results/.mplconfig/
 .DS_Store
 .python-version
 overview_docs.txt

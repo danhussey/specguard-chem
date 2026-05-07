@@ -1,0 +1,26 @@
+                                                                                
+ Usage: specguard-chem [OPTIONS] COMMAND [ARGS]...                              
+                                                                                
+ Spec-driven evaluation harness for chemical guardrails.                        
+                                                                                
+╭─ Options ────────────────────────────────────────────────────────────────────╮
+│ --install-completion          Install completion for the current shell.      │
+│ --show-completion             Show completion for the current shell, to copy │
+│                               it or customize the installation.              │
+│ --help                        Show this message and exit.                    │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ───────────────────────────────────────────────────────────────────╮
+│ build-corpus                                                                 │
+│ generate-tasks                                                               │
+│ validate-dataset                                                             │
+│ compile-benchmark                                                            │
+│ validate-croissant                                                           │
+│ freeze-benchmark                                                             │
+│ run-benchmark                                                                │
+│ paper-figures                                                                │
+│ run                                                                          │
+│ run-baselines                                                                │
+│ compare-baselines                                                            │
+│ report                                                                       │
+╰──────────────────────────────────────────────────────────────────────────────╯
+

@@ -1,0 +1,19 @@
+                                Benchmark Sweep                                 
+┏━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━┓
+┃ baseline ┃ model    ┃ track     ┃ protocol ┃ num_tas… ┃ accept_r… ┃ hard_vi… ┃
+┡━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━┩
+│ always_… │ always_… │ primary_… │ mixed    │      260 │     0.746 │    0.254 │
+│ always_… │ always_… │ primary_… │ mixed    │      260 │     0.000 │    1.000 │
+│ always_… │ always_… │ primary_… │ mixed    │      260 │     0.000 │    0.000 │
+│ random_… │ random_… │ primary_… │ mixed    │      260 │     0.169 │    0.770 │
+│ schema_… │ schema_… │ primary_… │ mixed    │      260 │     0.746 │    0.254 │
+│ heurist… │ heurist… │ primary_… │ mixed    │      260 │     0.458 │    0.524 │
+│ abstent… │ abstent… │ primary_… │ mixed    │      260 │     0.719 │    0.252 │
+│ open_so… │ open_so… │ primary_… │ mixed    │      260 │     0.458 │    0.524 │
+│ local_m… │ local_m… │ primary_… │ mixed    │      260 │     0.815 │    0.185 │
+│ verify_… │ verify_… │ tool_ena… │ mixed    │      260 │     0.815 │    0.185 │
+│ verifie… │ verifie… │ tool_ena… │ mixed    │      260 │     0.715 │    0.285 │
+│ corpus_… │ corpus_… │ retrieva… │ mixed    │      260 │     0.835 │    0.165 │
+│ well_en… │ well_en… │ wrapper_… │ mixed    │      260 │     0.604 │    0.276 │
+└──────────┴──────────┴───────────┴──────────┴──────────┴───────────┴──────────┘
+Aggregate written to paper_v2/results/raw_runs/full_offline_train/aggregate.json

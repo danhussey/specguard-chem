@@ -1,0 +1,45 @@
+/Users/danielhussey/.matplotlib is not a writable directory
+Matplotlib created a temporary cache directory at /var/folders/cf/b2x7gmhd3p75s_swg_s896tm0000gn/T/matplotlib-v8v26oqw because there was an issue with the default path (/Users/danielhussey/.matplotlib); it is highly recommended to set the MPLCONFIGDIR environment variable to a writable directory, in particular to speed up the import of Matplotlib and to better support multiprocessing.
+
+Fontconfig error: No writable cache directories
+	/opt/homebrew/var/cache/fontconfig
+	/Users/danielhussey/.cache/fontconfig
+	/Users/danielhussey/.fontconfig
+
+Fontconfig error: No writable cache directories
+	/opt/homebrew/var/cache/fontconfig
+	/Users/danielhussey/.cache/fontconfig
+	/Users/danielhussey/.fontconfig
+
+Fontconfig error: No writable cache directories
+	/opt/homebrew/var/cache/fontconfig
+	/Users/danielhussey/.cache/fontconfig
+	/Users/danielhussey/.fontconfig
+
+Fontconfig error: No writable cache directories
+	/opt/homebrew/var/cache/fontconfig
+	/Users/danielhussey/.cache/fontconfig
+	/Users/danielhussey/.fontconfig
+
+Fontconfig error: No writable cache directories
+	/opt/homebrew/var/cache/fontconfig
+	/Users/danielhussey/.cache/fontconfig
+	/Users/danielhussey/.fontconfig
+
+Fontconfig error: No writable cache directories
+	/opt/homebrew/var/cache/fontconfig
+	/Users/danielhussey/.cache/fontconfig
+	/Users/danielhussey/.fontconfig
+
+Fontconfig error: No writable cache directories
+	/opt/homebrew/var/cache/fontconfig
+	/Users/danielhussey/.cache/fontconfig
+	/Users/danielhussey/.fontconfig
+
+Fontconfig error: No writable cache directories
+	/opt/homebrew/var/cache/fontconfig
+	/Users/danielhussey/.cache/fontconfig
+	/Users/danielhussey/.fontconfig
+2026-05-07 20:59:26.468 system_profiler[51312:4594677] XType: Using static font registry.
+Matplotlib is building the font cache; this may take a moment.
+2026-05-07 20:59:38.627 python[51305:4594605] XType: Using static font registry.

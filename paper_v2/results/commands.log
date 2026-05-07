@@ -1,0 +1,19 @@
+git status --short
+git rev-parse HEAD
+.venv/bin/python --version
+.venv/bin/python -m pip show specguard-chem > paper_v2/results/validation/pip_show_specguard_chem.log 2>&1 || true
+.venv/bin/specguard-chem --help > paper_v2/results/validation/specguard_chem_help.log 2>&1
+record environment > paper_v2/results/environment.txt
+.venv/bin/specguard-chem validate-dataset --strict benchmarks/releases/sgchem_v1.0 > paper_v2/results/validation/validate_dataset_strict.log 2>&1
+.venv/bin/specguard-chem validate-croissant benchmarks/releases/sgchem_v1.0/croissant.json > paper_v2/results/validation/validate_croissant.log 2>&1
+.venv/bin/specguard-chem run-benchmark --benchmark benchmarks/releases/sgchem_v1.0 --split test --baselines baselines/paper_v2_full_offline_baselines.yaml --out paper_v2/results/raw_runs/full_offline_test --seed 7 --n-bootstrap 400 > paper_v2/results/validation/run_benchmark_full_offline_test.log 2>&1
+.venv/bin/specguard-chem run-benchmark --benchmark benchmarks/releases/sgchem_v1.0 --split test --baselines baselines/paper_v2_wrapper_ablation_baselines.yaml --out paper_v2/results/raw_runs/wrapper_ablation_test --seed 7 --n-bootstrap 400 > paper_v2/results/validation/run_benchmark_wrapper_ablation_test.log 2>&1
+.venv/bin/specguard-chem run-benchmark --benchmark benchmarks/releases/sgchem_v1.0 --split test --baselines baselines/paper_v2_protocol_ladder_baselines.yaml --out paper_v2/results/raw_runs/protocol_ladder_test --seed 7 --n-bootstrap 400 > paper_v2/results/validation/run_benchmark_protocol_ladder_test.log 2>&1
+collect benchmarks/releases/sgchem_v1.0/audits/task_inventory_summary.md > paper_v2/results/validation/task_inventory_audit.log
+collect benchmarks/releases/sgchem_v1.0/audits/oracle_scrambling_report.md > paper_v2/results/validation/oracle_scrambling_audit.log
+collect benchmarks/releases/sgchem_v1.0/audits/model_prompt_leakage_report.md > paper_v2/results/validation/model_prompt_leakage_audit.log
+collect benchmarks/releases/sgchem_v1.0/audits/neurips_ed_preflight_report.md > paper_v2/results/validation/neurips_ed_preflight.log
+.venv/bin/python scripts/make_paper_v2_tables_and_figures.py --release benchmarks/releases/sgchem_v1.0 --results paper_v2/results --n-bootstrap 2000 --splits test > paper_v2/results/validation/make_paper_v2_tables_and_figures.log 2>&1
+.venv/bin/python scripts/check_paper_consistency.py --release benchmarks/releases/sgchem_v1.0 --results paper_v2/results > paper_v2/results/validation/paper_v2_consistency_check.log 2>&1 || true
+.venv/bin/python scripts/make_paper_v2_tables_and_figures.py --release benchmarks/releases/sgchem_v1.0 --results paper_v2/results --n-bootstrap 2000 --splits test
+.venv/bin/python scripts/check_paper_consistency.py --release benchmarks/releases/sgchem_v1.0 --results paper_v2/results > paper_v2/results/validation/paper_v2_consistency_check.log 2>&1

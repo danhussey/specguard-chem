@@ -1,0 +1,166 @@
+{
+  "checks": {
+    "bundles": {
+      "errors": [],
+      "num_errors": 0,
+      "passed": true
+    },
+    "composition": {
+      "errors": [],
+      "num_errors": 0,
+      "passed": true,
+      "tasks_per_expected_action": {
+        "ABSTAIN": 100,
+        "ACCEPT": 418,
+        "REJECT": 138
+      },
+      "tasks_per_protocol": {
+        "L1": 261,
+        "L2": 197,
+        "L3": 198
+      },
+      "tasks_per_task_type": {
+        "abstain_contradiction": 100,
+        "audit_accept": 118,
+        "audit_reject": 116,
+        "boundary_precision": 44,
+        "construct_feasible": 116,
+        "interrupt_resume": 27,
+        "repair_multi_violation": 29,
+        "repair_near_miss": 36,
+        "smiles_invariance": 44,
+        "tool_forced_l3": 26
+      }
+    },
+    "duplicates": {
+      "agent_visible_cross_split": 0,
+      "cross_split_examples": {},
+      "duplicate_hashes": 0,
+      "errors": [],
+      "num_errors": 0,
+      "passed": true,
+      "unmarked_within_split_duplicates": 0,
+      "within_split_examples": {}
+    },
+    "oracles": {
+      "counts": {
+        "abstain_certificates": {
+          "checked": 100,
+          "failed": 0
+        },
+        "audit_accept": {
+          "checked": 118,
+          "failed": 0
+        },
+        "audit_reject": {
+          "checked": 116,
+          "failed": 0
+        },
+        "boundary_groups": {
+          "checked": 22,
+          "failed": 0
+        },
+        "construct_witnesses": {
+          "checked": 116,
+          "failed": 0
+        },
+        "invariance_groups": {
+          "checked": 22,
+          "failed": 0
+        },
+        "repair_multi_violation": {
+          "checked": 82,
+          "failed": 0
+        },
+        "repair_near_miss": {
+          "checked": 36,
+          "failed": 0
+        }
+      },
+      "errors": [],
+      "num_errors": 0,
+      "passed": true
+    },
+    "prompt_visibility": {
+      "errors": [],
+      "num_errors": 0,
+      "passed": true
+    },
+    "protocols": {
+      "errors": [],
+      "num_errors": 0,
+      "passed": true
+    },
+    "safety_scope": {
+      "agent_visible_forbidden_matches": 0,
+      "errors": [],
+      "matches": [],
+      "medicinal_chemistry_allowed": true,
+      "num_errors": 0,
+      "passed": true,
+      "task_count_scanned": 656
+    },
+    "schema": {
+      "errors": [],
+      "num_errors": 0,
+      "passed": true
+    },
+    "splits": {
+      "agent_visible_cross_split": 0,
+      "agent_visible_overlap_examples": [],
+      "boundary_cross_split": 0,
+      "bundle_cross_split": 0,
+      "bundle_file_cross_split": 0,
+      "bundle_overlap_examples": [],
+      "canonical_input_spec_cross_split": 0,
+      "canonical_input_spec_examples": [],
+      "canonical_witness_spec_cross_split": 0,
+      "canonical_witness_spec_examples": [],
+      "errors": [],
+      "interrupt_cross_split": 0,
+      "invariance_cross_split": 0,
+      "num_errors": 0,
+      "passed": true,
+      "scaffold_cross_split": 16,
+      "scaffold_overlap_examples": [
+        "114e93e0ac2bca09",
+        "127e5e4d7bb8788c",
+        "13cad05ca8f49c50",
+        "174e3eefd8ea1767",
+        "374ee134b9503f49",
+        "500dd24665fbc7f0",
+        "51325d91c4606409",
+        "849544041ac73707",
+        "bd3ca4c729175f99",
+        "bdede2db5ecffff1",
+        "bee2ba1666500bd3",
+        "e16e277766198a24",
+        "e57f87ac3bce842a",
+        "ed5a74145d23df89",
+        "f7286adb4e2e4004",
+        "f7b097e0392c9e34"
+      ],
+      "split_bundle_counts": {
+        "dev": 26,
+        "test": 42,
+        "train": 50
+      },
+      "split_bundle_proportions": {
+        "dev": 0.22033898305084745,
+        "test": 0.3559322033898305,
+        "train": 0.423728813559322
+      },
+      "split_task_counts": {
+        "dev": 130,
+        "test": 266,
+        "train": 260
+      }
+    }
+  },
+  "errors": [],
+  "num_bundles": 118,
+  "num_errors": 0,
+  "num_tasks": 656,
+  "num_warnings": 0,
+  "valid": true
+}

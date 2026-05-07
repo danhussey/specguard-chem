@@ -1,0 +1,17 @@
+                                Benchmark Sweep                                 
+┏━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━┓
+┃ baseline ┃ model    ┃ track     ┃ protocol ┃ num_tas… ┃ accept_r… ┃ hard_vi… ┃
+┡━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━┩
+│ wrapper… │ well_en… │ wrapper_… │ mixed    │      266 │     0.673 │    0.225 │
+│ wrapper… │ well_en… │ wrapper_… │ mixed    │      266 │     0.650 │    0.231 │
+│ wrapper… │ well_en… │ wrapper_… │ mixed    │      266 │     0.673 │    0.225 │
+│ wrapper… │ well_en… │ wrapper_… │ mixed    │      266 │     0.673 │    0.225 │
+│ wrapper… │ well_en… │ wrapper_… │ mixed    │      266 │     0.673 │    0.225 │
+│ wrapper… │ well_en… │ wrapper_… │ mixed    │      266 │     0.673 │    0.225 │
+│ wrapper… │ well_en… │ wrapper_… │ mixed    │      266 │     0.673 │    0.225 │
+│ wrapper… │ well_en… │ wrapper_… │ mixed    │      266 │     0.673 │    0.225 │
+│ wrapper… │ well_en… │ wrapper_… │ mixed    │      266 │     0.714 │    0.177 │
+│ wrapper… │ well_en… │ wrapper_… │ mixed    │      266 │     0.673 │    0.225 │
+└──────────┴──────────┴───────────┴──────────┴──────────┴───────────┴──────────┘
+Aggregate written to 
+paper_v2/results/raw_runs/wrapper_ablation_test/aggregate.json
