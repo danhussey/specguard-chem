@@ -1,0 +1,86 @@
+suite	task_id	hard_pass	spec_score	decision	final_decision	p_hard_pass	steps_used	proposals_used	verify_calls_used	total_verifier_calls	termination_reason	edit_distance	final_edit_cost_brics	trajectory_edit_distance	trajectory_edit_cost_brics
+sgchem_v1.0	sgchem_v1.0__bundle__00002__boundary_precision__06	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00002__boundary_precision__07	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00002__construct_feasible__01	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00002__repair_near_miss__09	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00003__audit_reject__03	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00003__boundary_precision__05	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00003__boundary_precision__06	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00003__repair_near_miss__09	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00008__boundary_precision__06	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00008__boundary_precision__07	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	6	8	6	8
+sgchem_v1.0	sgchem_v1.0__bundle__00008__construct_feasible__01	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00008__repair_near_miss__09	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	6	8	6	8
+sgchem_v1.0	sgchem_v1.0__bundle__00010__audit_accept__02	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00010__repair_near_miss__09	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00012__audit_reject__03	1	1.182	accept	ACCEPT	0.750	1	1	0	1	accepted	9	2	9	2
+sgchem_v1.0	sgchem_v1.0__bundle__00016__audit_accept__02	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00016__repair_near_miss__09	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00017__construct_feasible__01	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00017__repair_near_miss__07	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00020__construct_feasible__01	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00020__repair_near_miss__07	1	1.194	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00021__audit_reject__03	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	6	8	6	8
+sgchem_v1.0	sgchem_v1.0__bundle__00021__boundary_precision__05	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00021__boundary_precision__06	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	6	8	6	8
+sgchem_v1.0	sgchem_v1.0__bundle__00021__repair_near_miss__09	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	6	8	6	8
+sgchem_v1.0	sgchem_v1.0__bundle__00022__audit_accept__02	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00022__repair_near_miss__08	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	6	8	6	8
+sgchem_v1.0	sgchem_v1.0__bundle__00027__audit_reject__03	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	3	2	3	2
+sgchem_v1.0	sgchem_v1.0__bundle__00027__boundary_precision__05	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00027__boundary_precision__06	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	3	2	3	2
+sgchem_v1.0	sgchem_v1.0__bundle__00030__audit_reject__03	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00030__repair_near_miss__07	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00036__audit_reject__03	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00036__repair_near_miss__07	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00037__audit_accept__02	1	1.012	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00037__repair_near_miss__05	1	1.000	accept	ACCEPT	0.750	1	1	0	1	accepted	6	8	6	8
+sgchem_v1.0	sgchem_v1.0__bundle__00038__construct_feasible__01	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00038__repair_near_miss__06	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	9	2	9	2
+sgchem_v1.0	sgchem_v1.0__bundle__00040__audit_accept__02	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00040__repair_near_miss__08	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	3	2	3	2
+sgchem_v1.0	sgchem_v1.0__bundle__00041__construct_feasible__01	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00043__audit_accept__02	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00043__repair_near_miss__05	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00044__construct_feasible__01	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00044__repair_near_miss__06	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	6	8	6	8
+sgchem_v1.0	sgchem_v1.0__bundle__00046__audit_accept__02	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00046__repair_near_miss__07	1	1.194	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00049__audit_accept__02	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00049__repair_near_miss__05	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00050__construct_feasible__01	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00050__repair_near_miss__06	1	1.012	accept	ACCEPT	0.750	1	1	0	1	accepted	6	8	6	8
+sgchem_v1.0	sgchem_v1.0__bundle__00051__audit_reject__03	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	9	2	9	2
+sgchem_v1.0	sgchem_v1.0__bundle__00051__boundary_precision__05	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00051__boundary_precision__06	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	9	2	9	2
+sgchem_v1.0	sgchem_v1.0__bundle__00058__audit_accept__02	1	1.015	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00060__audit_reject__03	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	6	8	6	8
+sgchem_v1.0	sgchem_v1.0__bundle__00062__construct_feasible__01	1	1.071	accept	ACCEPT	0.750	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00063__audit_reject__03	1	1.012	accept	ACCEPT	0.750	1	1	0	1	accepted	6	8	6	8
+sgchem_v1.0	sgchem_v1.0__bundle__00063__boundary_precision__05	1	1.012	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00063__boundary_precision__06	1	1.012	accept	ACCEPT	0.750	1	1	0	1	accepted	6	8	6	8
+sgchem_v1.0	sgchem_v1.0__bundle__00066__audit_reject__03	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	3	2	3	2
+sgchem_v1.0	sgchem_v1.0__bundle__00069__audit_reject__03	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00069__boundary_precision__05	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00069__boundary_precision__06	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00070__audit_accept__02	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00075__audit_reject__03	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00075__boundary_precision__05	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00075__boundary_precision__06	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00085__audit_accept__02	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00085__repair_near_miss__05	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00092__construct_feasible__01	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00093__audit_reject__03	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00093__boundary_precision__05	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00093__boundary_precision__06	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00095__construct_feasible__01	1	1.182	accept	ACCEPT	0.750	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00101__construct_feasible__01	1	1.071	accept	ACCEPT	0.750	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00103__audit_accept__02	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00103__repair_near_miss__05	1	1.182	accept	ACCEPT	0.750	1	1	0	1	accepted	9	2	9	2
+sgchem_v1.0	sgchem_v1.0__bundle__00105__boundary_precision__05	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00105__boundary_precision__06	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	3	2	3	2
+sgchem_v1.0	sgchem_v1.0__bundle__00109__audit_accept__02	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00109__repair_near_miss__05	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	6	8	6	8
+sgchem_v1.0	sgchem_v1.0__bundle__00110__construct_feasible__01	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00112__audit_accept__02	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00114__audit_reject__03	1	1.200	accept	ACCEPT	0.750	1	1	0	1	accepted	2	2	2	2

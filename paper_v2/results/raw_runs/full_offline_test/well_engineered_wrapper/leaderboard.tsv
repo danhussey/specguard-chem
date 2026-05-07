@@ -1,0 +1,267 @@
+suite	task_id	hard_pass	spec_score	decision	final_decision	p_hard_pass	steps_used	proposals_used	verify_calls_used	total_verifier_calls	termination_reason	edit_distance	final_edit_cost_brics	trajectory_edit_distance	trajectory_edit_cost_brics
+sgchem_v1.0	sgchem_v1.0__bundle__00002__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00002__audit_accept__02	1	1.200	accept	ACCEPT	0.990	2	1	1	2	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00002__audit_reject__03	0	0.000	reject	REJECT	0.010	1	1	0	1	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00002__boundary_precision__06	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00002__boundary_precision__07	0	0.000	reject	REJECT	0.010	3	3	0	3	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00002__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00002__interrupt_resume__08	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	6	2	6	2
+sgchem_v1.0	sgchem_v1.0__bundle__00002__repair_multi_violation__05	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	1	2	1	2
+sgchem_v1.0	sgchem_v1.0__bundle__00002__repair_near_miss__09	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted	6	2	6	2
+sgchem_v1.0	sgchem_v1.0__bundle__00002__smiles_invariance__10	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00002__smiles_invariance__11	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00002__tool_forced_l3__12	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	6	2	6	2
+sgchem_v1.0	sgchem_v1.0__bundle__00003__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00003__audit_accept__02	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00003__audit_reject__03	0	0.000	reject	REJECT	0.010	3	3	0	3	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00003__boundary_precision__05	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00003__boundary_precision__06	0	0.000	reject	REJECT	0.010	3	3	0	3	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00003__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00003__interrupt_resume__07	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	6	2	6	2
+sgchem_v1.0	sgchem_v1.0__bundle__00003__repair_multi_violation__08	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	5	2	5	2
+sgchem_v1.0	sgchem_v1.0__bundle__00003__repair_near_miss__09	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted	6	2	6	2
+sgchem_v1.0	sgchem_v1.0__bundle__00003__smiles_invariance__10	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00003__smiles_invariance__11	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00003__tool_forced_l3__12	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	6	2	6	2
+sgchem_v1.0	sgchem_v1.0__bundle__00008__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00008__audit_accept__02	1	1.200	accept	ACCEPT	0.990	2	1	1	2	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00008__audit_reject__03	0	0.000	reject	REJECT	0.010	1	1	0	1	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00008__boundary_precision__06	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00008__boundary_precision__07	0	0.000	reject	REJECT	0.010	3	3	0	3	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00008__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00008__interrupt_resume__08	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00008__repair_multi_violation__05	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	3	2	3	2
+sgchem_v1.0	sgchem_v1.0__bundle__00008__repair_near_miss__09	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00008__tool_forced_l3__10	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00010__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00010__audit_accept__02	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00010__audit_reject__03	0	0.000	reject	REJECT	0.010	4	3	1	4	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00010__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00010__interrupt_resume__07	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	6	2	6	2
+sgchem_v1.0	sgchem_v1.0__bundle__00010__repair_multi_violation__08	1	1.065	accept	ACCEPT	0.950	2	1	1	2	accepted	6	3	6	3
+sgchem_v1.0	sgchem_v1.0__bundle__00010__repair_near_miss__09	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted	6	2	6	2
+sgchem_v1.0	sgchem_v1.0__bundle__00010__smiles_invariance__05	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00010__smiles_invariance__06	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00010__tool_forced_l3__10	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	6	2	6	2
+sgchem_v1.0	sgchem_v1.0__bundle__00012__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00012__audit_accept__02	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00012__audit_reject__03	0	0.000	reject	REJECT	0.010	3	3	0	3	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00012__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00012__tool_forced_l3__05	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	6	6	6	6
+sgchem_v1.0	sgchem_v1.0__bundle__00016__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00016__audit_accept__02	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00016__audit_reject__03	0	0.000	reject	REJECT	0.010	4	3	1	4	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00016__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00016__interrupt_resume__07	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	6	2	6	2
+sgchem_v1.0	sgchem_v1.0__bundle__00016__repair_multi_violation__08	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	5	2	5	2
+sgchem_v1.0	sgchem_v1.0__bundle__00016__repair_near_miss__09	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted	6	2	6	2
+sgchem_v1.0	sgchem_v1.0__bundle__00016__smiles_invariance__05	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00016__smiles_invariance__06	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00016__tool_forced_l3__10	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	6	2	6	2
+sgchem_v1.0	sgchem_v1.0__bundle__00017__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00017__audit_accept__02	1	1.200	accept	ACCEPT	0.990	2	1	1	2	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00017__audit_reject__03	0	0.000	reject	REJECT	0.010	1	1	0	1	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00017__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00017__interrupt_resume__05	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	5	2	5	2
+sgchem_v1.0	sgchem_v1.0__bundle__00017__repair_multi_violation__06	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	5	2	5	2
+sgchem_v1.0	sgchem_v1.0__bundle__00017__repair_near_miss__07	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted	5	2	5	2
+sgchem_v1.0	sgchem_v1.0__bundle__00017__tool_forced_l3__08	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	5	2	5	2
+sgchem_v1.0	sgchem_v1.0__bundle__00020__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.050	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00020__audit_accept__02	1	1.200	accept	ACCEPT	0.990	2	1	1	2	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00020__audit_reject__03	0	0.000	reject	REJECT	0.010	1	1	0	1	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00020__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00020__interrupt_resume__06	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	4	2	4	2
+sgchem_v1.0	sgchem_v1.0__bundle__00020__repair_multi_violation__05	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00020__repair_near_miss__07	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted	4	2	4	2
+sgchem_v1.0	sgchem_v1.0__bundle__00020__tool_forced_l3__08	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	4	2	4	2
+sgchem_v1.0	sgchem_v1.0__bundle__00021__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00021__audit_accept__02	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00021__audit_reject__03	0	0.000	reject	REJECT	0.010	3	3	0	3	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00021__boundary_precision__05	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00021__boundary_precision__06	0	0.000	reject	REJECT	0.010	3	3	0	3	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00021__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00021__interrupt_resume__07	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00021__repair_multi_violation__08	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	3	2	3	2
+sgchem_v1.0	sgchem_v1.0__bundle__00021__repair_near_miss__09	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00022__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00022__audit_accept__02	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00022__audit_reject__03	0	0.000	reject	REJECT	0.010	4	3	1	4	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00022__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00022__repair_multi_violation__07	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	5	3	5	3
+sgchem_v1.0	sgchem_v1.0__bundle__00022__repair_near_miss__08	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted	4	2	4	2
+sgchem_v1.0	sgchem_v1.0__bundle__00022__smiles_invariance__05	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00022__smiles_invariance__06	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00027__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00027__audit_accept__02	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00027__audit_reject__03	0	0.000	reject	REJECT	0.010	3	3	0	3	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00027__boundary_precision__05	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00027__boundary_precision__06	0	0.000	reject	REJECT	0.010	3	3	0	3	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00027__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00030__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00030__audit_accept__02	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00030__audit_reject__03	0	0.000	reject	REJECT	0.010	3	3	0	3	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00030__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00030__repair_multi_violation__06	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	5	2	5	2
+sgchem_v1.0	sgchem_v1.0__bundle__00030__repair_near_miss__07	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted	5	2	5	2
+sgchem_v1.0	sgchem_v1.0__bundle__00030__tool_forced_l3__05	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	5	2	5	2
+sgchem_v1.0	sgchem_v1.0__bundle__00036__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00036__audit_accept__02	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00036__audit_reject__03	0	0.000	reject	REJECT	0.010	3	3	0	3	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00036__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00036__repair_multi_violation__06	1	1.071	accept	ACCEPT	0.950	2	1	1	2	accepted	6	3	6	3
+sgchem_v1.0	sgchem_v1.0__bundle__00036__repair_near_miss__07	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted	6	2	6	2
+sgchem_v1.0	sgchem_v1.0__bundle__00036__tool_forced_l3__05	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	6	2	6	2
+sgchem_v1.0	sgchem_v1.0__bundle__00037__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00037__audit_accept__02	1	1.012	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00037__audit_reject__03	0	0.000	reject	REJECT	0.010	4	3	1	4	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00037__construct_feasible__01	1	1.012	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00037__repair_multi_violation__06	1	1.012	accept	ACCEPT	0.950	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00037__repair_near_miss__05	1	1.012	accept	ACCEPT	0.950	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00038__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00038__audit_accept__02	1	1.200	accept	ACCEPT	0.990	2	1	1	2	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00038__audit_reject__03	0	0.000	reject	REJECT	0.010	1	1	0	1	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00038__construct_feasible__01	1	1.182	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00038__repair_multi_violation__05	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	6	6	6	6
+sgchem_v1.0	sgchem_v1.0__bundle__00038__repair_near_miss__06	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted	6	6	6	6
+sgchem_v1.0	sgchem_v1.0__bundle__00040__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00040__audit_accept__02	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00040__audit_reject__03	0	0.000	reject	REJECT	0.010	4	3	1	4	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00040__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00040__repair_multi_violation__07	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00040__repair_near_miss__08	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted	1	2	1	2
+sgchem_v1.0	sgchem_v1.0__bundle__00040__smiles_invariance__05	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00040__smiles_invariance__06	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00041__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00041__audit_accept__02	1	1.200	accept	ACCEPT	0.990	2	1	1	2	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00041__audit_reject__03	0	0.000	reject	REJECT	0.010	1	1	0	1	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00041__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00041__interrupt_resume__05	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	6	2	6	2
+sgchem_v1.0	sgchem_v1.0__bundle__00043__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00043__audit_accept__02	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00043__audit_reject__03	0	0.000	reject	REJECT	0.010	4	3	1	4	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00043__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00043__repair_near_miss__05	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted	5	2	5	2
+sgchem_v1.0	sgchem_v1.0__bundle__00044__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00044__audit_accept__02	1	1.200	accept	ACCEPT	0.990	2	1	1	2	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00044__audit_reject__03	0	0.000	reject	REJECT	0.010	1	1	0	1	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00044__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00044__repair_multi_violation__05	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00044__repair_near_miss__06	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00046__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.050	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00046__audit_accept__02	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00046__audit_reject__03	0	0.000	reject	REJECT	0.010	4	3	1	4	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00046__construct_feasible__01	1	1.194	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00046__repair_near_miss__07	1	1.194	accept	ACCEPT	0.950	1	1	0	1	accepted	4	2	4	2
+sgchem_v1.0	sgchem_v1.0__bundle__00046__smiles_invariance__05	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00046__smiles_invariance__06	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00049__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00049__audit_accept__02	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00049__audit_reject__03	0	0.000	reject	REJECT	0.010	4	3	1	4	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00049__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00049__repair_near_miss__05	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted	6	2	6	2
+sgchem_v1.0	sgchem_v1.0__bundle__00050__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00050__audit_accept__02	1	1.012	accept	ACCEPT	0.990	2	1	1	2	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00050__audit_reject__03	0	0.000	reject	REJECT	0.010	1	1	0	1	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00050__construct_feasible__01	1	1.012	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00050__repair_multi_violation__05	1	1.012	accept	ACCEPT	0.950	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00050__repair_near_miss__06	1	1.012	accept	ACCEPT	0.950	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00051__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00051__audit_accept__02	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00051__audit_reject__03	0	0.000	reject	REJECT	0.010	3	3	0	3	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00051__boundary_precision__05	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00051__boundary_precision__06	0	0.000	reject	REJECT	0.010	3	3	0	3	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00051__construct_feasible__01	1	1.182	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00058__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00058__audit_accept__02	1	1.015	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00058__audit_reject__03	0	0.000	reject	REJECT	0.010	4	3	1	4	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00058__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00058__smiles_invariance__05	1	1.015	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00058__smiles_invariance__06	1	1.015	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00060__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00060__audit_accept__02	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00060__audit_reject__03	0	0.000	reject	REJECT	0.010	3	3	0	3	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00060__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00060__tool_forced_l3__05	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00062__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00062__audit_accept__02	1	1.200	accept	ACCEPT	0.990	2	1	1	2	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00062__audit_reject__03	0	0.000	reject	REJECT	0.010	1	1	0	1	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00062__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00062__repair_multi_violation__05	1	1.065	accept	ACCEPT	0.950	2	1	1	2	accepted	6	3	6	3
+sgchem_v1.0	sgchem_v1.0__bundle__00063__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00063__audit_accept__02	1	1.012	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00063__audit_reject__03	0	0.000	reject	REJECT	0.010	3	3	0	3	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00063__boundary_precision__05	1	1.012	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00063__boundary_precision__06	0	0.000	reject	REJECT	0.010	3	3	0	3	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00063__construct_feasible__01	1	1.012	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00066__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00066__audit_accept__02	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00066__audit_reject__03	0	0.000	reject	REJECT	0.010	3	3	0	3	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00066__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00066__tool_forced_l3__05	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	1	2	1	2
+sgchem_v1.0	sgchem_v1.0__bundle__00069__audit_accept__02	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00069__audit_reject__03	0	0.000	reject	REJECT	0.010	3	3	0	3	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00069__boundary_precision__05	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00069__boundary_precision__06	0	0.000	reject	REJECT	0.010	3	3	0	3	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00069__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00070__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00070__audit_accept__02	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00070__audit_reject__03	0	0.000	reject	REJECT	0.010	4	3	1	4	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00070__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00070__smiles_invariance__05	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00070__smiles_invariance__06	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00075__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00075__audit_accept__02	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00075__audit_reject__03	0	0.000	reject	REJECT	0.010	3	3	0	3	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00075__boundary_precision__05	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00075__boundary_precision__06	0	0.000	reject	REJECT	0.010	3	3	0	3	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00075__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00085__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.050	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00085__audit_accept__02	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00085__audit_reject__03	0	0.000	reject	REJECT	0.010	4	3	1	4	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00085__construct_feasible__01	1	1.194	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00085__repair_near_miss__05	1	1.194	accept	ACCEPT	0.950	1	1	0	1	accepted	4	2	4	2
+sgchem_v1.0	sgchem_v1.0__bundle__00092__audit_accept__02	1	1.200	accept	ACCEPT	0.990	2	1	1	2	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00092__audit_reject__03	0	0.000	reject	REJECT	0.010	1	1	0	1	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00092__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00092__repair_multi_violation__05	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00093__audit_accept__02	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00093__audit_reject__03	0	0.000	reject	REJECT	0.010	3	3	0	3	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00093__boundary_precision__05	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00093__boundary_precision__06	0	0.000	reject	REJECT	0.010	3	3	0	3	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00093__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00095__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00095__audit_accept__02	1	1.200	accept	ACCEPT	0.990	2	1	1	2	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00095__audit_reject__03	0	0.000	reject	REJECT	0.010	1	1	0	1	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00095__construct_feasible__01	1	1.182	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00095__interrupt_resume__05	1	1.182	accept	ACCEPT	0.950	2	1	1	2	accepted	5	2	5	2
+sgchem_v1.0	sgchem_v1.0__bundle__00101__audit_accept__02	1	1.200	accept	ACCEPT	0.990	2	1	1	2	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00101__audit_reject__03	0	0.000	reject	REJECT	0.010	1	1	0	1	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00101__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00101__interrupt_resume__05	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	6	2	6	2
+sgchem_v1.0	sgchem_v1.0__bundle__00103__audit_accept__02	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00103__audit_reject__03	0	0.000	reject	REJECT	0.010	4	3	1	4	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00103__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00103__repair_near_miss__05	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted	6	6	6	6
+sgchem_v1.0	sgchem_v1.0__bundle__00105__audit_accept__02	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00105__boundary_precision__05	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00105__boundary_precision__06	0	0.000	reject	REJECT	0.010	3	3	0	3	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00109__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00109__audit_accept__02	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00109__audit_reject__03	0	0.000	reject	REJECT	0.010	4	3	1	4	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00109__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00109__repair_near_miss__05	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted	2	2	2	2
+sgchem_v1.0	sgchem_v1.0__bundle__00110__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00110__audit_accept__02	1	1.200	accept	ACCEPT	0.990	2	1	1	2	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00110__audit_reject__03	0	0.000	reject	REJECT	0.010	1	1	0	1	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00110__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00110__repair_multi_violation__05	1	1.015	accept	ACCEPT	0.950	2	1	1	2	accepted	3	2	3	2
+sgchem_v1.0	sgchem_v1.0__bundle__00112__abstain_contradiction__04	0	0.000	abstain	ABSTAIN	0.010	1	0	0	0	abstained				
+sgchem_v1.0	sgchem_v1.0__bundle__00112__audit_accept__02	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00112__audit_reject__03	0	0.000	reject	REJECT	0.010	4	3	1	4	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00112__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00112__smiles_invariance__05	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00112__smiles_invariance__06	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00114__audit_accept__02	1	1.200	accept	ACCEPT	0.990	1	1	0	1	accepted	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00114__audit_reject__03	0	0.000	reject	REJECT	0.010	3	3	0	3	budget_exhausted:max_steps	0	0	0	0
+sgchem_v1.0	sgchem_v1.0__bundle__00114__construct_feasible__01	1	1.200	accept	ACCEPT	0.950	1	1	0	1	accepted				
+sgchem_v1.0	sgchem_v1.0__bundle__00114__tool_forced_l3__05	1	1.200	accept	ACCEPT	0.950	2	1	1	2	accepted	6	2	6	2

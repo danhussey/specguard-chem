@@ -1,0 +1,764 @@
+{
+  "benchmark_id": "sgchem_v1.0",
+  "split": "test",
+  "seed": 7,
+  "limit": null,
+  "n_baselines": 1,
+  "n_skipped_baselines": 0,
+  "baselines": [
+    {
+      "name": "well_engineered_wrapper",
+      "model": "well_engineered_wrapper",
+      "track": "wrapper_guarded",
+      "protocol": null,
+      "optional": false,
+      "adapter_kwargs": {},
+      "run_dir": "well_engineered_wrapper",
+      "report_path": "well_engineered_wrapper/report.json",
+      "metrics": {
+        "num_tasks": 266,
+        "accept_rate": 0.6729323308270677,
+        "hard_violation_rate": 0.22510822510822512,
+        "task_inconsistent_accept_rate": 0.0,
+        "unsafe_accept_rate": 0.0,
+        "correct_reject_rate": 1.0,
+        "correct_abstain_rate": 1.0,
+        "abstention_utility": -0.0,
+        "pass_at_1": 0.6871508379888268,
+        "pass_at_3": null,
+        "avg_steps_to_accept": 1.312849162011173,
+        "avg_verify_calls_to_accept": 0.3128491620111732,
+        "avg_final_edit_cost_brics": 0.7894736842105263,
+        "avg_trajectory_edit_cost_brics": 0.7894736842105263,
+        "invariance_failure_rate": 0.0,
+        "boundary_precision_failure_rate": 0.5,
+        "resume_success_rate": 1.0,
+        "avg_extra_steps_after_interrupt": 1.0,
+        "avg_verify_calls_used": 0.2631578947368421,
+        "l3_avg_verify_calls_used": 0.8333333333333334,
+        "l3_avg_verify_calls_used_expected_accept": 0.8,
+        "verify_usage_rate_on_L3": 0.8333333333333334,
+        "brier_score": 0.0010834586466165388,
+        "ece": 0.026390977443609152,
+        "bootstrap_ci": {
+          "pass_at_1": {
+            "mean": 0.6871508379888268,
+            "ci_low": 0.6203208556149733,
+            "ci_high": 0.7443181818181818,
+            "n_bootstrap": 400
+          },
+          "pass_at_3": null,
+          "hard_violation_rate": {
+            "mean": 0.22510822510822512,
+            "ci_low": 0.17194570135746606,
+            "ci_high": 0.28193832599118945,
+            "n_bootstrap": 400
+          },
+          "abstention_utility": {
+            "mean": -0.0,
+            "ci_low": -0.0,
+            "ci_high": -0.0,
+            "n_bootstrap": 400
+          },
+          "boundary_precision_failure_rate": {
+            "mean": 0.5,
+            "ci_low": 0.2916666666666667,
+            "ci_high": 0.6875,
+            "n_bootstrap": 400
+          },
+          "resume_success_rate": {
+            "mean": 1.0,
+            "ci_low": 1.0,
+            "ci_high": 1.0,
+            "n_bootstrap": 400
+          },
+          "avg_extra_steps_after_interrupt": {
+            "mean": 1.0,
+            "ci_low": 1.0,
+            "ci_high": 1.0,
+            "n_bootstrap": 400
+          },
+          "pass_at_steps": [
+            {
+              "step_budget": 1,
+              "mean": 0.6871508379888268,
+              "ci_low": 0.6162790697674418,
+              "ci_high": 0.7473118279569892,
+              "n_bootstrap": 400
+            },
+            {
+              "step_budget": 2,
+              "mean": 1.0,
+              "ci_low": 1.0,
+              "ci_high": 1.0,
+              "n_bootstrap": 400
+            }
+          ]
+        }
+      },
+      "spec_family_breakdown": {
+        "alerts_soft": {
+          "num_tasks": 30,
+          "accept_rate": 0.6666666666666666,
+          "abstain_rate": 0.13333333333333333,
+          "hard_violation_rate": 0.23076923076923078,
+          "avg_spec_score": 0.7999999999999999
+        },
+        "alerts_strict": {
+          "num_tasks": 8,
+          "accept_rate": 0.75,
+          "abstain_rate": 0.125,
+          "hard_violation_rate": 0.14285714285714285,
+          "avg_spec_score": 0.8999999999999999
+        },
+        "cns_like": {
+          "num_tasks": 21,
+          "accept_rate": 0.6190476190476191,
+          "abstain_rate": 0.14285714285714285,
+          "hard_violation_rate": 0.2777777777777778,
+          "avg_spec_score": 0.7411255411255411
+        },
+        "flexibility": {
+          "num_tasks": 22,
+          "accept_rate": 0.6818181818181818,
+          "abstain_rate": 0.09090909090909091,
+          "hard_violation_rate": 0.25,
+          "avg_spec_score": 0.8181818181818181
+        },
+        "fragment_like": {
+          "num_tasks": 26,
+          "accept_rate": 0.6538461538461539,
+          "abstain_rate": 0.11538461538461539,
+          "hard_violation_rate": 0.2608695652173913,
+          "avg_spec_score": 0.7846153846153846
+        },
+        "motif_amide": {
+          "num_tasks": 41,
+          "accept_rate": 0.6829268292682927,
+          "abstain_rate": 0.12195121951219512,
+          "hard_violation_rate": 0.2222222222222222,
+          "avg_spec_score": 0.8097560975609756
+        },
+        "motif_aromatic": {
+          "num_tasks": 18,
+          "accept_rate": 0.6111111111111112,
+          "abstain_rate": 0.16666666666666666,
+          "hard_violation_rate": 0.26666666666666666,
+          "avg_spec_score": 0.6183006535947713
+        },
+        "polar_bias": {
+          "num_tasks": 22,
+          "accept_rate": 0.7727272727272727,
+          "abstain_rate": 0.09090909090909091,
+          "hard_violation_rate": 0.15,
+          "avg_spec_score": 0.9272727272727272
+        },
+        "ro5_balanced": {
+          "num_tasks": 30,
+          "accept_rate": 0.6666666666666666,
+          "abstain_rate": 0.13333333333333333,
+          "hard_violation_rate": 0.23076923076923078,
+          "avg_spec_score": 0.7987878787878787
+        },
+        "ro5_legacy": {
+          "num_tasks": 20,
+          "accept_rate": 0.7,
+          "abstain_rate": 0.15,
+          "hard_violation_rate": 0.17647058823529413,
+          "avg_spec_score": 0.8387096774193549
+        },
+        "sa_proxy": {
+          "num_tasks": 28,
+          "accept_rate": 0.6428571428571429,
+          "abstain_rate": 0.17857142857142858,
+          "hard_violation_rate": 0.21739130434782608,
+          "avg_spec_score": 0.7450549450549451
+        }
+      }
+    }
+  ],
+  "all_baselines": [
+    {
+      "name": "well_engineered_wrapper",
+      "model": "well_engineered_wrapper",
+      "track": "wrapper_guarded",
+      "protocol": null,
+      "optional": false,
+      "adapter_kwargs": {},
+      "run_dir": "well_engineered_wrapper",
+      "report_path": "well_engineered_wrapper/report.json",
+      "metrics": {
+        "num_tasks": 266,
+        "accept_rate": 0.6729323308270677,
+        "hard_violation_rate": 0.22510822510822512,
+        "task_inconsistent_accept_rate": 0.0,
+        "unsafe_accept_rate": 0.0,
+        "correct_reject_rate": 1.0,
+        "correct_abstain_rate": 1.0,
+        "abstention_utility": -0.0,
+        "pass_at_1": 0.6871508379888268,
+        "pass_at_3": null,
+        "avg_steps_to_accept": 1.312849162011173,
+        "avg_verify_calls_to_accept": 0.3128491620111732,
+        "avg_final_edit_cost_brics": 0.7894736842105263,
+        "avg_trajectory_edit_cost_brics": 0.7894736842105263,
+        "invariance_failure_rate": 0.0,
+        "boundary_precision_failure_rate": 0.5,
+        "resume_success_rate": 1.0,
+        "avg_extra_steps_after_interrupt": 1.0,
+        "avg_verify_calls_used": 0.2631578947368421,
+        "l3_avg_verify_calls_used": 0.8333333333333334,
+        "l3_avg_verify_calls_used_expected_accept": 0.8,
+        "verify_usage_rate_on_L3": 0.8333333333333334,
+        "brier_score": 0.0010834586466165388,
+        "ece": 0.026390977443609152,
+        "bootstrap_ci": {
+          "pass_at_1": {
+            "mean": 0.6871508379888268,
+            "ci_low": 0.6203208556149733,
+            "ci_high": 0.7443181818181818,
+            "n_bootstrap": 400
+          },
+          "pass_at_3": null,
+          "hard_violation_rate": {
+            "mean": 0.22510822510822512,
+            "ci_low": 0.17194570135746606,
+            "ci_high": 0.28193832599118945,
+            "n_bootstrap": 400
+          },
+          "abstention_utility": {
+            "mean": -0.0,
+            "ci_low": -0.0,
+            "ci_high": -0.0,
+            "n_bootstrap": 400
+          },
+          "boundary_precision_failure_rate": {
+            "mean": 0.5,
+            "ci_low": 0.2916666666666667,
+            "ci_high": 0.6875,
+            "n_bootstrap": 400
+          },
+          "resume_success_rate": {
+            "mean": 1.0,
+            "ci_low": 1.0,
+            "ci_high": 1.0,
+            "n_bootstrap": 400
+          },
+          "avg_extra_steps_after_interrupt": {
+            "mean": 1.0,
+            "ci_low": 1.0,
+            "ci_high": 1.0,
+            "n_bootstrap": 400
+          },
+          "pass_at_steps": [
+            {
+              "step_budget": 1,
+              "mean": 0.6871508379888268,
+              "ci_low": 0.6162790697674418,
+              "ci_high": 0.7473118279569892,
+              "n_bootstrap": 400
+            },
+            {
+              "step_budget": 2,
+              "mean": 1.0,
+              "ci_low": 1.0,
+              "ci_high": 1.0,
+              "n_bootstrap": 400
+            }
+          ]
+        }
+      },
+      "spec_family_breakdown": {
+        "alerts_soft": {
+          "num_tasks": 30,
+          "accept_rate": 0.6666666666666666,
+          "abstain_rate": 0.13333333333333333,
+          "hard_violation_rate": 0.23076923076923078,
+          "avg_spec_score": 0.7999999999999999
+        },
+        "alerts_strict": {
+          "num_tasks": 8,
+          "accept_rate": 0.75,
+          "abstain_rate": 0.125,
+          "hard_violation_rate": 0.14285714285714285,
+          "avg_spec_score": 0.8999999999999999
+        },
+        "cns_like": {
+          "num_tasks": 21,
+          "accept_rate": 0.6190476190476191,
+          "abstain_rate": 0.14285714285714285,
+          "hard_violation_rate": 0.2777777777777778,
+          "avg_spec_score": 0.7411255411255411
+        },
+        "flexibility": {
+          "num_tasks": 22,
+          "accept_rate": 0.6818181818181818,
+          "abstain_rate": 0.09090909090909091,
+          "hard_violation_rate": 0.25,
+          "avg_spec_score": 0.8181818181818181
+        },
+        "fragment_like": {
+          "num_tasks": 26,
+          "accept_rate": 0.6538461538461539,
+          "abstain_rate": 0.11538461538461539,
+          "hard_violation_rate": 0.2608695652173913,
+          "avg_spec_score": 0.7846153846153846
+        },
+        "motif_amide": {
+          "num_tasks": 41,
+          "accept_rate": 0.6829268292682927,
+          "abstain_rate": 0.12195121951219512,
+          "hard_violation_rate": 0.2222222222222222,
+          "avg_spec_score": 0.8097560975609756
+        },
+        "motif_aromatic": {
+          "num_tasks": 18,
+          "accept_rate": 0.6111111111111112,
+          "abstain_rate": 0.16666666666666666,
+          "hard_violation_rate": 0.26666666666666666,
+          "avg_spec_score": 0.6183006535947713
+        },
+        "polar_bias": {
+          "num_tasks": 22,
+          "accept_rate": 0.7727272727272727,
+          "abstain_rate": 0.09090909090909091,
+          "hard_violation_rate": 0.15,
+          "avg_spec_score": 0.9272727272727272
+        },
+        "ro5_balanced": {
+          "num_tasks": 30,
+          "accept_rate": 0.6666666666666666,
+          "abstain_rate": 0.13333333333333333,
+          "hard_violation_rate": 0.23076923076923078,
+          "avg_spec_score": 0.7987878787878787
+        },
+        "ro5_legacy": {
+          "num_tasks": 20,
+          "accept_rate": 0.7,
+          "abstain_rate": 0.15,
+          "hard_violation_rate": 0.17647058823529413,
+          "avg_spec_score": 0.8387096774193549
+        },
+        "sa_proxy": {
+          "num_tasks": 28,
+          "accept_rate": 0.6428571428571429,
+          "abstain_rate": 0.17857142857142858,
+          "hard_violation_rate": 0.21739130434782608,
+          "avg_spec_score": 0.7450549450549451
+        }
+      }
+    }
+  ],
+  "skipped_baselines": [],
+  "by_track": {
+    "primary_closed_book": {
+      "n_baselines": 0,
+      "baseline_order": [],
+      "baselines": [],
+      "by_spec_family": {}
+    },
+    "tool_enabled": {
+      "n_baselines": 0,
+      "baseline_order": [],
+      "baselines": [],
+      "by_spec_family": {}
+    },
+    "retrieval_upper_bound": {
+      "n_baselines": 0,
+      "baseline_order": [],
+      "baselines": [],
+      "by_spec_family": {}
+    },
+    "oracle_upper_bound": {
+      "n_baselines": 0,
+      "baseline_order": [],
+      "baselines": [],
+      "by_spec_family": {}
+    },
+    "external_model_snapshot": {
+      "n_baselines": 0,
+      "baseline_order": [],
+      "baselines": [],
+      "by_spec_family": {}
+    },
+    "wrapper_guarded": {
+      "n_baselines": 1,
+      "baseline_order": [
+        "well_engineered_wrapper"
+      ],
+      "baselines": [
+        {
+          "name": "well_engineered_wrapper",
+          "model": "well_engineered_wrapper",
+          "track": "wrapper_guarded",
+          "protocol": null,
+          "optional": false,
+          "adapter_kwargs": {},
+          "run_dir": "well_engineered_wrapper",
+          "report_path": "well_engineered_wrapper/report.json",
+          "metrics": {
+            "num_tasks": 266,
+            "accept_rate": 0.6729323308270677,
+            "hard_violation_rate": 0.22510822510822512,
+            "task_inconsistent_accept_rate": 0.0,
+            "unsafe_accept_rate": 0.0,
+            "correct_reject_rate": 1.0,
+            "correct_abstain_rate": 1.0,
+            "abstention_utility": -0.0,
+            "pass_at_1": 0.6871508379888268,
+            "pass_at_3": null,
+            "avg_steps_to_accept": 1.312849162011173,
+            "avg_verify_calls_to_accept": 0.3128491620111732,
+            "avg_final_edit_cost_brics": 0.7894736842105263,
+            "avg_trajectory_edit_cost_brics": 0.7894736842105263,
+            "invariance_failure_rate": 0.0,
+            "boundary_precision_failure_rate": 0.5,
+            "resume_success_rate": 1.0,
+            "avg_extra_steps_after_interrupt": 1.0,
+            "avg_verify_calls_used": 0.2631578947368421,
+            "l3_avg_verify_calls_used": 0.8333333333333334,
+            "l3_avg_verify_calls_used_expected_accept": 0.8,
+            "verify_usage_rate_on_L3": 0.8333333333333334,
+            "brier_score": 0.0010834586466165388,
+            "ece": 0.026390977443609152,
+            "bootstrap_ci": {
+              "pass_at_1": {
+                "mean": 0.6871508379888268,
+                "ci_low": 0.6203208556149733,
+                "ci_high": 0.7443181818181818,
+                "n_bootstrap": 400
+              },
+              "pass_at_3": null,
+              "hard_violation_rate": {
+                "mean": 0.22510822510822512,
+                "ci_low": 0.17194570135746606,
+                "ci_high": 0.28193832599118945,
+                "n_bootstrap": 400
+              },
+              "abstention_utility": {
+                "mean": -0.0,
+                "ci_low": -0.0,
+                "ci_high": -0.0,
+                "n_bootstrap": 400
+              },
+              "boundary_precision_failure_rate": {
+                "mean": 0.5,
+                "ci_low": 0.2916666666666667,
+                "ci_high": 0.6875,
+                "n_bootstrap": 400
+              },
+              "resume_success_rate": {
+                "mean": 1.0,
+                "ci_low": 1.0,
+                "ci_high": 1.0,
+                "n_bootstrap": 400
+              },
+              "avg_extra_steps_after_interrupt": {
+                "mean": 1.0,
+                "ci_low": 1.0,
+                "ci_high": 1.0,
+                "n_bootstrap": 400
+              },
+              "pass_at_steps": [
+                {
+                  "step_budget": 1,
+                  "mean": 0.6871508379888268,
+                  "ci_low": 0.6162790697674418,
+                  "ci_high": 0.7473118279569892,
+                  "n_bootstrap": 400
+                },
+                {
+                  "step_budget": 2,
+                  "mean": 1.0,
+                  "ci_low": 1.0,
+                  "ci_high": 1.0,
+                  "n_bootstrap": 400
+                }
+              ]
+            }
+          },
+          "spec_family_breakdown": {
+            "alerts_soft": {
+              "num_tasks": 30,
+              "accept_rate": 0.6666666666666666,
+              "abstain_rate": 0.13333333333333333,
+              "hard_violation_rate": 0.23076923076923078,
+              "avg_spec_score": 0.7999999999999999
+            },
+            "alerts_strict": {
+              "num_tasks": 8,
+              "accept_rate": 0.75,
+              "abstain_rate": 0.125,
+              "hard_violation_rate": 0.14285714285714285,
+              "avg_spec_score": 0.8999999999999999
+            },
+            "cns_like": {
+              "num_tasks": 21,
+              "accept_rate": 0.6190476190476191,
+              "abstain_rate": 0.14285714285714285,
+              "hard_violation_rate": 0.2777777777777778,
+              "avg_spec_score": 0.7411255411255411
+            },
+            "flexibility": {
+              "num_tasks": 22,
+              "accept_rate": 0.6818181818181818,
+              "abstain_rate": 0.09090909090909091,
+              "hard_violation_rate": 0.25,
+              "avg_spec_score": 0.8181818181818181
+            },
+            "fragment_like": {
+              "num_tasks": 26,
+              "accept_rate": 0.6538461538461539,
+              "abstain_rate": 0.11538461538461539,
+              "hard_violation_rate": 0.2608695652173913,
+              "avg_spec_score": 0.7846153846153846
+            },
+            "motif_amide": {
+              "num_tasks": 41,
+              "accept_rate": 0.6829268292682927,
+              "abstain_rate": 0.12195121951219512,
+              "hard_violation_rate": 0.2222222222222222,
+              "avg_spec_score": 0.8097560975609756
+            },
+            "motif_aromatic": {
+              "num_tasks": 18,
+              "accept_rate": 0.6111111111111112,
+              "abstain_rate": 0.16666666666666666,
+              "hard_violation_rate": 0.26666666666666666,
+              "avg_spec_score": 0.6183006535947713
+            },
+            "polar_bias": {
+              "num_tasks": 22,
+              "accept_rate": 0.7727272727272727,
+              "abstain_rate": 0.09090909090909091,
+              "hard_violation_rate": 0.15,
+              "avg_spec_score": 0.9272727272727272
+            },
+            "ro5_balanced": {
+              "num_tasks": 30,
+              "accept_rate": 0.6666666666666666,
+              "abstain_rate": 0.13333333333333333,
+              "hard_violation_rate": 0.23076923076923078,
+              "avg_spec_score": 0.7987878787878787
+            },
+            "ro5_legacy": {
+              "num_tasks": 20,
+              "accept_rate": 0.7,
+              "abstain_rate": 0.15,
+              "hard_violation_rate": 0.17647058823529413,
+              "avg_spec_score": 0.8387096774193549
+            },
+            "sa_proxy": {
+              "num_tasks": 28,
+              "accept_rate": 0.6428571428571429,
+              "abstain_rate": 0.17857142857142858,
+              "hard_violation_rate": 0.21739130434782608,
+              "avg_spec_score": 0.7450549450549451
+            }
+          }
+        }
+      ],
+      "by_spec_family": {
+        "alerts_soft": {
+          "well_engineered_wrapper": {
+            "num_tasks": 30,
+            "accept_rate": 0.6666666666666666,
+            "hard_violation_rate": 0.23076923076923078,
+            "avg_spec_score": 0.7999999999999999
+          }
+        },
+        "alerts_strict": {
+          "well_engineered_wrapper": {
+            "num_tasks": 8,
+            "accept_rate": 0.75,
+            "hard_violation_rate": 0.14285714285714285,
+            "avg_spec_score": 0.8999999999999999
+          }
+        },
+        "cns_like": {
+          "well_engineered_wrapper": {
+            "num_tasks": 21,
+            "accept_rate": 0.6190476190476191,
+            "hard_violation_rate": 0.2777777777777778,
+            "avg_spec_score": 0.7411255411255411
+          }
+        },
+        "flexibility": {
+          "well_engineered_wrapper": {
+            "num_tasks": 22,
+            "accept_rate": 0.6818181818181818,
+            "hard_violation_rate": 0.25,
+            "avg_spec_score": 0.8181818181818181
+          }
+        },
+        "fragment_like": {
+          "well_engineered_wrapper": {
+            "num_tasks": 26,
+            "accept_rate": 0.6538461538461539,
+            "hard_violation_rate": 0.2608695652173913,
+            "avg_spec_score": 0.7846153846153846
+          }
+        },
+        "motif_amide": {
+          "well_engineered_wrapper": {
+            "num_tasks": 41,
+            "accept_rate": 0.6829268292682927,
+            "hard_violation_rate": 0.2222222222222222,
+            "avg_spec_score": 0.8097560975609756
+          }
+        },
+        "motif_aromatic": {
+          "well_engineered_wrapper": {
+            "num_tasks": 18,
+            "accept_rate": 0.6111111111111112,
+            "hard_violation_rate": 0.26666666666666666,
+            "avg_spec_score": 0.6183006535947713
+          }
+        },
+        "polar_bias": {
+          "well_engineered_wrapper": {
+            "num_tasks": 22,
+            "accept_rate": 0.7727272727272727,
+            "hard_violation_rate": 0.15,
+            "avg_spec_score": 0.9272727272727272
+          }
+        },
+        "ro5_balanced": {
+          "well_engineered_wrapper": {
+            "num_tasks": 30,
+            "accept_rate": 0.6666666666666666,
+            "hard_violation_rate": 0.23076923076923078,
+            "avg_spec_score": 0.7987878787878787
+          }
+        },
+        "ro5_legacy": {
+          "well_engineered_wrapper": {
+            "num_tasks": 20,
+            "accept_rate": 0.7,
+            "hard_violation_rate": 0.17647058823529413,
+            "avg_spec_score": 0.8387096774193549
+          }
+        },
+        "sa_proxy": {
+          "well_engineered_wrapper": {
+            "num_tasks": 28,
+            "accept_rate": 0.6428571428571429,
+            "hard_violation_rate": 0.21739130434782608,
+            "avg_spec_score": 0.7450549450549451
+          }
+        }
+      }
+    },
+    "closed_book": {
+      "n_baselines": 0,
+      "baseline_order": [],
+      "baselines": [],
+      "by_spec_family": {}
+    },
+    "retrieval": {
+      "n_baselines": 0,
+      "baseline_order": [],
+      "baselines": [],
+      "by_spec_family": {}
+    },
+    "external": {
+      "n_baselines": 0,
+      "baseline_order": [],
+      "baselines": [],
+      "by_spec_family": {}
+    }
+  },
+  "by_spec_family": {
+    "alerts_soft": {
+      "well_engineered_wrapper": {
+        "num_tasks": 30,
+        "accept_rate": 0.6666666666666666,
+        "hard_violation_rate": 0.23076923076923078,
+        "avg_spec_score": 0.7999999999999999
+      }
+    },
+    "alerts_strict": {
+      "well_engineered_wrapper": {
+        "num_tasks": 8,
+        "accept_rate": 0.75,
+        "hard_violation_rate": 0.14285714285714285,
+        "avg_spec_score": 0.8999999999999999
+      }
+    },
+    "cns_like": {
+      "well_engineered_wrapper": {
+        "num_tasks": 21,
+        "accept_rate": 0.6190476190476191,
+        "hard_violation_rate": 0.2777777777777778,
+        "avg_spec_score": 0.7411255411255411
+      }
+    },
+    "flexibility": {
+      "well_engineered_wrapper": {
+        "num_tasks": 22,
+        "accept_rate": 0.6818181818181818,
+        "hard_violation_rate": 0.25,
+        "avg_spec_score": 0.8181818181818181
+      }
+    },
+    "fragment_like": {
+      "well_engineered_wrapper": {
+        "num_tasks": 26,
+        "accept_rate": 0.6538461538461539,
+        "hard_violation_rate": 0.2608695652173913,
+        "avg_spec_score": 0.7846153846153846
+      }
+    },
+    "motif_amide": {
+      "well_engineered_wrapper": {
+        "num_tasks": 41,
+        "accept_rate": 0.6829268292682927,
+        "hard_violation_rate": 0.2222222222222222,
+        "avg_spec_score": 0.8097560975609756
+      }
+    },
+    "motif_aromatic": {
+      "well_engineered_wrapper": {
+        "num_tasks": 18,
+        "accept_rate": 0.6111111111111112,
+        "hard_violation_rate": 0.26666666666666666,
+        "avg_spec_score": 0.6183006535947713
+      }
+    },
+    "polar_bias": {
+      "well_engineered_wrapper": {
+        "num_tasks": 22,
+        "accept_rate": 0.7727272727272727,
+        "hard_violation_rate": 0.15,
+        "avg_spec_score": 0.9272727272727272
+      }
+    },
+    "ro5_balanced": {
+      "well_engineered_wrapper": {
+        "num_tasks": 30,
+        "accept_rate": 0.6666666666666666,
+        "hard_violation_rate": 0.23076923076923078,
+        "avg_spec_score": 0.7987878787878787
+      }
+    },
+    "ro5_legacy": {
+      "well_engineered_wrapper": {
+        "num_tasks": 20,
+        "accept_rate": 0.7,
+        "hard_violation_rate": 0.17647058823529413,
+        "avg_spec_score": 0.8387096774193549
+      }
+    },
+    "sa_proxy": {
+      "well_engineered_wrapper": {
+        "num_tasks": 28,
+        "accept_rate": 0.6428571428571429,
+        "hard_violation_rate": 0.21739130434782608,
+        "avg_spec_score": 0.7450549450549451
+      }
+    }
+  },
+  "baseline_order": [
+    "well_engineered_wrapper"
+  ]
+}

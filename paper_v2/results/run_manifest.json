@@ -1,0 +1,24 @@
+{
+  "access_models": [
+    "closed-book",
+    "public-verifier",
+    "retrieval",
+    "verifier/search wrapper"
+  ],
+  "commit": "ae17cfd26c8fb176de0f35a5e1a4dc258874ab4c",
+  "external_diagnostics": "skipped unless external_diagnostic_snapshot.csv records live/cache rows",
+  "generated_at_utc": "2026-05-07T11:18:29.504887+00:00",
+  "n_runs_loaded": 63,
+  "platform": "macOS-14.3.1-arm64-arm-64bit",
+  "primary_test_denominator": 266,
+  "python": "3.12.13",
+  "release": "sgchem_v1.0",
+  "release_path": "benchmarks/releases/sgchem_v1.0",
+  "sources": [
+    "full_offline_dev",
+    "full_offline_test",
+    "full_offline_train",
+    "protocol_ladder_test",
+    "wrapper_ablation_test"
+  ]
+}

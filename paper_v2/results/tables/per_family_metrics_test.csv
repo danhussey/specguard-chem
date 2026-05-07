@@ -1,0 +1,81 @@
+adapter,access_model,family,family_reportability,n_tasks,action_accuracy,balanced_action_accuracy,molecule_acceptance_rate,task_inconsistent_accept_rate,reject_recall,abstain_recall,hard_violation_rate,schema_error_rate,mean_verify_calls
+always_accept,closed-book,abstain_contradiction,primary,35,0.0,0.0,0.0,0.0,,0.0,1.0,0.0,0
+always_accept,closed-book,audit_accept,primary,42,0.8571428571428571,0.8571428571428571,0.8571428571428571,,,,0.14285714285714285,0.0,0
+always_accept,closed-book,audit_reject,primary,41,0.14634146341463414,0.14634146341463414,0.8536585365853658,0.8536585365853658,0.14634146341463414,,0.14634146341463414,0.0,0
+always_accept,closed-book,boundary_precision,diagnostic,22,0.5,0.5,0.9090909090909091,0.9090909090909091,0.09090909090909091,,0.09090909090909091,0.0,0
+always_accept,closed-book,construct_feasible,primary,41,0.8536585365853658,0.8536585365853658,0.8536585365853658,,,,0.14634146341463414,0.0,0
+always_accept,closed-book,interrupt_resume,diagnostic,11,0.8181818181818182,0.8181818181818182,0.8181818181818182,,,,0.18181818181818182,0.0,0
+always_accept,closed-book,repair_multi_violation,diagnostic,19,0.3157894736842105,0.3157894736842105,0.3157894736842105,,,,0.6842105263157895,0.0,0
+always_accept,closed-book,repair_near_miss,diagnostic,22,0.8181818181818182,0.8181818181818182,0.8181818181818182,,,,0.18181818181818182,0.0,0
+always_accept,closed-book,smiles_invariance,diagnostic,20,0.9,0.9,0.9,,,,0.1,0.0,0
+always_accept,closed-book,tool_forced_l3,diagnostic,13,0.8461538461538461,0.8461538461538461,0.8461538461538461,,,,0.15384615384615385,0.0,0
+always_abstain,closed-book,abstain_contradiction,primary,35,1.0,1.0,0.0,0.0,,1.0,,0.0,0
+always_abstain,closed-book,audit_accept,primary,42,0.0,0.0,0.0,,,,,0.0,0
+always_abstain,closed-book,audit_reject,primary,41,0.0,0.0,0.0,0.0,0.0,,,0.0,0
+always_abstain,closed-book,boundary_precision,diagnostic,22,0.0,0.0,0.0,0.0,0.0,,,0.0,0
+always_abstain,closed-book,construct_feasible,primary,41,0.0,0.0,0.0,,,,,0.0,0
+always_abstain,closed-book,interrupt_resume,diagnostic,11,0.0,0.0,0.0,,,,,0.0,0
+always_abstain,closed-book,repair_multi_violation,diagnostic,19,0.0,0.0,0.0,,,,,0.0,0
+always_abstain,closed-book,repair_near_miss,diagnostic,22,0.0,0.0,0.0,,,,,0.0,0
+always_abstain,closed-book,smiles_invariance,diagnostic,20,0.0,0.0,0.0,,,,,0.0,0
+always_abstain,closed-book,tool_forced_l3,diagnostic,13,0.0,0.0,0.0,,,,,0.0,0
+heuristic,closed-book,abstain_contradiction,primary,35,0.0,0.0,0.0,0.0,,0.0,1.0,0.0,0
+heuristic,closed-book,audit_accept,primary,42,1.0,1.0,1.0,,,,0.0,0.0,0
+heuristic,closed-book,audit_reject,primary,41,1.0,1.0,0.0,0.0,1.0,,1.0,0.0,0
+heuristic,closed-book,boundary_precision,diagnostic,22,1.0,1.0,0.5,0.0,1.0,,0.5,0.0,0
+heuristic,closed-book,construct_feasible,primary,41,0.8536585365853658,0.8536585365853658,0.8536585365853658,,,,0.14634146341463414,0.0,0
+heuristic,closed-book,interrupt_resume,diagnostic,11,0.0,0.0,0.0,,,,,0.0,0
+heuristic,closed-book,repair_multi_violation,diagnostic,19,0.0,0.0,0.0,,,,1.0,0.0,0
+heuristic,closed-book,repair_near_miss,diagnostic,22,0.0,0.0,0.0,,,,1.0,0.0,0
+heuristic,closed-book,smiles_invariance,diagnostic,20,1.0,1.0,1.0,,,,0.0,0.0,0
+heuristic,closed-book,tool_forced_l3,diagnostic,13,0.0,0.0,0.0,,,,1.0,0.0,0
+abstention_guard,closed-book,abstain_contradiction,primary,35,0.0,0.0,0.0,0.0,,0.0,1.0,0.0,0
+abstention_guard,closed-book,audit_accept,primary,42,1.0,1.0,1.0,,,,0.0,0.0,0
+abstention_guard,closed-book,audit_reject,primary,41,0.3902439024390244,0.3902439024390244,0.6097560975609756,0.6097560975609756,0.3902439024390244,,0.3902439024390244,0.0,0
+abstention_guard,closed-book,boundary_precision,diagnostic,22,0.5454545454545454,0.5454545454545454,0.9545454545454546,0.9090909090909091,0.09090909090909091,,0.045454545454545456,0.0,0
+abstention_guard,closed-book,construct_feasible,primary,41,0.8536585365853658,0.8536585365853658,0.8536585365853658,,,,0.14634146341463414,0.0,0
+abstention_guard,closed-book,interrupt_resume,diagnostic,11,0.0,0.0,0.0,,,,,0.0,0
+abstention_guard,closed-book,repair_multi_violation,diagnostic,19,0.3157894736842105,0.3157894736842105,0.3157894736842105,,,,0.6842105263157895,0.0,0
+abstention_guard,closed-book,repair_near_miss,diagnostic,22,0.9090909090909091,0.9090909090909091,0.9090909090909091,,,,0.09090909090909091,0.0,0
+abstention_guard,closed-book,smiles_invariance,diagnostic,20,1.0,1.0,1.0,,,,0.0,0.0,0
+abstention_guard,closed-book,tool_forced_l3,diagnostic,13,0.9230769230769231,0.9230769230769231,0.9230769230769231,,,,0.07692307692307693,0.0,0
+local_mutation,closed-book,abstain_contradiction,primary,35,0.0,0.0,0.0,0.0,,0.0,1.0,0.0,0
+local_mutation,closed-book,audit_accept,primary,42,1.0,1.0,1.0,,,,0.0,0.0,0
+local_mutation,closed-book,audit_reject,primary,41,0.0,0.0,1.0,1.0,0.0,,0.0,0.0,0
+local_mutation,closed-book,boundary_precision,diagnostic,22,0.5,0.5,1.0,1.0,0.0,,0.0,0.0,0
+local_mutation,closed-book,construct_feasible,primary,41,0.975609756097561,0.975609756097561,0.975609756097561,,,,0.024390243902439025,0.0,0
+local_mutation,closed-book,interrupt_resume,diagnostic,11,1.0,1.0,1.0,,,,0.0,0.0,0
+local_mutation,closed-book,repair_multi_violation,diagnostic,19,0.7368421052631579,0.7368421052631579,0.7368421052631579,,,,0.2631578947368421,0.0,0
+local_mutation,closed-book,repair_near_miss,diagnostic,22,1.0,1.0,1.0,,,,0.0,0.0,0
+local_mutation,closed-book,smiles_invariance,diagnostic,20,1.0,1.0,1.0,,,,0.0,0.0,0
+local_mutation,closed-book,tool_forced_l3,diagnostic,13,1.0,1.0,1.0,,,,0.0,0.0,0
+verify_first,public-verifier,abstain_contradiction,primary,35,0.0,0.0,0.0,0.0,,0.0,1.0,0.0,0
+verify_first,public-verifier,audit_accept,primary,42,1.0,1.0,1.0,,,,0.0,0.0,0.30952380952380953
+verify_first,public-verifier,audit_reject,primary,41,0.0,0.0,1.0,1.0,0.0,,0.0,0.0,0.34146341463414637
+verify_first,public-verifier,boundary_precision,diagnostic,22,0.5,0.5,1.0,1.0,0.0,,0.0,0.0,0
+verify_first,public-verifier,construct_feasible,primary,41,0.975609756097561,0.975609756097561,0.975609756097561,,,,0.024390243902439025,0.0,0.34146341463414637
+verify_first,public-verifier,interrupt_resume,diagnostic,11,1.0,1.0,1.0,,,,0.0,0.0,1
+verify_first,public-verifier,repair_multi_violation,diagnostic,19,0.7368421052631579,0.7368421052631579,0.7368421052631579,,,,0.2631578947368421,0.0,1
+verify_first,public-verifier,repair_near_miss,diagnostic,22,1.0,1.0,1.0,,,,0.0,0.0,0
+verify_first,public-verifier,smiles_invariance,diagnostic,20,1.0,1.0,1.0,,,,0.0,0.0,0
+verify_first,public-verifier,tool_forced_l3,diagnostic,13,1.0,1.0,1.0,,,,0.0,0.0,1
+corpus_search,retrieval,abstain_contradiction,primary,35,0.0,0.0,0.0,0.0,,0.0,1.0,0.0,0
+corpus_search,retrieval,audit_accept,primary,42,1.0,1.0,1.0,,,,0.0,0.0,0
+corpus_search,retrieval,audit_reject,primary,41,0.0,0.0,1.0,1.0,0.0,,0.0,0.0,0
+corpus_search,retrieval,boundary_precision,diagnostic,22,0.5,0.5,1.0,1.0,0.0,,0.0,0.0,0
+corpus_search,retrieval,construct_feasible,primary,41,1.0,1.0,1.0,,,,0.0,0.0,0
+corpus_search,retrieval,interrupt_resume,diagnostic,11,1.0,1.0,1.0,,,,0.0,0.0,0
+corpus_search,retrieval,repair_multi_violation,diagnostic,19,1.0,1.0,1.0,,,,0.0,0.0,0
+corpus_search,retrieval,repair_near_miss,diagnostic,22,1.0,1.0,1.0,,,,0.0,0.0,0
+corpus_search,retrieval,smiles_invariance,diagnostic,20,1.0,1.0,1.0,,,,0.0,0.0,0
+corpus_search,retrieval,tool_forced_l3,diagnostic,13,1.0,1.0,1.0,,,,0.0,0.0,0
+well_engineered_wrapper,verifier/search wrapper,abstain_contradiction,primary,35,1.0,1.0,0.0,0.0,,1.0,,0.0,0
+well_engineered_wrapper,verifier/search wrapper,audit_accept,primary,42,1.0,1.0,1.0,,,,0.0,0.0,0.30952380952380953
+well_engineered_wrapper,verifier/search wrapper,audit_reject,primary,41,1.0,1.0,0.0,0.0,1.0,,1.0,0.0,0.34146341463414637
+well_engineered_wrapper,verifier/search wrapper,boundary_precision,diagnostic,22,1.0,1.0,0.5,0.0,1.0,,0.5,0.0,0
+well_engineered_wrapper,verifier/search wrapper,construct_feasible,primary,41,1.0,1.0,1.0,,,,0.0,0.0,0
+well_engineered_wrapper,verifier/search wrapper,interrupt_resume,diagnostic,11,1.0,1.0,1.0,,,,0.0,0.0,1
+well_engineered_wrapper,verifier/search wrapper,repair_multi_violation,diagnostic,19,1.0,1.0,1.0,,,,0.0,0.0,1
+well_engineered_wrapper,verifier/search wrapper,repair_near_miss,diagnostic,22,1.0,1.0,1.0,,,,0.0,0.0,0
+well_engineered_wrapper,verifier/search wrapper,smiles_invariance,diagnostic,20,1.0,1.0,1.0,,,,0.0,0.0,0
+well_engineered_wrapper,verifier/search wrapper,tool_forced_l3,diagnostic,13,1.0,1.0,1.0,,,,0.0,0.0,1

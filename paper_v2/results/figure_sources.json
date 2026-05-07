@@ -1,0 +1,8 @@
+{
+  "metric_rank_shift": "tables/metric_ranking_sensitivity.csv",
+  "per_family_action_accuracy_heatmap": "tables/per_family_metrics_test.csv",
+  "protocol_ladder_action_accuracy": "tables/protocol_ladder_test.csv",
+  "protocol_ladder_verify_calls": "tables/protocol_ladder_test.csv",
+  "wrapper_ablation_action_accuracy": "tables/wrapper_ablation_test.csv",
+  "wrapper_ablation_budget_curve": "tables/wrapper_ablation_test.csv"
+}

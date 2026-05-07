@@ -26,22 +26,43 @@ class WellEngineeredWrapperAdapter(BaseAdapter):
 
     name = "well_engineered_wrapper"
     track = "wrapper_guarded"
+    use_tool_verify = True
+    use_public_candidate_search = True
+    use_public_evaluator = True
+    use_contradiction_detector = True
+    use_repair_loop = True
+    use_boundary_special_case = True
+    ignore_visible_task_name = False
+    verify_budget: Optional[int] = None
 
     def __init__(self, *, seed: int = 0) -> None:
         super().__init__(seed=seed)
         self._corpus = CorpusSearchAdapter(seed=seed)
         self._local = LocalMutationAdapter(seed=seed)
+        self._verify_calls_emitted = 0
 
     def step(self, req: AgentRequest) -> AgentResponse:
         task = req.get("task") or {}
-        visible_name = str(task.get("visible_task_name") or "evaluation_task")
+        visible_name = (
+            "evaluation_task"
+            if self.ignore_visible_task_name
+            else str(task.get("visible_task_name") or "evaluation_task")
+        )
         protocol = str(task.get("protocol") or "L1")
         round_index = int(req.get("round") or 1)
         interrupt = req.get("interrupt") or {}
         candidate = _public_input_smiles(task)
         failure = req.get("failure_vector") if isinstance(req.get("failure_vector"), dict) else None
 
-        if protocol == "L3" and round_index == 1 and candidate and _has_verify_tool(req):
+        if (
+            self.use_tool_verify
+            and protocol == "L3"
+            and round_index == 1
+            and candidate
+            and _has_verify_tool(req)
+            and self._within_verify_budget()
+        ):
+            self._verify_calls_emitted += 1
             response: AgentResponse = {
                 "action": "tool_call",
                 "name": "verify",
@@ -52,9 +73,13 @@ class WellEngineeredWrapperAdapter(BaseAdapter):
                 response["interrupt_ack"] = _interrupt_ack(interrupt)
             return response
 
-        if visible_name in {"candidate_audit", "boundary_audit", "representation_invariance"}:
+        audit_names = {"candidate_audit", "representation_invariance"}
+        if self.use_boundary_special_case:
+            audit_names.add("boundary_audit")
+
+        if visible_name in audit_names:
             response = self._audit_candidate(req=req, candidate=candidate, failure=failure)
-        elif visible_name == "feasibility_check":
+        elif visible_name == "feasibility_check" and self.use_contradiction_detector:
             response = self._feasibility_check(req=req)
         else:
             response = self._construct_or_repair(req=req, candidate=candidate, failure=failure)
@@ -62,6 +87,11 @@ class WellEngineeredWrapperAdapter(BaseAdapter):
         if interrupt:
             response["interrupt_ack"] = _interrupt_ack(interrupt)
         return response
+
+    def _within_verify_budget(self) -> bool:
+        if self.verify_budget is None:
+            return True
+        return self._verify_calls_emitted < self.verify_budget
 
     def _audit_candidate(
         self,
@@ -78,7 +108,7 @@ class WellEngineeredWrapperAdapter(BaseAdapter):
         if feedback_pass is True:
             return {"action": "propose", "smiles": candidate, "p_hard_pass": 0.99}
 
-        result = _evaluate_public(req, candidate)
+        result = _evaluate_public(req, candidate) if self.use_public_evaluator else None
         if result is None:
             return {"action": "propose", "smiles": candidate, "p_hard_pass": 0.5}
         return {
@@ -109,19 +139,77 @@ class WellEngineeredWrapperAdapter(BaseAdapter):
             # Do not accept the same candidate after verifier feedback says it
             # fails; switch to search/retrieval.
             candidate = None
-        response = self._corpus.step(req)
-        smiles = response.get("smiles")
-        if isinstance(smiles, str) and _passes_public(req, smiles):
-            response["p_hard_pass"] = 0.95
-            return response
-        local_response = self._local.step(req)
-        local_smiles = local_response.get("smiles")
-        if isinstance(local_smiles, str) and _passes_public(req, local_smiles):
-            local_response["p_hard_pass"] = 0.9
-            return local_response
-        if candidate and _passes_public(req, candidate):
+        if self.use_public_candidate_search:
+            response = self._corpus.step(req)
+            smiles = response.get("smiles")
+            if isinstance(smiles, str) and self._candidate_passes(req, smiles):
+                response["p_hard_pass"] = 0.95
+                return response
+        if self.use_repair_loop:
+            local_response = self._local.step(req)
+            local_smiles = local_response.get("smiles")
+            if isinstance(local_smiles, str) and self._candidate_passes(req, local_smiles):
+                local_response["p_hard_pass"] = 0.9
+                return local_response
+        if candidate and self._candidate_passes(req, candidate):
             return {"action": "propose", "smiles": candidate, "p_hard_pass": 0.9}
+        if candidate:
+            return {"action": "propose", "smiles": candidate, "p_hard_pass": 0.25}
         return {"action": "abstain", "reason": "No passing candidate found by wrapper search.", "p_hard_pass": 0.05}
+
+    def _candidate_passes(self, req: AgentRequest, smiles: str) -> bool:
+        if not self.use_public_evaluator:
+            return True
+        return _passes_public(req, smiles)
+
+
+class WrapperFullAdapter(WellEngineeredWrapperAdapter):
+    name = "wrapper_full"
+
+
+class WrapperNoPublicCandidateSearchAdapter(WellEngineeredWrapperAdapter):
+    name = "wrapper_no_public_candidate_search"
+    use_public_candidate_search = False
+
+
+class WrapperNoVerifierCallsAdapter(WellEngineeredWrapperAdapter):
+    name = "wrapper_no_verifier_calls"
+    use_tool_verify = False
+
+
+class WrapperVerifyBudget1Adapter(WellEngineeredWrapperAdapter):
+    name = "wrapper_verify_budget_1"
+    verify_budget = 1
+
+
+class WrapperVerifyBudget3Adapter(WellEngineeredWrapperAdapter):
+    name = "wrapper_verify_budget_3"
+    verify_budget = 3
+
+
+class WrapperVerifyBudget10Adapter(WellEngineeredWrapperAdapter):
+    name = "wrapper_verify_budget_10"
+    verify_budget = 10
+
+
+class WrapperNoContradictionDetectorAdapter(WellEngineeredWrapperAdapter):
+    name = "wrapper_no_contradiction_detector"
+    use_contradiction_detector = False
+
+
+class WrapperNoRepairLoopAdapter(WellEngineeredWrapperAdapter):
+    name = "wrapper_no_repair_loop"
+    use_repair_loop = False
+
+
+class WrapperNoBoundarySpecialCaseAdapter(WellEngineeredWrapperAdapter):
+    name = "wrapper_no_boundary_special_case"
+    use_boundary_special_case = False
+
+
+class WrapperNameScrambledPublicViewAdapter(WellEngineeredWrapperAdapter):
+    name = "wrapper_name_scrambled_public_view"
+    ignore_visible_task_name = True
 
 
 def _has_verify_tool(req: AgentRequest) -> bool:
@@ -182,7 +270,10 @@ def _has_property_bounds_contradiction(spec_payload: Dict[str, Any]) -> bool:
         params = constraint.get("params")
         if not isinstance(params, dict):
             continue
-        for prop, raw in params.items():
+        raw_bounds = params.get("bounds")
+        if not isinstance(raw_bounds, dict):
+            raw_bounds = params
+        for prop, raw in raw_bounds.items():
             if not isinstance(raw, dict):
                 continue
             lower = raw.get("min")
@@ -209,4 +300,16 @@ def _interrupt_ack(interrupt: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-__all__ = ["WellEngineeredWrapperAdapter"]
+__all__ = [
+    "WellEngineeredWrapperAdapter",
+    "WrapperFullAdapter",
+    "WrapperNoPublicCandidateSearchAdapter",
+    "WrapperNoVerifierCallsAdapter",
+    "WrapperVerifyBudget1Adapter",
+    "WrapperVerifyBudget3Adapter",
+    "WrapperVerifyBudget10Adapter",
+    "WrapperNoContradictionDetectorAdapter",
+    "WrapperNoRepairLoopAdapter",
+    "WrapperNoBoundarySpecialCaseAdapter",
+    "WrapperNameScrambledPublicViewAdapter",
+]

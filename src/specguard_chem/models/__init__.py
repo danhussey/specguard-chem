@@ -14,7 +14,19 @@ from .openai_verify_l3 import OpenAIChatVerifyL3Adapter
 from .corpus_search import CorpusSearchAdapter
 from .local_mutation import LocalMutationAdapter
 from .verify_first import VerifyFirstAdapter
-from .well_engineered_wrapper import WellEngineeredWrapperAdapter
+from .well_engineered_wrapper import (
+    WellEngineeredWrapperAdapter,
+    WrapperFullAdapter,
+    WrapperNameScrambledPublicViewAdapter,
+    WrapperNoBoundarySpecialCaseAdapter,
+    WrapperNoContradictionDetectorAdapter,
+    WrapperNoPublicCandidateSearchAdapter,
+    WrapperNoRepairLoopAdapter,
+    WrapperNoVerifierCallsAdapter,
+    WrapperVerifyBudget1Adapter,
+    WrapperVerifyBudget3Adapter,
+    WrapperVerifyBudget10Adapter,
+)
 from .simple_baselines import (
     AlwaysAbstainAdapter,
     AlwaysAcceptAdapter,
@@ -41,6 +53,16 @@ _ADAPTERS: Dict[str, Type[BaseAdapter]] = {
     SchemaValidDummyAdapter.name: SchemaValidDummyAdapter,
     VerifierGuidedGreedyAdapter.name: VerifierGuidedGreedyAdapter,
     WellEngineeredWrapperAdapter.name: WellEngineeredWrapperAdapter,
+    WrapperFullAdapter.name: WrapperFullAdapter,
+    WrapperNoPublicCandidateSearchAdapter.name: WrapperNoPublicCandidateSearchAdapter,
+    WrapperNoVerifierCallsAdapter.name: WrapperNoVerifierCallsAdapter,
+    WrapperVerifyBudget1Adapter.name: WrapperVerifyBudget1Adapter,
+    WrapperVerifyBudget3Adapter.name: WrapperVerifyBudget3Adapter,
+    WrapperVerifyBudget10Adapter.name: WrapperVerifyBudget10Adapter,
+    WrapperNoContradictionDetectorAdapter.name: WrapperNoContradictionDetectorAdapter,
+    WrapperNoRepairLoopAdapter.name: WrapperNoRepairLoopAdapter,
+    WrapperNoBoundarySpecialCaseAdapter.name: WrapperNoBoundarySpecialCaseAdapter,
+    WrapperNameScrambledPublicViewAdapter.name: WrapperNameScrambledPublicViewAdapter,
 }
 
 

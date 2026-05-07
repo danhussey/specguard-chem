@@ -1,0 +1,52 @@
+commit: ae17cfd26c8fb176de0f35a5e1a4dc258874ab4c
+date_utc: 2026-05-07T10:25:43Z
+python: Python 3.12.13
+
+annotated-doc==0.0.4
+annotated-types==0.7.0
+cfgv==3.5.0
+click==8.3.3
+contourpy==1.3.3
+coverage==7.13.5
+cycler==0.12.1
+distlib==0.4.0
+filelock==3.29.0
+fonttools==4.62.1
+identify==2.6.19
+iniconfig==2.3.0
+joblib==1.5.3
+kiwisolver==1.5.0
+markdown-it-py==4.1.0
+matplotlib==3.10.9
+mdurl==0.1.2
+nodeenv==1.10.0
+numpy==2.4.4
+packaging==26.2
+pandas==3.0.2
+pillow==12.2.0
+platformdirs==4.9.6
+pluggy==1.6.0
+pre_commit==4.6.0
+pyarrow==24.0.0
+pydantic==2.13.4
+pydantic_core==2.46.4
+Pygments==2.20.0
+pyparsing==3.3.2
+pytest==9.0.3
+pytest-cov==7.1.0
+python-dateutil==2.9.0.post0
+python-discovery==1.3.0
+PyYAML==6.0.3
+rdkit==2026.3.1
+rich==15.0.0
+scikit-learn==1.8.0
+scipy==1.17.1
+shellingham==1.5.4
+six==1.17.0
+-e git+https://github.com/danhussey/specguard-chem.git@ae17cfd26c8fb176de0f35a5e1a4dc258874ab4c#egg=specguard_chem&subdirectory=../../../../.codex/worktrees/7c0b/specguard-chem
+threadpoolctl==3.6.0
+typer==0.25.1
+types-PyYAML==6.0.12.20260408
+typing-inspection==0.4.2
+typing_extensions==4.15.0
+virtualenv==21.3.1

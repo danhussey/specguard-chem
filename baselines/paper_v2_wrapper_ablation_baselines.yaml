@@ -1,0 +1,31 @@
+baselines:
+  - name: wrapper_full
+    model: wrapper_full
+    track: wrapper_guarded
+  - name: wrapper_no_public_candidate_search
+    model: wrapper_no_public_candidate_search
+    track: wrapper_guarded
+  - name: wrapper_no_verifier_calls
+    model: wrapper_no_verifier_calls
+    track: wrapper_guarded
+  - name: wrapper_verify_budget_1
+    model: wrapper_verify_budget_1
+    track: wrapper_guarded
+  - name: wrapper_verify_budget_3
+    model: wrapper_verify_budget_3
+    track: wrapper_guarded
+  - name: wrapper_verify_budget_10
+    model: wrapper_verify_budget_10
+    track: wrapper_guarded
+  - name: wrapper_no_contradiction_detector
+    model: wrapper_no_contradiction_detector
+    track: wrapper_guarded
+  - name: wrapper_no_repair_loop
+    model: wrapper_no_repair_loop
+    track: wrapper_guarded
+  - name: wrapper_no_boundary_special_case
+    model: wrapper_no_boundary_special_case
+    track: wrapper_guarded
+  - name: wrapper_name_scrambled_public_view
+    model: wrapper_name_scrambled_public_view
+    track: wrapper_guarded

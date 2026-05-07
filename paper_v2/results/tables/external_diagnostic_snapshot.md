@@ -1,0 +1,3 @@
+| adapter | provider_or_gateway | model_id | model_access_date | protocol | n_tasks | subset_definition | sampling_temperature | top_p | max_tokens | action_accuracy | balanced_action_accuracy | molecule_acceptance_rate | task_inconsistent_accept_rate | reject_recall | abstain_recall | schema_error_rate | invalid_molecule_rate | mean_verify_calls | cache_mode | estimated_cost_usd | notes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| skipped | NA | NA | NA | NA | 0 | not run | NA | NA | NA | NA | NA | NA | NA | NA | NA | NA | NA | NA | skipped | 0.000 | No credentials and no replay cache were configured. |

@@ -1,0 +1,57 @@
+baselines:
+  - name: heuristic_L1
+    model: heuristic
+    protocol: L1
+    track: closed_book
+  - name: heuristic_L2
+    model: heuristic
+    protocol: L2
+    track: closed_book
+  - name: heuristic_L3
+    model: heuristic
+    protocol: L3
+    track: closed_book
+  - name: abstention_guard_L1
+    model: abstention_guard
+    protocol: L1
+    track: closed_book
+  - name: abstention_guard_L2
+    model: abstention_guard
+    protocol: L2
+    track: closed_book
+  - name: abstention_guard_L3
+    model: abstention_guard
+    protocol: L3
+    track: closed_book
+  - name: local_mutation_L1
+    model: local_mutation
+    protocol: L1
+    track: closed_book
+  - name: local_mutation_L2
+    model: local_mutation
+    protocol: L2
+    track: closed_book
+  - name: local_mutation_L3
+    model: local_mutation
+    protocol: L3
+    track: closed_book
+  - name: well_engineered_wrapper_L1
+    model: well_engineered_wrapper
+    protocol: L1
+    track: wrapper_guarded
+  - name: well_engineered_wrapper_L2
+    model: well_engineered_wrapper
+    protocol: L2
+    track: wrapper_guarded
+  - name: well_engineered_wrapper_L3
+    model: well_engineered_wrapper
+    protocol: L3
+    track: wrapper_guarded
+  - name: verify_first_L3
+    model: verify_first
+    protocol: L3
+    track: tool_enabled
+  - name: verifier_guided_greedy_L3
+    model: verifier_guided_greedy
+    protocol: L3
+    track: tool_enabled
