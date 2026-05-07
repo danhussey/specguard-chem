@@ -14,6 +14,9 @@ Committed recovery sources:
 - `tables/`, `figures/`, and `notes/`: paper-ready derived outputs.
 - `commands.log`, `environment.txt`, and `validation/`: exact commands,
   environment, validation, and consistency evidence.
+- `summaries/run_observability.json`, `tables/artifact_inventory.csv`, and
+  `tables/raw_run_inventory.csv`: compact run observability records with
+  artifact sizes, hashes, validation status, and raw-trace inventory metadata.
 
 The files named `protocol_ladder_*` are kept under their original generated
 filenames for compatibility with the run checklist, but the analysis is a

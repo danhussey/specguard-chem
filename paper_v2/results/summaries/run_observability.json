@@ -1,0 +1,31 @@
+{
+  "generated_at_utc": "2026-05-07T13:17:36Z",
+  "release": "sgchem_v1.0",
+  "release_path": "benchmarks/releases/sgchem_v1.0",
+  "result_dir": "paper_v2/results",
+  "compact_artifact_count": 100,
+  "compact_artifact_bytes": 5588470,
+  "raw_runs_present": true,
+  "raw_run_count": 67,
+  "raw_run_bytes_local": 197885356,
+  "validation_log_count": 15,
+  "validation_status": {
+    "make_paper_v2_tables_and_figures.log": "check log",
+    "model_prompt_leakage_audit.log": "pass",
+    "neurips_ed_preflight.log": "pass",
+    "oracle_scrambling_audit.log": "pass",
+    "paper_v2_consistency_check.log": "pass",
+    "pip_show_specguard_chem.log": "completed",
+    "run_benchmark_full_offline_dev.log": "completed",
+    "run_benchmark_full_offline_test.log": "completed",
+    "run_benchmark_full_offline_train.log": "completed",
+    "run_benchmark_protocol_ladder_test.log": "completed",
+    "run_benchmark_wrapper_ablation_test.log": "completed",
+    "specguard_chem_help.log": "completed",
+    "task_inventory_audit.log": "completed",
+    "validate_croissant.log": "pass",
+    "validate_dataset_strict.log": "pass"
+  },
+  "commands_count": 19,
+  "notes": "Small local observability record. Raw run bytes are summarized but raw traces remain uncommitted."
+}

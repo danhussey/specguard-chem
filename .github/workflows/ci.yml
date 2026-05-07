@@ -36,14 +36,15 @@ jobs:
               model: verify_first
           YAML
       - run: uv run specguard-chem run-benchmark --benchmark benchmarks/releases/ci_a --split test --baselines baselines/ci_paper_baselines.yaml --out runs/ci_paper_sweep --limit 25 --seed 7
-      - run: uv run python - <<'PY'
-import json
-from pathlib import Path
-report = json.loads(Path("runs/ci_paper_sweep/verify_first/report.json").read_text())
-value = float(report["summary"]["avg_verify_calls_used"])
-if value <= 0.0:
-    raise SystemExit("avg_verify_calls_used must be > 0 for verify_first in CI smoke")
-PY
+      - run: |
+          uv run python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path("runs/ci_paper_sweep/verify_first/report.json").read_text())
+          value = float(report["summary"]["avg_verify_calls_used"])
+          if value <= 0.0:
+              raise SystemExit("avg_verify_calls_used must be > 0 for verify_first in CI smoke")
+          PY
       - run: |
           cat > /tmp/ci_process_adapter.py <<'PY'
           import json

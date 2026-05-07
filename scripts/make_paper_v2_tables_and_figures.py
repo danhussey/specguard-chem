@@ -6,10 +6,11 @@ import hashlib
 import json
 import math
 import random
-from collections import Counter, defaultdict
+from collections import defaultdict
+from datetime import datetime, timezone
 from pathlib import Path
 from statistics import mean
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any, Mapping, Sequence
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -78,7 +79,9 @@ def _md_table(rows: Sequence[Mapping[str, Any]]) -> str:
         "| " + " | ".join("---" for _ in headers) + " |",
     ]
     for row in rows:
-        lines.append("| " + " | ".join(_fmt(row.get(header)) for header in headers) + " |")
+        lines.append(
+            "| " + " | ".join(_fmt(row.get(header)) for header in headers) + " |"
+        )
     return "\n".join(lines) + "\n"
 
 
@@ -95,7 +98,9 @@ def _write_csv(path: Path, rows: Sequence[Mapping[str, Any]]) -> None:
             writer.writerow({key: row.get(key) for key in headers})
 
 
-def _write_md(path: Path, rows: Sequence[Mapping[str, Any]], *, title: str | None = None) -> None:
+def _write_md(
+    path: Path, rows: Sequence[Mapping[str, Any]], *, title: str | None = None
+) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     prefix = f"# {title}\n\n" if title else ""
     path.write_text(prefix + _md_table(rows), encoding="utf-8")
@@ -137,7 +142,11 @@ def _expected(record: Mapping[str, Any]) -> str:
 
 
 def _predicted(record: Mapping[str, Any]) -> str:
-    if record.get("schema_error") or record.get("invalid_action") or record.get("invalid_tool_call"):
+    if (
+        record.get("schema_error")
+        or record.get("invalid_action")
+        or record.get("invalid_tool_call")
+    ):
         return "INVALID"
     value = str(record.get("final_decision") or "").upper()
     if value in PREDICTED_ACTIONS:
@@ -152,7 +161,9 @@ def _predicted(record: Mapping[str, Any]) -> str:
     return "INVALID"
 
 
-def _schema_output_counts(records: Sequence[Mapping[str, Any]]) -> tuple[int, int, int, int]:
+def _schema_output_counts(
+    records: Sequence[Mapping[str, Any]]
+) -> tuple[int, int, int, int]:
     outputs = 0
     schema = 0
     invalid_action = 0
@@ -185,12 +196,23 @@ def _invalid_molecule_rate(records: Sequence[Mapping[str, Any]]) -> float | None
                 continue
             proposals += 1
             vector = item.get("failure_vector")
-            text = json.dumps(vector, sort_keys=True).lower() if isinstance(vector, dict) else ""
+            text = (
+                json.dumps(vector, sort_keys=True).lower()
+                if isinstance(vector, dict)
+                else ""
+            )
             evaluation = item.get("evaluation")
             if "invalid_smiles" in text or "invalid smiles" in text:
                 invalid += 1
-            elif isinstance(evaluation, dict) and evaluation.get("properties") == {} and not evaluation.get("hard_pass"):
-                invalid += int("invalid" in " ".join(map(str, evaluation.get("hard_fails", []))).lower())
+            elif (
+                isinstance(evaluation, dict)
+                and evaluation.get("properties") == {}
+                and not evaluation.get("hard_pass")
+            ):
+                invalid += int(
+                    "invalid"
+                    in " ".join(map(str, evaluation.get("hard_fails", []))).lower()
+                )
     return _safe_div(invalid, proposals)
 
 
@@ -215,12 +237,18 @@ def _metrics(records: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     recalls: dict[str, float | None] = {}
     precisions: dict[str, float | None] = {}
     for action in ACTIONS:
-        recalls[action] = _safe_div(matrix[action][action], sum(matrix[action].values()))
+        recalls[action] = _safe_div(
+            matrix[action][action], sum(matrix[action].values())
+        )
         precisions[action] = _safe_div(
             matrix[action][action],
             sum(matrix[exp][action] for exp in ACTIONS),
         )
-    balanced = mean([value for value in recalls.values() if value is not None]) if any(value is not None for value in recalls.values()) else None
+    balanced = (
+        mean([value for value in recalls.values() if value is not None])
+        if any(value is not None for value in recalls.values())
+        else None
+    )
     predicted = [_predicted(record) for record in records]
     expected = [_expected(record) for record in records]
     unsafe_denom = sum(1 for value in expected if value in {"REJECT", "ABSTAIN"})
@@ -230,13 +258,19 @@ def _metrics(records: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     step_values = [int(record.get("steps_used") or 0) for record in records]
     proposal_values = [int(record.get("proposals_used") or 0) for record in records]
     verify_values = [int(record.get("verify_calls_used") or 0) for record in records]
-    total_verify_values = [int(record.get("total_verifier_calls") or 0) for record in records]
+    total_verify_values = [
+        int(record.get("total_verifier_calls") or 0) for record in records
+    ]
 
     def pass_at(k: int) -> float | None:
         accept_indices = [idx for idx, exp in enumerate(expected) if exp == "ACCEPT"]
         if not accept_indices:
             return None
-        hits = sum(1 for idx in accept_indices if predicted[idx] == "ACCEPT" and step_values[idx] <= k)
+        hits = sum(
+            1
+            for idx in accept_indices
+            if predicted[idx] == "ACCEPT" and step_values[idx] <= k
+        )
         return hits / len(accept_indices)
 
     return {
@@ -251,11 +285,19 @@ def _metrics(records: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         "abstain_recall": recalls["ABSTAIN"],
         "molecule_acceptance_rate": _safe_div(predicted.count("ACCEPT"), n),
         "task_inconsistent_accept_rate": _safe_div(
-            sum(1 for exp, pred in zip(expected, predicted) if exp in {"REJECT", "ABSTAIN"} and pred == "ACCEPT"),
+            sum(
+                1
+                for exp, pred in zip(expected, predicted)
+                if exp in {"REJECT", "ABSTAIN"} and pred == "ACCEPT"
+            ),
             unsafe_denom,
         ),
         "false_abstain_rate": _safe_div(
-            sum(1 for exp, pred in zip(expected, predicted) if exp in {"ACCEPT", "REJECT"} and pred == "ABSTAIN"),
+            sum(
+                1
+                for exp, pred in zip(expected, predicted)
+                if exp in {"ACCEPT", "REJECT"} and pred == "ABSTAIN"
+            ),
             false_abstain_denom,
         ),
         "hard_violation_rate": _safe_div(
@@ -271,11 +313,19 @@ def _metrics(records: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         "mean_steps": mean(step_values) if step_values else None,
         "mean_proposals": mean(proposal_values) if proposal_values else None,
         "mean_verify_calls": mean(verify_values) if verify_values else None,
-        "mean_total_verifier_calls": mean(total_verify_values) if total_verify_values else None,
+        "mean_total_verifier_calls": (
+            mean(total_verify_values) if total_verify_values else None
+        ),
         "p95_verify_calls": _p95(verify_values),
         "max_verify_calls": max(verify_values) if verify_values else None,
         "budget_exhaustion_rate": _safe_div(
-            sum(1 for record in records if str(record.get("termination_reason") or "").startswith("budget_exhausted")),
+            sum(
+                1
+                for record in records
+                if str(record.get("termination_reason") or "").startswith(
+                    "budget_exhausted"
+                )
+            ),
             n,
         ),
         "confusion": matrix,
@@ -306,7 +356,10 @@ def _report_rows(sweep_dir: Path) -> list[dict[str, Any]]:
                 "model": str(baseline.get("model")),
                 "protocol": baseline.get("protocol") or "mixed",
                 "track": baseline.get("track") or "primary_closed_book",
-                "access_model": ACCESS_MODEL_BY_TRACK.get(str(baseline.get("track")), str(baseline.get("track") or "closed-book")),
+                "access_model": ACCESS_MODEL_BY_TRACK.get(
+                    str(baseline.get("track")),
+                    str(baseline.get("track") or "closed-book"),
+                ),
                 "run_dir": str(report_path.parent),
                 "records": [record for record in records if isinstance(record, dict)],
                 "adapter_kwargs": baseline.get("adapter_kwargs") or {},
@@ -356,7 +409,9 @@ def _run_metric_rows(report_rows: Sequence[Mapping[str, Any]]) -> list[dict[str,
     return rows
 
 
-def _normalize_records(report_rows: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+def _normalize_records(
+    report_rows: Sequence[Mapping[str, Any]]
+) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for report in report_rows:
         for record in report["records"]:
@@ -374,15 +429,19 @@ def _normalize_records(report_rows: Sequence[Mapping[str, Any]]) -> list[dict[st
                     "expected_action": expected,
                     "predicted_action": predicted,
                     "schema_valid": not bool(record.get("schema_error")),
-                    "molecule_valid": predicted != "INVALID" and (bool(record.get("hard_pass")) or predicted != "ACCEPT"),
+                    "molecule_valid": predicted != "INVALID"
+                    and (bool(record.get("hard_pass")) or predicted != "ACCEPT"),
                     "hard_constraints_passed": bool(record.get("hard_pass")),
                     "task_success": expected == predicted,
-                    "task_inconsistent_accept": expected in {"REJECT", "ABSTAIN"} and predicted == "ACCEPT",
+                    "task_inconsistent_accept": expected in {"REJECT", "ABSTAIN"}
+                    and predicted == "ACCEPT",
                     "abstained": predicted == "ABSTAIN",
                     "verify_calls": int(record.get("verify_calls_used") or 0),
                     "steps": int(record.get("steps_used") or 0),
                     "proposals": int(record.get("proposals_used") or 0),
-                    "budget_exhausted": str(record.get("termination_reason") or "").startswith("budget_exhausted"),
+                    "budget_exhausted": str(
+                        record.get("termination_reason") or ""
+                    ).startswith("budget_exhausted"),
                 }
             )
     return rows
@@ -395,13 +454,19 @@ def _write_normalized(out: Path, all_report_rows: Sequence[Mapping[str, Any]]) -
     _write_csv(out / "summaries" / "normalized_run_metrics.csv", run_rows)
 
 
-def _make_full_offline_tables(out: Path, full_rows: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+def _make_full_offline_tables(
+    out: Path, full_rows: Sequence[Mapping[str, Any]]
+) -> list[dict[str, Any]]:
     tables = out / "tables"
     metric_rows = _run_metric_rows(full_rows)
     test_rows = [row for row in metric_rows if row["split"] == "test"]
     _write_csv(tables / "full_offline_baseline_matrix_test.csv", test_rows)
     _write_csv(tables / "full_offline_baseline_matrix_all_splits.csv", metric_rows)
-    _write_md(tables / "full_offline_baseline_matrix_test.md", test_rows, title="Full Offline Baseline Matrix (Test)")
+    _write_md(
+        tables / "full_offline_baseline_matrix_test.md",
+        test_rows,
+        title="Full Offline Baseline Matrix (Test)",
+    )
     representative_rows = [
         {
             "system": row["adapter"],
@@ -418,7 +483,11 @@ def _make_full_offline_tables(out: Path, full_rows: Sequence[Mapping[str, Any]])
         if row["adapter"] in REPRESENTATIVE
     ]
     _write_csv(tables / "main_table_representative_baselines.csv", representative_rows)
-    _write_md(tables / "main_table_representative_baselines.md", representative_rows, title="Representative Baselines")
+    _write_md(
+        tables / "main_table_representative_baselines.md",
+        representative_rows,
+        title="Representative Baselines",
+    )
     return test_rows
 
 
@@ -442,7 +511,9 @@ def _make_per_family(out: Path, full_test_rows: Sequence[Mapping[str, Any]]) -> 
                     "action_accuracy": metrics["action_accuracy"],
                     "balanced_action_accuracy": metrics["balanced_action_accuracy"],
                     "molecule_acceptance_rate": metrics["molecule_acceptance_rate"],
-                    "task_inconsistent_accept_rate": metrics["task_inconsistent_accept_rate"],
+                    "task_inconsistent_accept_rate": metrics[
+                        "task_inconsistent_accept_rate"
+                    ],
                     "reject_recall": metrics["reject_recall"],
                     "abstain_recall": metrics["abstain_recall"],
                     "hard_violation_rate": metrics["hard_violation_rate"],
@@ -452,13 +523,19 @@ def _make_per_family(out: Path, full_test_rows: Sequence[Mapping[str, Any]]) -> 
                 }
             )
     _write_csv(out / "tables" / "per_family_metrics_test.csv", rows)
-    pivot = pd.DataFrame(rows).pivot(index="adapter", columns="family", values="action_accuracy").reindex(list(REPRESENTATIVE))
+    pivot = (
+        pd.DataFrame(rows)
+        .pivot(index="adapter", columns="family", values="action_accuracy")
+        .reindex(list(REPRESENTATIVE))
+    )
     counts = pd.DataFrame(rows).groupby("family")["n_tasks"].max().to_dict()
     cols = list(pivot.columns)
     fig, ax = plt.subplots(figsize=(max(8, len(cols) * 0.75), 4.8))
     image = ax.imshow(pivot.to_numpy(dtype=float), vmin=0.0, vmax=1.0, cmap="viridis")
     ax.set_xticks(range(len(cols)))
-    ax.set_xticklabels([f"{col}\n(n={counts.get(col, 0)})" for col in cols], rotation=45, ha="right")
+    ax.set_xticklabels(
+        [f"{col}\n(n={counts.get(col, 0)})" for col in cols], rotation=45, ha="right"
+    )
     ax.set_yticks(range(len(pivot.index)))
     ax.set_yticklabels(list(pivot.index))
     ax.set_title("Per-family action accuracy on held-out test tasks")
@@ -466,7 +543,15 @@ def _make_per_family(out: Path, full_test_rows: Sequence[Mapping[str, Any]]) -> 
         for j in range(pivot.shape[1]):
             value = pivot.iloc[i, j]
             if not pd.isna(value):
-                ax.text(j, i, f"{value:.2f}", ha="center", va="center", color="white" if value < 0.65 else "black", fontsize=8)
+                ax.text(
+                    j,
+                    i,
+                    f"{value:.2f}",
+                    ha="center",
+                    va="center",
+                    color="white" if value < 0.65 else "black",
+                    fontsize=8,
+                )
     fig.colorbar(image, ax=ax, label="action accuracy")
     _save_fig(fig, out / "figures", "per_family_action_accuracy_heatmap")
     action_rows = [
@@ -474,7 +559,11 @@ def _make_per_family(out: Path, full_test_rows: Sequence[Mapping[str, Any]]) -> 
         for idx in pivot.index
         if idx in pivot.index
     ]
-    _write_md(out / "tables" / "per_family_action_accuracy_test.md", action_rows, title="Per-family Action Accuracy")
+    _write_md(
+        out / "tables" / "per_family_action_accuracy_test.md",
+        action_rows,
+        title="Per-family Action Accuracy",
+    )
 
 
 def _make_confusions(out: Path, full_test_rows: Sequence[Mapping[str, Any]]) -> None:
@@ -485,18 +574,32 @@ def _make_confusions(out: Path, full_test_rows: Sequence[Mapping[str, Any]]) -> 
             continue
         matrix = _confusion(report["records"])
         count_rows = [
-            {"expected_action": exp, **{pred: matrix[exp][pred] for pred in PREDICTED_ACTIONS}}
+            {
+                "expected_action": exp,
+                **{pred: matrix[exp][pred] for pred in PREDICTED_ACTIONS},
+            }
             for exp in ACTIONS
         ]
         norm_rows = []
         for exp in ACTIONS:
             denom = sum(matrix[exp].values())
             norm_rows.append(
-                {"expected_action": exp, **{pred: _safe_div(matrix[exp][pred], denom) for pred in PREDICTED_ACTIONS}}
+                {
+                    "expected_action": exp,
+                    **{
+                        pred: _safe_div(matrix[exp][pred], denom)
+                        for pred in PREDICTED_ACTIONS
+                    },
+                }
             )
         _write_csv(out / "tables" / f"confusion_{adapter}_counts.csv", count_rows)
-        _write_csv(out / "tables" / f"confusion_{adapter}_row_normalized.csv", norm_rows)
-        data = np.array([[matrix[exp][pred] for pred in PREDICTED_ACTIONS] for exp in ACTIONS], dtype=float)
+        _write_csv(
+            out / "tables" / f"confusion_{adapter}_row_normalized.csv", norm_rows
+        )
+        data = np.array(
+            [[matrix[exp][pred] for pred in PREDICTED_ACTIONS] for exp in ACTIONS],
+            dtype=float,
+        )
         fig, ax = plt.subplots(figsize=(5.6, 3.8))
         image = ax.imshow(data, cmap="Blues")
         ax.set_xticks(range(len(PREDICTED_ACTIONS)))
@@ -508,7 +611,9 @@ def _make_confusions(out: Path, full_test_rows: Sequence[Mapping[str, Any]]) -> 
         ax.set_title(adapter)
         for i in range(data.shape[0]):
             for j in range(data.shape[1]):
-                ax.text(j, i, str(int(data[i, j])), ha="center", va="center", color="black")
+                ax.text(
+                    j, i, str(int(data[i, j])), ha="center", va="center", color="black"
+                )
         fig.colorbar(image, ax=ax, label="count")
         _save_fig(fig, out / "figures", f"confusion_{adapter}")
         summary_rows.append(
@@ -520,17 +625,29 @@ def _make_confusions(out: Path, full_test_rows: Sequence[Mapping[str, Any]]) -> 
                 "expected_accept_pred_abstain": matrix["ACCEPT"]["ABSTAIN"],
                 "expected_reject_pred_abstain": matrix["REJECT"]["ABSTAIN"],
                 "expected_abstain_pred_abstain": matrix["ABSTAIN"]["ABSTAIN"],
-                "reject_to_accept_rate": _safe_div(matrix["REJECT"]["ACCEPT"], sum(matrix["REJECT"].values())),
-                "abstain_to_accept_rate": _safe_div(matrix["ABSTAIN"]["ACCEPT"], sum(matrix["ABSTAIN"].values())),
-                "accept_to_abstain_rate": _safe_div(matrix["ACCEPT"]["ABSTAIN"], sum(matrix["ACCEPT"].values())),
+                "reject_to_accept_rate": _safe_div(
+                    matrix["REJECT"]["ACCEPT"], sum(matrix["REJECT"].values())
+                ),
+                "abstain_to_accept_rate": _safe_div(
+                    matrix["ABSTAIN"]["ACCEPT"], sum(matrix["ABSTAIN"].values())
+                ),
+                "accept_to_abstain_rate": _safe_div(
+                    matrix["ACCEPT"]["ABSTAIN"], sum(matrix["ACCEPT"].values())
+                ),
             }
         )
     _write_csv(out / "tables" / "action_collapse_summary.csv", summary_rows)
-    _write_md(out / "tables" / "action_collapse_summary.md", summary_rows, title="Action Collapse Summary")
+    _write_md(
+        out / "tables" / "action_collapse_summary.md",
+        summary_rows,
+        title="Action Collapse Summary",
+    )
 
 
 def _family_accuracy(records: Sequence[Mapping[str, Any]], family: str) -> float | None:
-    subset = [record for record in records if str(record.get("task_family") or "") == family]
+    subset = [
+        record for record in records if str(record.get("task_family") or "") == family
+    ]
     return _metrics(subset)["action_accuracy"] if subset else None
 
 
@@ -547,17 +664,31 @@ def _make_wrapper_ablation(out: Path, rows: Sequence[Mapping[str, Any]]) -> None
                 "action_accuracy": metrics["action_accuracy"],
                 "balanced_action_accuracy": metrics["balanced_action_accuracy"],
                 "molecule_acceptance_rate": metrics["molecule_acceptance_rate"],
-                "task_inconsistent_accept_rate": metrics["task_inconsistent_accept_rate"],
+                "task_inconsistent_accept_rate": metrics[
+                    "task_inconsistent_accept_rate"
+                ],
                 "accept_recall": metrics["accept_recall"],
                 "reject_recall": metrics["reject_recall"],
                 "abstain_recall": metrics["abstain_recall"],
-                "construct_family_accuracy": _family_accuracy(records, "construct_feasible"),
+                "construct_family_accuracy": _family_accuracy(
+                    records, "construct_feasible"
+                ),
                 "repair_family_accuracy": _family_accuracy(records, "repair_near_miss"),
-                "audit_reject_family_accuracy": _family_accuracy(records, "audit_reject"),
-                "abstain_family_accuracy": _family_accuracy(records, "abstain_contradiction"),
-                "boundary_family_accuracy": _family_accuracy(records, "boundary_precision"),
-                "invariance_family_accuracy": _family_accuracy(records, "smiles_invariance"),
-                "interrupt_family_accuracy": _family_accuracy(records, "interrupt_resume"),
+                "audit_reject_family_accuracy": _family_accuracy(
+                    records, "audit_reject"
+                ),
+                "abstain_family_accuracy": _family_accuracy(
+                    records, "abstain_contradiction"
+                ),
+                "boundary_family_accuracy": _family_accuracy(
+                    records, "boundary_precision"
+                ),
+                "invariance_family_accuracy": _family_accuracy(
+                    records, "smiles_invariance"
+                ),
+                "interrupt_family_accuracy": _family_accuracy(
+                    records, "interrupt_resume"
+                ),
                 "mean_verify_calls": metrics["mean_verify_calls"],
                 "p95_verify_calls": metrics["p95_verify_calls"],
                 "max_verify_calls": metrics["max_verify_calls"],
@@ -566,7 +697,11 @@ def _make_wrapper_ablation(out: Path, rows: Sequence[Mapping[str, Any]]) -> None
             }
         )
     _write_csv(out / "tables" / "wrapper_ablation_test.csv", table_rows)
-    _write_md(out / "tables" / "wrapper_ablation_test.md", table_rows, title="Wrapper Ablation")
+    _write_md(
+        out / "tables" / "wrapper_ablation_test.md",
+        table_rows,
+        title="Wrapper Ablation",
+    )
     labels = [row["variant"].replace("wrapper_", "") for row in table_rows]
     values = [row["action_accuracy"] or 0.0 for row in table_rows]
     fig, ax = plt.subplots(figsize=(9, 4.6))
@@ -578,7 +713,9 @@ def _make_wrapper_ablation(out: Path, rows: Sequence[Mapping[str, Any]]) -> None
     ax.set_title("Wrapper ablation action accuracy")
     _save_fig(fig, out / "figures", "wrapper_ablation_action_accuracy")
     budget_rows = [
-        row for row in table_rows if str(row["variant"]).startswith("wrapper_verify_budget_")
+        row
+        for row in table_rows
+        if str(row["variant"]).startswith("wrapper_verify_budget_")
     ]
     budget_rows.sort(key=lambda row: int(str(row["variant"]).rsplit("_", 1)[1]))
     fig, ax = plt.subplots(figsize=(5.6, 3.8))
@@ -617,9 +754,13 @@ def _write_wrapper_note(out: Path, rows: Sequence[Mapping[str, Any]]) -> None:
     no_search = by_name.get("wrapper_no_public_candidate_search", {})
     no_verify = by_name.get("wrapper_no_verifier_calls", {})
     scrambled = by_name.get("wrapper_name_scrambled_public_view", {})
-    budget = [row for row in rows if str(row["variant"]).startswith("wrapper_verify_budget_")]
+    budget = [
+        row for row in rows if str(row["variant"]).startswith("wrapper_verify_budget_")
+    ]
     budget.sort(key=lambda row: int(str(row["variant"]).rsplit("_", 1)[1]))
-    near = next((row for row in budget if (row.get("action_accuracy") or 0) >= 0.95), None)
+    near = next(
+        (row for row in budget if (row.get("action_accuracy") or 0) >= 0.95), None
+    )
     text = "\n".join(
         [
             "# Wrapper Ablation Interpretation",
@@ -632,7 +773,9 @@ def _write_wrapper_note(out: Path, rows: Sequence[Mapping[str, Any]]) -> None:
             "These rows support the evaluation-contract interpretation: wrapper performance is an access-model ceiling under public verifier/search assumptions, not a closed-book chemistry capability result.",
         ]
     )
-    (out / "notes" / "wrapper_ablation_interpretation.md").write_text(text + "\n", encoding="utf-8")
+    (out / "notes" / "wrapper_ablation_interpretation.md").write_text(
+        text + "\n", encoding="utf-8"
+    )
 
 
 def _make_protocol_ladder(out: Path, rows: Sequence[Mapping[str, Any]]) -> None:
@@ -648,7 +791,9 @@ def _make_protocol_ladder(out: Path, rows: Sequence[Mapping[str, Any]]) -> None:
                 "action_accuracy": metrics["action_accuracy"],
                 "balanced_action_accuracy": metrics["balanced_action_accuracy"],
                 "molecule_acceptance_rate": metrics["molecule_acceptance_rate"],
-                "task_inconsistent_accept_rate": metrics["task_inconsistent_accept_rate"],
+                "task_inconsistent_accept_rate": metrics[
+                    "task_inconsistent_accept_rate"
+                ],
                 "reject_recall": metrics["reject_recall"],
                 "abstain_recall": metrics["abstain_recall"],
                 "hard_violation_rate": metrics["hard_violation_rate"],
@@ -658,11 +803,17 @@ def _make_protocol_ladder(out: Path, rows: Sequence[Mapping[str, Any]]) -> None:
                 "mean_verify_calls": metrics["mean_verify_calls"],
                 "p95_verify_calls": metrics["p95_verify_calls"],
                 "budget_exhaustion_rate": metrics["budget_exhaustion_rate"],
-                "not_applicable_reason": "" if metrics["n_tasks"] else "no tasks for protocol in split",
+                "not_applicable_reason": (
+                    "" if metrics["n_tasks"] else "no tasks for protocol in split"
+                ),
             }
         )
     _write_csv(out / "tables" / "protocol_ladder_test.csv", table_rows)
-    _write_md(out / "tables" / "protocol_ladder_test.md", table_rows, title="Protocol-Slice Analysis")
+    _write_md(
+        out / "tables" / "protocol_ladder_test.md",
+        table_rows,
+        title="Protocol-Slice Analysis",
+    )
     df = pd.DataFrame(table_rows)
     for metric, stem, ylabel in (
         ("action_accuracy", "protocol_ladder_action_accuracy", "action accuracy"),
@@ -674,7 +825,12 @@ def _make_protocol_ladder(out: Path, rows: Sequence[Mapping[str, Any]]) -> None:
         width = 0.22
         fig, ax = plt.subplots(figsize=(8, 4.3))
         for idx, proto in enumerate(protocols):
-            ax.bar(x + (idx - 1) * width, pivot[proto].fillna(0).to_numpy(), width, label=proto)
+            ax.bar(
+                x + (idx - 1) * width,
+                pivot[proto].fillna(0).to_numpy(),
+                width,
+                label=proto,
+            )
         ax.set_xticks(x)
         ax.set_xticklabels(pivot.index, rotation=30, ha="right")
         ax.set_ylabel(ylabel)
@@ -688,7 +844,11 @@ def _make_protocol_ladder(out: Path, rows: Sequence[Mapping[str, Any]]) -> None:
 
 def _write_protocol_note(out: Path, rows: Sequence[Mapping[str, Any]]) -> None:
     df = pd.DataFrame(rows)
-    l3_best = df[df["protocol"] == "L3"].sort_values("action_accuracy", ascending=False).head(1)
+    l3_best = (
+        df[df["protocol"] == "L3"]
+        .sort_values("action_accuracy", ascending=False)
+        .head(1)
+    )
     l2 = df[df["protocol"] == "L2"]["action_accuracy"].mean()
     l1 = df[df["protocol"] == "L1"]["action_accuracy"].mean()
     text = "\n".join(
@@ -702,25 +862,41 @@ def _write_protocol_note(out: Path, rows: Sequence[Mapping[str, Any]]) -> None:
             "Rows where molecule_acceptance_rate increases without a matching action_accuracy increase should be treated as evidence that molecule production is not the headline metric.",
         ]
     )
-    (out / "notes" / "protocol_ladder_interpretation.md").write_text(text + "\n", encoding="utf-8")
+    (out / "notes" / "protocol_ladder_interpretation.md").write_text(
+        text + "\n", encoding="utf-8"
+    )
 
 
 def _make_metric_sensitivity(out: Path, rows: Sequence[Mapping[str, Any]]) -> None:
     metric_rows = [row for row in _run_metric_rows(rows) if row["split"] == "test"]
-    max_verify = max((row["mean_verify_calls"] or 0.0 for row in metric_rows), default=1.0) or 1.0
+    max_verify = (
+        max((row["mean_verify_calls"] or 0.0 for row in metric_rows), default=1.0)
+        or 1.0
+    )
     enriched: list[dict[str, Any]] = []
     for row in metric_rows:
         accept = row["accept_recall"]
         reject = row["reject_recall"]
         abstain = row["abstain_recall"]
-        balanced_action_score = mean([value for value in (accept, reject, abstain) if value is not None])
-        safe = (row["action_accuracy"] or 0.0) - (row["task_inconsistent_accept_rate"] or 0.0) - (row["hard_violation_rate"] or 0.0) - (row["schema_error_rate"] or 0.0)
+        balanced_action_score = mean(
+            [value for value in (accept, reject, abstain) if value is not None]
+        )
+        safe = (
+            (row["action_accuracy"] or 0.0)
+            - (row["task_inconsistent_accept_rate"] or 0.0)
+            - (row["hard_violation_rate"] or 0.0)
+            - (row["schema_error_rate"] or 0.0)
+        )
         normalized_cost = (row["mean_verify_calls"] or 0.0) / max_verify
         payload = dict(row)
         payload["balanced_action_score"] = balanced_action_score
         payload["safe_action_score"] = safe
-        payload["cost_adjusted_action_score_lambda_0_01"] = (row["action_accuracy"] or 0.0) - 0.01 * normalized_cost
-        payload["cost_adjusted_action_score_lambda_0_05"] = (row["action_accuracy"] or 0.0) - 0.05 * normalized_cost
+        payload["cost_adjusted_action_score_lambda_0_01"] = (
+            row["action_accuracy"] or 0.0
+        ) - 0.01 * normalized_cost
+        payload["cost_adjusted_action_score_lambda_0_05"] = (
+            row["action_accuracy"] or 0.0
+        ) - 0.05 * normalized_cost
         enriched.append(payload)
     objectives = [
         ("action_accuracy", False),
@@ -767,18 +943,39 @@ def _make_metric_sensitivity(out: Path, rows: Sequence[Mapping[str, Any]]) -> No
             }
         )
     _write_csv(out / "tables" / "metric_ranking_sensitivity.csv", rank_rows)
-    _write_md(out / "tables" / "metric_ranking_sensitivity.md", rank_rows, title="Metric Ranking Sensitivity")
+    _write_md(
+        out / "tables" / "metric_ranking_sensitivity.md",
+        rank_rows,
+        title="Metric Ranking Sensitivity",
+    )
     _write_csv(out / "tables" / "metric_winners_by_objective.csv", winners)
-    _write_md(out / "tables" / "metric_winners_by_objective.md", winners, title="Metric Winners by Objective")
-    selected_metrics = ["molecule_acceptance_rate", "action_accuracy", "reject_recall", "abstain_recall", "safe_action_score"]
+    _write_md(
+        out / "tables" / "metric_winners_by_objective.md",
+        winners,
+        title="Metric Winners by Objective",
+    )
+    selected_metrics = [
+        "molecule_acceptance_rate",
+        "action_accuracy",
+        "reject_recall",
+        "abstain_recall",
+        "safe_action_score",
+    ]
     fig, ax = plt.subplots(figsize=(8.5, 4.5))
     for system in REPRESENTATIVE:
         points = []
         labels = []
         for metric in selected_metrics:
-            row = next((r for r in rank_rows if r["objective_metric"] == metric and r["system"] == system), None)
-            if row:
-                points.append(row["rank"])
+            rank_row: Mapping[str, Any] | None = None
+            for candidate in rank_rows:
+                if (
+                    candidate["objective_metric"] == metric
+                    and candidate["system"] == system
+                ):
+                    rank_row = candidate
+                    break
+            if rank_row:
+                points.append(rank_row["rank"])
                 labels.append(metric)
         if points:
             ax.plot(range(len(points)), points, marker="o", label=system)
@@ -833,10 +1030,14 @@ def _write_metric_note(out: Path, winners: Sequence[Mapping[str, Any]]) -> None:
             "The most defensible headline is that access model and metric choice jointly determine the apparent winner.",
         ]
     )
-    (out / "notes" / "metric_sanity_interpretation.md").write_text(text + "\n", encoding="utf-8")
+    (out / "notes" / "metric_sanity_interpretation.md").write_text(
+        text + "\n", encoding="utf-8"
+    )
 
 
-def _bootstrap_ci(values: Sequence[float], *, seed: int, n_bootstrap: int) -> tuple[float, float, float]:
+def _bootstrap_ci(
+    values: Sequence[float], *, seed: int, n_bootstrap: int
+) -> tuple[float, float, float]:
     if not values:
         return (math.nan, math.nan, math.nan)
     rng = random.Random(seed)
@@ -851,13 +1052,17 @@ def _bootstrap_ci(values: Sequence[float], *, seed: int, n_bootstrap: int) -> tu
     return (mean(values), low, high)
 
 
-def _metric_task_values(records: Sequence[Mapping[str, Any]], metric: str) -> list[float]:
+def _metric_task_values(
+    records: Sequence[Mapping[str, Any]], metric: str
+) -> list[float]:
     if metric == "action_accuracy":
         return [float(_expected(record) == _predicted(record)) for record in records]
     if metric == "molecule_acceptance_rate":
         return [float(_predicted(record) == "ACCEPT") for record in records]
     if metric == "task_inconsistent_accept_rate":
-        subset = [record for record in records if _expected(record) in {"REJECT", "ABSTAIN"}]
+        subset = [
+            record for record in records if _expected(record) in {"REJECT", "ABSTAIN"}
+        ]
         return [float(_predicted(record) == "ACCEPT") for record in subset]
     if metric == "reject_recall":
         subset = [record for record in records if _expected(record) == "REJECT"]
@@ -870,12 +1075,20 @@ def _metric_task_values(records: Sequence[Mapping[str, Any]], metric: str) -> li
         for action in ACTIONS:
             subset = [record for record in records if _expected(record) == action]
             if subset:
-                recalls.append(sum(float(_predicted(record) == action) for record in subset) / len(subset))
+                recalls.append(
+                    sum(float(_predicted(record) == action) for record in subset)
+                    / len(subset)
+                )
         return recalls
     raise ValueError(metric)
 
 
-def _make_bootstrap(out: Path, full_test_rows: Sequence[Mapping[str, Any]], release_tasks: Mapping[str, Sequence[Mapping[str, Any]]], n_bootstrap: int) -> None:
+def _make_bootstrap(
+    out: Path,
+    full_test_rows: Sequence[Mapping[str, Any]],
+    release_tasks: Mapping[str, Sequence[Mapping[str, Any]]],
+    n_bootstrap: int,
+) -> None:
     task_to_bundle = {
         str(task.get("task_id")): str(task.get("bundle_id") or task.get("task_id"))
         for task in release_tasks.get("test", [])
@@ -898,7 +1111,9 @@ def _make_bootstrap(out: Path, full_test_rows: Sequence[Mapping[str, Any]], rele
         records = report["records"]
         for metric in metrics:
             values = _metric_task_values(records, metric)
-            mean_value, low, high = _bootstrap_ci(values, seed=7, n_bootstrap=n_bootstrap)
+            mean_value, low, high = _bootstrap_ci(
+                values, seed=7, n_bootstrap=n_bootstrap
+            )
             task_rows.append(
                 {
                     "adapter": adapter,
@@ -912,13 +1127,19 @@ def _make_bootstrap(out: Path, full_test_rows: Sequence[Mapping[str, Any]], rele
             )
             by_bundle: dict[str, list[Mapping[str, Any]]] = defaultdict(list)
             for record in records:
-                by_bundle[task_to_bundle.get(str(record.get("task_id")), str(record.get("task_id")))].append(record)
+                by_bundle[
+                    task_to_bundle.get(
+                        str(record.get("task_id")), str(record.get("task_id"))
+                    )
+                ].append(record)
             bundle_values = []
             for bundle_records in by_bundle.values():
                 vals = _metric_task_values(bundle_records, metric)
                 if vals:
                     bundle_values.append(mean(vals))
-            b_mean, b_low, b_high = _bootstrap_ci(bundle_values, seed=17, n_bootstrap=n_bootstrap)
+            b_mean, b_low, b_high = _bootstrap_ci(
+                bundle_values, seed=17, n_bootstrap=n_bootstrap
+            )
             bundle_rows.append(
                 {
                     "adapter": adapter,
@@ -944,14 +1165,22 @@ def _make_bootstrap(out: Path, full_test_rows: Sequence[Mapping[str, Any]], rele
             {
                 "system": adapter,
                 "action_accuracy": _ci_fmt(ci_lookup.get((adapter, "action_accuracy"))),
-                "molecule_acceptance_rate": _ci_fmt(ci_lookup.get((adapter, "molecule_acceptance_rate"))),
-                "task_inconsistent_accept_rate": _ci_fmt(ci_lookup.get((adapter, "task_inconsistent_accept_rate"))),
+                "molecule_acceptance_rate": _ci_fmt(
+                    ci_lookup.get((adapter, "molecule_acceptance_rate"))
+                ),
+                "task_inconsistent_accept_rate": _ci_fmt(
+                    ci_lookup.get((adapter, "task_inconsistent_accept_rate"))
+                ),
                 "reject_recall": _ci_fmt(ci_lookup.get((adapter, "reject_recall"))),
                 "abstain_recall": _ci_fmt(ci_lookup.get((adapter, "abstain_recall"))),
                 "mean_verify_calls": metrics_row["mean_verify_calls"],
             }
         )
-    _write_md(out / "tables" / "main_table_representative_baselines_with_ci.md", base_rows, title="Representative Baselines with Task-level Bootstrap CIs")
+    _write_md(
+        out / "tables" / "main_table_representative_baselines_with_ci.md",
+        base_rows,
+        title="Representative Baselines with Task-level Bootstrap CIs",
+    )
 
 
 def _ci_fmt(row: Mapping[str, Any] | None) -> str:
@@ -960,12 +1189,16 @@ def _ci_fmt(row: Mapping[str, Any] | None) -> str:
     return f"{float(row['mean']):.3f} [{float(row['ci_low']):.3f}, {float(row['ci_high']):.3f}]"
 
 
-def _make_external_skip(out: Path, release_tasks: Mapping[str, Sequence[Mapping[str, Any]]]) -> None:
+def _make_external_skip(
+    out: Path, release_tasks: Mapping[str, Sequence[Mapping[str, Any]]]
+) -> None:
     test = list(release_tasks.get("test", []))
     rng = random.Random(7)
     by_family: dict[str, list[Mapping[str, Any]]] = defaultdict(list)
     for task in test:
-        by_family[str(task.get("task_type") or task.get("task_family") or "unknown")].append(task)
+        by_family[
+            str(task.get("task_type") or task.get("task_family") or "unknown")
+        ].append(task)
     selected: list[Mapping[str, Any]] = []
     for rows in by_family.values():
         rng.shuffle(rows)
@@ -975,7 +1208,9 @@ def _make_external_skip(out: Path, release_tasks: Mapping[str, Sequence[Mapping[
         "seed": 7,
         "n_tasks": len(selected),
         "definition": "deterministic stratified public-hash subset; no hidden fields exposed to adapters",
-        "task_public_hashes": [_public_hash(str(task.get("task_id"))) for task in selected],
+        "task_public_hashes": [
+            _public_hash(str(task.get("task_id"))) for task in selected
+        ],
     }
     jsonio.write_json(out / "summaries" / "external_snapshot_subset.json", payload)
     rows = [
@@ -1005,25 +1240,61 @@ def _make_external_skip(out: Path, release_tasks: Mapping[str, Sequence[Mapping[
         }
     ]
     _write_csv(out / "tables" / "external_diagnostic_snapshot.csv", rows)
-    _write_md(out / "tables" / "external_diagnostic_snapshot.md", rows, title="External Diagnostic Snapshot")
+    _write_md(
+        out / "tables" / "external_diagnostic_snapshot.md",
+        rows,
+        title="External Diagnostic Snapshot",
+    )
     text = "# External Diagnostic Snapshot Skipped\n\nReason: No sgchem_v1.0-compatible cache and no explicit live external configuration or budget was provided. External diagnostics remain secondary and were not used in any main-paper ranking.\n"
-    (out / "notes" / "external_diagnostic_snapshot_skipped.md").write_text(text, encoding="utf-8")
-    (out / "notes" / "external_diagnostic_snapshot.md").write_text(text, encoding="utf-8")
+    (out / "notes" / "external_diagnostic_snapshot_skipped.md").write_text(
+        text, encoding="utf-8"
+    )
+    (out / "notes" / "external_diagnostic_snapshot.md").write_text(
+        text, encoding="utf-8"
+    )
 
 
 def _make_integrity(out: Path) -> None:
     validation = out / "validation"
     rows = [
-        {"gate": "strict validation", "status": _log_status(validation / "validate_dataset_strict.log"), "source": "validate_dataset_strict.log"},
-        {"gate": "prompt leakage audit", "status": _log_status(validation / "model_prompt_leakage_audit.log"), "source": "model_prompt_leakage_audit.log"},
-        {"gate": "oracle scrambling negative controls", "status": _log_status(validation / "oracle_scrambling_audit.log"), "source": "oracle_scrambling_audit.log"},
+        {
+            "gate": "strict validation",
+            "status": _log_status(validation / "validate_dataset_strict.log"),
+            "source": "validate_dataset_strict.log",
+        },
+        {
+            "gate": "prompt leakage audit",
+            "status": _log_status(validation / "model_prompt_leakage_audit.log"),
+            "source": "model_prompt_leakage_audit.log",
+        },
+        {
+            "gate": "oracle scrambling negative controls",
+            "status": _log_status(validation / "oracle_scrambling_audit.log"),
+            "source": "oracle_scrambling_audit.log",
+        },
         {"gate": "split leakage", "status": "collected", "source": "release audits"},
-        {"gate": "clean-clone reproduction", "status": "not run", "source": "not requested in local run"},
-        {"gate": "Croissant validation", "status": _log_status(validation / "validate_croissant.log"), "source": "validate_croissant.log"},
-        {"gate": "hosted URL preflight", "status": _log_status(validation / "neurips_ed_preflight.log"), "source": "neurips_ed_preflight.log"},
+        {
+            "gate": "clean-clone reproduction",
+            "status": "not run",
+            "source": "not requested in local run",
+        },
+        {
+            "gate": "Croissant validation",
+            "status": _log_status(validation / "validate_croissant.log"),
+            "source": "validate_croissant.log",
+        },
+        {
+            "gate": "hosted URL preflight",
+            "status": _log_status(validation / "neurips_ed_preflight.log"),
+            "source": "neurips_ed_preflight.log",
+        },
     ]
     _write_csv(out / "tables" / "artifact_integrity_gates_v2.csv", rows)
-    _write_md(out / "tables" / "artifact_integrity_gates_v2.md", rows, title="Artifact Integrity Gates v2")
+    _write_md(
+        out / "tables" / "artifact_integrity_gates_v2.md",
+        rows,
+        title="Artifact Integrity Gates v2",
+    )
 
 
 def _log_status(path: Path) -> str:
@@ -1086,11 +1357,19 @@ def _write_paper_memo(out: Path, full_test_rows: Sequence[Mapping[str, Any]]) ->
             "Therefore, SpecGuard-Chem should be interpreted as an evaluation-contract artifact with explicit access-model ceilings, not as a chemistry capability leaderboard.",
         ]
     )
-    (out / "notes" / "paper_insertion_memo.md").write_text(text + "\n", encoding="utf-8")
+    (out / "notes" / "paper_insertion_memo.md").write_text(
+        text + "\n", encoding="utf-8"
+    )
 
 
-def _write_results_summary(out: Path, release: Path, full_test_rows: Sequence[Mapping[str, Any]]) -> None:
-    env = (out / "environment.txt").read_text(encoding="utf-8", errors="replace") if (out / "environment.txt").exists() else ""
+def _write_results_summary(
+    out: Path, release: Path, full_test_rows: Sequence[Mapping[str, Any]]
+) -> None:
+    env = (
+        (out / "environment.txt").read_text(encoding="utf-8", errors="replace")
+        if (out / "environment.txt").exists()
+        else ""
+    )
     commit = "unknown"
     for line in env.splitlines():
         if line.startswith("commit:"):
@@ -1107,7 +1386,7 @@ def _write_results_summary(out: Path, release: Path, full_test_rows: Sequence[Ma
             f"- release path: {release}",
             f"- validation status: {_log_status(out / 'validation' / 'validate_dataset_strict.log')}",
             "## Main findings",
-            f"1. Molecule acceptance versus action accuracy: accept-biased and retrieval systems can produce high molecule_acceptance_rate while action_accuracy and reject/abstain recalls expose failures.",
+            "1. Molecule acceptance versus action accuracy: accept-biased and retrieval systems can produce high molecule_acceptance_rate while action_accuracy and reject/abstain recalls expose failures.",
             "2. Per-family failure modes: see `tables/per_family_metrics_test.csv` and the heatmap for family-specific denominators and accuracies.",
             f"3. Wrapper saturation and ablations: the full wrapper measured action_accuracy={_fmt(wrapper.get('action_accuracy'))}; ablations are reported separately under the verifier/search wrapper access model.",
             "4. Protocol-slice analysis: L1/L2/L3 rows in `tables/protocol_ladder_test.csv` are grouped by the native task protocol, not by a forced same-task protocol intervention.",
@@ -1128,25 +1407,172 @@ def _write_results_summary(out: Path, release: Path, full_test_rows: Sequence[Ma
     (out / "RESULTS_SUMMARY.md").write_text(text + "\n", encoding="utf-8")
 
 
-def _write_run_manifest(out: Path, release: Path, *, active_splits: Sequence[str]) -> None:
+def _result_file_is_commit_candidate(rel: str) -> bool:
+    if rel.startswith("raw_runs/"):
+        return False
+    if rel.startswith(".mplconfig/"):
+        return False
+    if rel == ".DS_Store" or "/.DS_Store" in rel:
+        return False
+    return True
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _tree_size(path: Path) -> int:
+    if not path.exists():
+        return 0
+    if path.is_file():
+        return path.stat().st_size
+    return sum(child.stat().st_size for child in path.rglob("*") if child.is_file())
+
+
+def _count_lines(path: Path) -> int | None:
+    if not path.exists():
+        return None
+    count = 0
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            count += chunk.count(b"\n")
+    return count
+
+
+def _artifact_kind(rel: str) -> str:
+    if rel.startswith("figures/"):
+        return "figure"
+    if rel.startswith("tables/"):
+        return "table"
+    if rel.startswith("summaries/"):
+        return "summary"
+    if rel.startswith("notes/"):
+        return "note"
+    if rel.startswith("validation/"):
+        return "validation"
+    if rel.endswith(".log"):
+        return "log"
+    return "metadata"
+
+
+def _write_observability(out: Path, release: Path) -> None:
+    artifact_rows: list[dict[str, Any]] = []
+    observability_outputs = {
+        "summaries/run_observability.json",
+        "tables/artifact_inventory.csv",
+        "tables/raw_run_inventory.csv",
+    }
+    for path in sorted(out.rglob("*")):
+        if not path.is_file():
+            continue
+        rel = str(path.relative_to(out))
+        if not _result_file_is_commit_candidate(rel):
+            continue
+        if rel == "run_manifest.json" or rel in observability_outputs:
+            continue
+        artifact_rows.append(
+            {
+                "path": rel,
+                "kind": _artifact_kind(rel),
+                "size_bytes": path.stat().st_size,
+                "sha256": _sha256_file(path),
+            }
+        )
+    _write_csv(out / "tables" / "artifact_inventory.csv", artifact_rows)
+
+    raw_rows: list[dict[str, Any]] = []
+    raw_root = out / "raw_runs"
+    if raw_root.exists():
+        for report_path in sorted(raw_root.rglob("report.json")):
+            run_dir = report_path.parent
+            rel_run = str(run_dir.relative_to(raw_root))
+            parts = rel_run.split("/")
+            summary_path = run_dir / "summary.json"
+            trace_path = run_dir / "trace.jsonl"
+            leaderboard_path = run_dir / "leaderboard.tsv"
+            raw_rows.append(
+                {
+                    "run_dir": rel_run,
+                    "suite": parts[0] if parts else "",
+                    "adapter_run": parts[-1] if parts else "",
+                    "report_bytes": report_path.stat().st_size,
+                    "summary_bytes": (
+                        summary_path.stat().st_size if summary_path.exists() else 0
+                    ),
+                    "leaderboard_bytes": (
+                        leaderboard_path.stat().st_size
+                        if leaderboard_path.exists()
+                        else 0
+                    ),
+                    "trace_bytes": (
+                        trace_path.stat().st_size if trace_path.exists() else 0
+                    ),
+                    "trace_lines": _count_lines(trace_path),
+                    "report_sha256": _sha256_file(report_path),
+                }
+            )
+    _write_csv(out / "tables" / "raw_run_inventory.csv", raw_rows)
+
+    validation_logs = (
+        list((out / "validation").glob("*.log"))
+        if (out / "validation").exists()
+        else []
+    )
+    compact_bytes = sum(int(row["size_bytes"]) for row in artifact_rows)
+    payload = {
+        "generated_at_utc": datetime.now(timezone.utc)
+        .replace(microsecond=0)
+        .isoformat()
+        .replace("+00:00", "Z"),
+        "release": "sgchem_v1.0",
+        "release_path": str(release),
+        "result_dir": str(out),
+        "compact_artifact_count": len(artifact_rows),
+        "compact_artifact_bytes": compact_bytes,
+        "raw_runs_present": raw_root.exists(),
+        "raw_run_count": len(raw_rows),
+        "raw_run_bytes_local": _tree_size(raw_root),
+        "validation_log_count": len(validation_logs),
+        "validation_status": {
+            path.name: _log_status(path) for path in sorted(validation_logs)
+        },
+        "commands_count": (
+            len(
+                (out / "commands.log")
+                .read_text(encoding="utf-8", errors="replace")
+                .splitlines()
+            )
+            if (out / "commands.log").exists()
+            else 0
+        ),
+        "notes": "Small local observability record. Raw run bytes are summarized but raw traces remain uncommitted.",
+    }
+    jsonio.write_json(out / "summaries" / "run_observability.json", payload)
+
+
+def _write_run_manifest(
+    out: Path, release: Path, *, active_splits: Sequence[str]
+) -> None:
     active = set(active_splits)
     files = []
     for path in sorted(out.rglob("*")):
         if not path.is_file() or path.name == "run_manifest.json":
             continue
         rel = str(path.relative_to(out))
-        if rel.startswith("raw_runs/"):
-            continue
-        if rel.startswith(".mplconfig/"):
-            continue
-        if rel == ".DS_Store" or "/.DS_Store" in rel:
+        if not _result_file_is_commit_candidate(rel):
             continue
         if rel.startswith("raw_runs/full_offline_"):
             split = rel.split("/", 2)[1].replace("full_offline_", "")
             if split not in active:
                 continue
         if rel.startswith("validation/run_benchmark_full_offline_"):
-            split = rel.removeprefix("validation/run_benchmark_full_offline_").removesuffix(".log")
+            split = rel.removeprefix(
+                "validation/run_benchmark_full_offline_"
+            ).removesuffix(".log")
             if split not in active:
                 continue
         files.append(rel)
@@ -1166,7 +1592,9 @@ def _write_run_manifest(out: Path, release: Path, *, active_splits: Sequence[str
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--release", type=Path, default=Path("benchmarks/releases/sgchem_v1.0"))
+    parser.add_argument(
+        "--release", type=Path, default=Path("benchmarks/releases/sgchem_v1.0")
+    )
     parser.add_argument("--results", type=Path, default=Path("paper_v2/results"))
     parser.add_argument("--n-bootstrap", type=int, default=2000)
     parser.add_argument("--splits", type=str, default="test")
@@ -1187,7 +1615,7 @@ def main() -> int:
     _write_normalized(out, all_rows)
 
     full_test_reports = [row for row in full_rows if row["split"] == "test"]
-    test_metric_rows = _make_full_offline_tables(out, full_rows)
+    _make_full_offline_tables(out, full_rows)
     _make_per_family(out, full_test_reports)
     _make_confusions(out, full_test_reports)
     _make_wrapper_ablation(out, wrapper_rows)
@@ -1198,6 +1626,7 @@ def main() -> int:
     _make_integrity(out)
     _write_paper_memo(out, full_test_reports)
     _write_results_summary(out, args.release, full_test_reports)
+    _write_observability(out, args.release)
     _write_run_manifest(out, args.release, active_splits=active_splits)
     return 0
 
