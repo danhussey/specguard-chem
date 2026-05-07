@@ -1,0 +1,179 @@
+{
+  "benchmark_id": "sgchem_v1.0",
+  "bundles": {
+    "dev": "bundles/dev.jsonl",
+    "test": "bundles/test.jsonl",
+    "train": "bundles/train.jsonl"
+  },
+  "bundles_per_split": {
+    "dev": 26,
+    "test": 42,
+    "train": 50
+  },
+  "challenge_slice": {
+    "classification": "primary_reportable",
+    "definition": "structural difficulty tags assigned from task/spec/oracle metadata only",
+    "difficulty_tag_counts": {
+      "abstain_explicit_contradiction": 35,
+      "interrupt_state_required": 11,
+      "invariance_equivalent_representation": 20,
+      "minimal_edit_required": 22,
+      "mixed_hard_soft_tradeoff": 210,
+      "multi_constraint_violation": 19,
+      "reject_near_miss": 41,
+      "tight_property_boundary": 22,
+      "tool_required_by_protocol": 84
+    },
+    "test_task_share": 0.7894736842105263,
+    "test_tasks": 210
+  },
+  "checksums": {
+    "algorithm": "sha256",
+    "excluded_files": [
+      "checksums/sha256sums.txt"
+    ],
+    "file": "checksums/sha256sums.txt"
+  },
+  "corpus": {
+    "num_records": 1200,
+    "path": "corpus/corpus.parquet"
+  },
+  "croissant_validation": {
+    "errors": [],
+    "num_errors": 0,
+    "valid": true
+  },
+  "dataset_url": "https://huggingface.co/datasets/anon2389434/specguard-chem-sgchem-v1-anonymous",
+  "deterministic_rebuild_checked": true,
+  "deterministic_rebuild_checksum_match": true,
+  "diagnostic_only_test_task_types": [
+    "repair_multi_violation"
+  ],
+  "generated_bundles": 118,
+  "generated_tasks": 656,
+  "generation_shortfall": 0,
+  "generation_shortfall_reason": "bundles_dropped_after_duplicate_pruning=2; bundles_reassigned_to_keep_public_input_groups_in_split=11; duplicate_agent_visible_tasks_pruned=28",
+  "generator": "bundle_compiler_v1",
+  "leakage_checks": {
+    "agent_visible_cross_split": 0,
+    "boundary_cross_split": 0,
+    "bundle_cross_split": 0,
+    "invariance_cross_split": 0
+  },
+  "neurips_ed_preflight": {
+    "anonymous_scan_passed": true,
+    "croissant_local_validation_passed": true,
+    "external_croissant_validation_status": "pending",
+    "dataset_url_accessible": "passed",
+    "one_command_reproduction_passed": true
+  },
+  "num_bundles": 118,
+  "num_tasks": 656,
+  "oracle_validation": {
+    "num_errors": 0,
+    "valid": true
+  },
+  "release_type": "oracle_compiled_gold",
+  "requested_bundles": 120,
+  "requested_tasks": 650,
+  "reviewer_accessibility": "Anonymous hosted artifact URL has been recorded; verify access from a clean browser session before submission.",
+  "safety_scope_checks": {
+    "agent_visible_forbidden_matches": 0
+  },
+  "seed": 7,
+  "spec_catalog": {
+    "num_specs": 13,
+    "path": "specs/spec_catalog.json"
+  },
+  "split_policy": {
+    "duplicate_public_view_policy": "drop later exact agent-visible duplicates before release writing; prefer test, then dev, then train when retaining one copy",
+    "name": "bundle_hash_seeded_50_20_30_with_duplicate_public_view_pruning",
+    "proportions": {
+      "dev": 0.2,
+      "test": 0.3,
+      "train": 0.5
+    },
+    "seed": 7,
+    "unit": "bundle"
+  },
+  "splits": {
+    "dev": {
+      "bundles": 26,
+      "tasks": 130
+    },
+    "test": {
+      "bundles": 42,
+      "tasks": 266
+    },
+    "train": {
+      "bundles": 50,
+      "tasks": 260
+    }
+  },
+  "strict_validation": {
+    "num_errors": 0,
+    "valid": true
+  },
+  "tasks": {
+    "dev": "tasks/dev.jsonl",
+    "test": "tasks/test.jsonl",
+    "train": "tasks/train.jsonl"
+  },
+  "tasks_per_expected_action": {
+    "ABSTAIN": 100,
+    "ACCEPT": 418,
+    "REJECT": 138
+  },
+  "tasks_per_protocol": {
+    "L1": 261,
+    "L2": 197,
+    "L3": 198
+  },
+  "tasks_per_split": {
+    "dev": 130,
+    "test": 266,
+    "train": 260
+  },
+  "tasks_per_task_type": {
+    "abstain_contradiction": 100,
+    "audit_accept": 118,
+    "audit_reject": 116,
+    "boundary_precision": 44,
+    "construct_feasible": 116,
+    "interrupt_resume": 27,
+    "repair_multi_violation": 29,
+    "repair_near_miss": 36,
+    "smiles_invariance": 44,
+    "tool_forced_l3": 26
+  },
+  "test_task_type_counts": {
+    "abstain_contradiction": 35,
+    "audit_accept": 42,
+    "audit_reject": 41,
+    "boundary_precision": 22,
+    "construct_feasible": 41,
+    "interrupt_resume": 11,
+    "repair_multi_violation": 19,
+    "repair_near_miss": 22,
+    "smiles_invariance": 20,
+    "tool_forced_l3": 13
+  },
+  "test_task_type_minimums": {
+    "abstain_contradiction": 25,
+    "audit_accept": 25,
+    "audit_reject": 25,
+    "boundary_precision": 20,
+    "construct_feasible": 25,
+    "interrupt_resume": 10,
+    "repair_multi_violation": 20,
+    "repair_near_miss": 20,
+    "smiles_invariance": 20,
+    "tool_forced_l3": 10
+  },
+  "test_task_type_minimums_met": false,
+  "anonymous_artifact_archive": {
+    "path": "sgchem_v1.0_anonymous_artifact.zip",
+    "sha256": "4ce28350f1bfd6cffbe2ac0283b4fbf8c6d737df1039010f19743d5f2d995997",
+    "identity_scan_passed": true
+  }
+}
