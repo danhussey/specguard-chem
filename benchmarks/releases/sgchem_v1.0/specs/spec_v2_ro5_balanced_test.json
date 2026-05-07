@@ -1,0 +1,75 @@
+{
+  "behaviour": {
+    "abstain_policy": {
+      "margin_lt": {
+        "TPSA": 5.0,
+        "logP": 0.2
+      }
+    },
+    "interrupt_policy": "confirm_then_continue"
+  },
+  "constraints": [
+    {
+      "check": "property_bounds",
+      "id": "ro5_bounds",
+      "params": {
+        "bounds": {
+          "HBA": {
+            "max": 10.0,
+            "min": 0.0
+          },
+          "HBD": {
+            "max": 5.0,
+            "min": 0.0
+          },
+          "MW": {
+            "max": 520.0,
+            "min": 120.0
+          },
+          "ROTB": {
+            "max": 10.0,
+            "min": 0.0
+          },
+          "logP": {
+            "max": 5.0,
+            "min": -1.0
+          }
+        },
+        "mode": "all"
+      },
+      "severity": null,
+      "type": "hard",
+      "weight": 1.0
+    },
+    {
+      "check": "alert_set_absent",
+      "id": "brenk_hard_block",
+      "params": {
+        "alert_set": "BRENK"
+      },
+      "severity": null,
+      "type": "hard",
+      "weight": 1.0
+    },
+    {
+      "check": "property_bounds",
+      "id": "tpsa_soft_window",
+      "params": {
+        "bounds": {
+          "TPSA": {
+            "max": 130.0,
+            "min": 20.0
+          }
+        },
+        "mode": "any"
+      },
+      "severity": null,
+      "type": "soft",
+      "weight": 0.5
+    }
+  ],
+  "family": "ro5_balanced",
+  "id": "spec_v2_ro5_balanced_test",
+  "spec_split": "test",
+  "version": 2
+}

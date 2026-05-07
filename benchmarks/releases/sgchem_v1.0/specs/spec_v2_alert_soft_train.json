@@ -1,0 +1,79 @@
+{
+  "behaviour": {
+    "abstain_policy": {
+      "margin_lt": {
+        "MW": 10.0,
+        "logP": 0.2
+      }
+    },
+    "interrupt_policy": "confirm_then_continue"
+  },
+  "constraints": [
+    {
+      "check": "property_bounds",
+      "id": "broad_druglike_bounds",
+      "params": {
+        "bounds": {
+          "HBA": {
+            "max": 12.0,
+            "min": 0.0
+          },
+          "HBD": {
+            "max": 6.0,
+            "min": 0.0
+          },
+          "MW": {
+            "max": 550.0,
+            "min": 100.0
+          },
+          "ROTB": {
+            "max": 12.0,
+            "min": 0.0
+          },
+          "logP": {
+            "max": 5.5,
+            "min": -1.0
+          }
+        },
+        "mode": "all"
+      },
+      "severity": null,
+      "type": "hard",
+      "weight": 1.0
+    },
+    {
+      "check": "alert_set_absent",
+      "id": "pains_a_soft",
+      "params": {
+        "alert_set": "PAINS_A"
+      },
+      "severity": null,
+      "type": "soft",
+      "weight": 1.0
+    },
+    {
+      "check": "alert_set_absent",
+      "id": "pains_b_soft",
+      "params": {
+        "alert_set": "PAINS_B"
+      },
+      "severity": null,
+      "type": "soft",
+      "weight": 1.0
+    },
+    {
+      "check": "alert_set_absent",
+      "id": "pains_c_soft",
+      "params": {
+        "alert_set": "PAINS_C"
+      },
+      "severity": null,
+      "type": "soft",
+      "weight": 1.0
+    }
+  ],
+  "family": "alerts_soft",
+  "id": "spec_v2_alert_soft_train",
+  "spec_split": "train",
+  "version": 2
+}

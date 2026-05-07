@@ -1,0 +1,59 @@
+{
+  "behaviour": {
+    "abstain_policy": {
+      "margin_lt": {
+        "MW": 10.0,
+        "logP": 0.2
+      }
+    },
+    "interrupt_policy": "confirm_then_continue"
+  },
+  "constraints": [
+    {
+      "check": "property_bounds",
+      "id": "aromatic_pref_bounds",
+      "params": {
+        "bounds": {
+          "HBA": {
+            "max": 10.0,
+            "min": 0.0
+          },
+          "HBD": {
+            "max": 5.0,
+            "min": 0.0
+          },
+          "MW": {
+            "max": 500.0,
+            "min": 100.0
+          },
+          "ROTB": {
+            "max": 10.0,
+            "min": 0.0
+          },
+          "logP": {
+            "max": 5.0,
+            "min": -1.0
+          }
+        },
+        "mode": "all"
+      },
+      "severity": null,
+      "type": "hard",
+      "weight": 1.0
+    },
+    {
+      "check": "substructure_present",
+      "id": "phenol_soft_present",
+      "params": {
+        "smarts_id": "phenol"
+      },
+      "severity": null,
+      "type": "soft",
+      "weight": 0.8
+    }
+  ],
+  "family": "motif_aromatic",
+  "id": "spec_v2_aromatic_pref_test",
+  "spec_split": "test",
+  "version": 2
+}

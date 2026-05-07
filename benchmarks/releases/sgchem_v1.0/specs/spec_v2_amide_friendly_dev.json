@@ -1,0 +1,69 @@
+{
+  "behaviour": {
+    "abstain_policy": {
+      "margin_lt": {
+        "MW": 12.0,
+        "logP": 0.2
+      }
+    },
+    "interrupt_policy": "confirm_then_continue"
+  },
+  "constraints": [
+    {
+      "check": "property_bounds",
+      "id": "amide_friendly_bounds",
+      "params": {
+        "bounds": {
+          "HBA": {
+            "max": 11.0,
+            "min": 1.0
+          },
+          "HBD": {
+            "max": 5.0,
+            "min": 0.0
+          },
+          "MW": {
+            "max": 520.0,
+            "min": 120.0
+          },
+          "ROTB": {
+            "max": 11.0,
+            "min": 0.0
+          },
+          "logP": {
+            "max": 4.5,
+            "min": -1.0
+          }
+        },
+        "mode": "all"
+      },
+      "severity": null,
+      "type": "hard",
+      "weight": 1.0
+    },
+    {
+      "check": "substructure_present",
+      "id": "amide_preference",
+      "params": {
+        "smarts_id": "amide"
+      },
+      "severity": null,
+      "type": "soft",
+      "weight": 1.0
+    },
+    {
+      "check": "alert_set_absent",
+      "id": "pains_a_soft",
+      "params": {
+        "alert_set": "PAINS_A"
+      },
+      "severity": null,
+      "type": "soft",
+      "weight": 0.5
+    }
+  ],
+  "family": "motif_amide",
+  "id": "spec_v2_amide_friendly_dev",
+  "spec_split": "dev",
+  "version": 2
+}
