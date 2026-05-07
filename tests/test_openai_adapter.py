@@ -54,6 +54,32 @@ def test_openai_adapter_parses_response(monkeypatch: pytest.MonkeyPatch) -> None
     assert response["p_hard_pass"] == 0.9
 
 
+def test_openai_adapter_maps_public_accept_to_proposal() -> None:
+    payload = {
+        "choice": _Choice(content=json.dumps({"action": "ACCEPT", "smiles": "CCO"})),
+    }
+    adapter = OpenAIChatAdapter(client=_FakeClient(payload))
+    response = adapter.step({"task": {}, "round": 1, "tools": [], "failure_vector": None})
+    assert response["action"] == "propose"
+    assert response["smiles"] == "CCO"
+    assert response["declared_public_action"] == "ACCEPT"
+
+
+def test_openai_adapter_maps_public_reject_to_supplied_candidate() -> None:
+    payload = {"choice": _Choice(content=json.dumps({"action": "REJECT"}))}
+    adapter = OpenAIChatAdapter(client=_FakeClient(payload))
+    req: AgentRequest = {
+        "task": {"input": {"smiles": "CCO"}},
+        "round": 1,
+        "tools": [],
+        "failure_vector": None,
+    }
+    response = adapter.step(req)
+    assert response["action"] == "propose"
+    assert response["smiles"] == "CCO"
+    assert response["declared_public_action"] == "REJECT"
+
+
 def test_openai_adapter_requires_openai(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(oa, "OpenAI", None, raising=True)
     with pytest.raises(RuntimeError, match="Install the 'openai' package"):

@@ -24,6 +24,7 @@ DEFAULT_SYSTEM_PROMPT = (
 )
 
 ALLOWED_ACTIONS = {"propose", "tool_call", "abstain"}
+PUBLIC_ACTIONS = {"accept", "reject", "abstain"}
 
 
 class OpenAIChatAdapter(BaseAdapter):
@@ -41,6 +42,7 @@ class OpenAIChatAdapter(BaseAdapter):
         temperature: float = 0.2,
         top_p: float = 1.0,
         max_tokens: int = 512,
+        timeout: float | None = 60.0,
         system_prompt: str = DEFAULT_SYSTEM_PROMPT,
         policy: str = "default",
         client: Optional[OpenAI] = None,
@@ -55,12 +57,13 @@ class OpenAIChatAdapter(BaseAdapter):
                 raise RuntimeError(
                     "OPENAI_API_KEY is not set. Export it before using the OpenAIChatAdapter."
                 )
-            client = OpenAI()
+            client = OpenAI(timeout=timeout)
         self.client = client
         self.model = model
         self.temperature = temperature
         self.top_p = top_p
         self.max_tokens = max_tokens
+        self.timeout = timeout
         self.system_prompt = system_prompt
         self.policy = policy
 
@@ -74,6 +77,8 @@ class OpenAIChatAdapter(BaseAdapter):
             "model_id": self.model,
             "temperature": self.temperature,
             "top_p": self.top_p,
+            "max_tokens": self.max_tokens,
+            "timeout": self.timeout,
             "prompt_template_hash": prompt_template_hash,
             "policy": self.policy,
             "timestamp_utc": datetime.now(timezone.utc).isoformat(),
@@ -97,13 +102,21 @@ class OpenAIChatAdapter(BaseAdapter):
             return policy_response
 
         prompt = self._build_prompt(req)
-        response = self.client.chat.completions.create(
-            model=self.model,
-            messages=prompt,
-            temperature=self.temperature,
-            top_p=self.top_p,
-            max_tokens=self.max_tokens,
-        )
+        request_payload = {
+            "model": self.model,
+            "messages": prompt,
+            "temperature": self.temperature,
+            "top_p": self.top_p,
+            "max_tokens": self.max_tokens,
+            "response_format": {"type": "json_object"},
+        }
+        if self.timeout is not None:
+            request_payload["timeout"] = self.timeout
+        try:
+            response = self.client.chat.completions.create(**request_payload)
+        except TypeError:
+            request_payload.pop("response_format", None)
+            response = self.client.chat.completions.create(**request_payload)
         message = response.choices[0].message.content
         if not message:
             raise RuntimeError("OpenAI API returned empty message content")
@@ -132,7 +145,7 @@ class OpenAIChatAdapter(BaseAdapter):
         protocol = str(task.get("protocol") or "L1")
         if protocol != "L3":
             return None
-        tools = req.get("tools") or []
+        tools = [] if self.policy == "no_tools" else (req.get("tools") or [])
         verify_available = any(
             isinstance(tool, dict) and tool.get("name") == "verify" for tool in tools
         )
@@ -155,7 +168,7 @@ class OpenAIChatAdapter(BaseAdapter):
         task = req.get("task", {})
         spec = req.get("spec", {})
         failure_vector = req.get("failure_vector")
-        tools = req.get("tools") or []
+        tools = [] if self.policy == "no_tools" else (req.get("tools") or [])
         interrupt = req.get("interrupt")
         tool_names = [tool.get("name") for tool in tools if tool.get("name")]
         instructions = {
@@ -165,12 +178,16 @@ class OpenAIChatAdapter(BaseAdapter):
             "interrupt": interrupt,
             "available_tools": tool_names,
             "output_schema": {
-                "action": "propose | tool_call | abstain (lowercase)",
+                "action": (
+                    "ACCEPT | REJECT | ABSTAIN, or propose | abstain (JSON string)"
+                    if self.policy == "no_tools"
+                    else "ACCEPT | REJECT | ABSTAIN, or propose | tool_call | abstain (JSON string)"
+                ),
                 "smiles": "required if action == 'propose'",
                 "name": "required if action == 'tool_call'",
                 "args": "object, required if action == 'tool_call'",
                 "reason": "required if action == 'abstain'",
-                "p_hard_pass": (
+                "confidence": (
                     "float between 0 and 1 (optional; probability the final proposal "
                     "passes hard constraints)"
                 ),
@@ -185,6 +202,11 @@ class OpenAIChatAdapter(BaseAdapter):
             "rules": [
                 "Always return a single JSON object. Never include markdown or prose.",
                 (
+                    "For candidate-audit style tasks, the public action labels ACCEPT, "
+                    "REJECT, and ABSTAIN are valid. Include smiles when accepting or "
+                    "when rejecting a supplied candidate."
+                ),
+                (
                     "If a tool is available you may choose action 'tool_call'. Otherwise "
                     "avoid tool calls."
                 ),
@@ -196,6 +218,10 @@ class OpenAIChatAdapter(BaseAdapter):
                 "If interrupt is present, include interrupt_ack and do not claim completion.",
             ],
         }
+        if self.policy == "no_tools":
+            instructions["rules"].append(
+                "Do not call tools; choose propose or abstain using only the visible prompt."
+            )
         if self.policy == "l3_verify_tooling":
             instructions["rules"].extend(
                 [
@@ -208,7 +234,7 @@ class OpenAIChatAdapter(BaseAdapter):
                         "verify feedback."
                     ),
                     (
-                        "Set p_hard_pass monotonically with minimum signed hard margin "
+                        "Set confidence monotonically with minimum signed hard margin "
                         "(larger margin => higher confidence)."
                     ),
                 ]
@@ -229,11 +255,21 @@ class OpenAIChatAdapter(BaseAdapter):
             tool.get("name") for tool in (req.get("tools") or []) if tool.get("name")
         }
 
+        if action in PUBLIC_ACTIONS:
+            return self._normalize_public_action(
+                action=action,
+                data=data,
+                req=req,
+                p_hard_pass=p_hard_pass,
+                interrupt_ack=interrupt_ack,
+            )
+
         if action not in ALLOWED_ACTIONS:
             return {
                 "action": "abstain",
                 "reason": "Model returned invalid action",
                 "p_hard_pass": p_hard_pass,
+                "declared_public_action": None,
             }
 
         if action == "propose":
@@ -244,12 +280,14 @@ class OpenAIChatAdapter(BaseAdapter):
                     "reason": "Missing SMILES for proposal",
                     "p_hard_pass": p_hard_pass,
                     "interrupt_ack": interrupt_ack,
+                    "declared_public_action": "ACCEPT",
                 }
             return {
                 "action": "propose",
                 "smiles": smiles.strip(),
                 "p_hard_pass": p_hard_pass,
                 "interrupt_ack": interrupt_ack,
+                "declared_public_action": "ACCEPT",
             }
 
         if action == "tool_call":
@@ -261,6 +299,7 @@ class OpenAIChatAdapter(BaseAdapter):
                     "reason": "Requested unavailable tool",
                     "p_hard_pass": p_hard_pass,
                     "interrupt_ack": interrupt_ack,
+                    "declared_public_action": None,
                 }
             if not isinstance(args, dict):
                 return {
@@ -268,6 +307,7 @@ class OpenAIChatAdapter(BaseAdapter):
                     "reason": "Tool call missing arguments object",
                     "p_hard_pass": p_hard_pass,
                     "interrupt_ack": interrupt_ack,
+                    "declared_public_action": None,
                 }
             return {
                 "action": "tool_call",
@@ -275,6 +315,7 @@ class OpenAIChatAdapter(BaseAdapter):
                 "args": args,
                 "p_hard_pass": p_hard_pass,
                 "interrupt_ack": interrupt_ack,
+                "declared_public_action": None,
             }
 
         # abstain
@@ -286,6 +327,48 @@ class OpenAIChatAdapter(BaseAdapter):
             "reason": reason.strip(),
             "p_hard_pass": p_hard_pass,
             "interrupt_ack": interrupt_ack,
+            "declared_public_action": "ABSTAIN",
+        }
+
+    def _normalize_public_action(
+        self,
+        *,
+        action: str,
+        data: Dict[str, Any],
+        req: AgentRequest,
+        p_hard_pass: float,
+        interrupt_ack: Optional[Dict[str, Any]],
+    ) -> AgentResponse:
+        declared = action.upper()
+        if action == "abstain":
+            reason = data.get("reason", data.get("rationale"))
+            if not isinstance(reason, str) or not reason.strip():
+                reason = "Model chose to abstain."
+            return {
+                "action": "abstain",
+                "reason": reason.strip(),
+                "p_hard_pass": p_hard_pass,
+                "interrupt_ack": interrupt_ack,
+                "declared_public_action": "ABSTAIN",
+            }
+
+        smiles = data.get("smiles")
+        if not isinstance(smiles, str) or not smiles.strip():
+            smiles = _public_input_smiles(req)
+        if isinstance(smiles, str) and smiles.strip():
+            return {
+                "action": "propose",
+                "smiles": smiles.strip(),
+                "p_hard_pass": p_hard_pass,
+                "interrupt_ack": interrupt_ack,
+                "declared_public_action": declared,
+            }
+        return {
+            "action": "abstain",
+            "reason": f"Public {declared} action did not include a candidate molecule.",
+            "p_hard_pass": p_hard_pass,
+            "interrupt_ack": interrupt_ack,
+            "declared_public_action": declared,
         }
 
     @staticmethod
@@ -314,6 +397,16 @@ class OpenAIChatAdapter(BaseAdapter):
         if state:
             payload["state"] = str(state)
         return payload
+
+
+def _public_input_smiles(req: AgentRequest) -> Optional[str]:
+    task = req.get("task") if isinstance(req.get("task"), dict) else {}
+    input_payload = task.get("input") if isinstance(task.get("input"), dict) else {}
+    for key in ("smiles", "candidate_smiles"):
+        value = input_payload.get(key)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    return None
 
 
 __all__ = ["OpenAIChatAdapter", "DEFAULT_MODEL"]

@@ -3,15 +3,27 @@
 This document describes the evaluation methodology implemented in SpecGuard-Chem: task/spec
 formats, runner protocols (L1/L2/L3), scoring, report artifacts, and reproducibility.
 
+## sgchem_v1.0 Method Summary
+The primary release is `sgchem_v1.0`, compiled from oracle-backed bundles rather than clone-filled templates. Bundles are split as units, and each task includes `rendered_agent_input`, `agent_visible_hash`, `expected_action`, `oracle_type`, and evidence/certificate fields.
+
+Non-claims: SpecGuard-Chem does not evaluate biological activity, toxicity, synthesis feasibility, therapeutic efficacy, clinical utility, dosing, disease relevance, or target-binding behavior.
+
+Reproducibility and validation:
+
+```bash
+uv run specguard-chem compile-benchmark --benchmark-id sgchem_v1.0 --out benchmarks/releases/sgchem_v1.0 --seed 7 --target-bundles 80 --anonymous
+uv run specguard-chem validate-dataset benchmarks/releases/sgchem_v1.0 --strict
+```
+
 ## 1. Benchmark scope
 
 SpecGuard-Chem evaluates **spec compliance** of chemistry-AI assistants on synthetic tasks:
 - propose or minimally edit a molecule to satisfy a machine-checkable spec
-- abstain on tasks where abstention is expected (infeasible/unsafe/ambiguous by design)
+- abstain on tasks where abstention is expected (infeasible/out-of-scope/ambiguous by design)
 - handle deterministic interrupt events with structured acknowledgement
 
 The benchmark does **not** make claims about biological activity, target selection, potency,
-toxicity, or synthesis feasibility beyond the explicit computable rules in the spec.
+toxicity, clinical utility, or synthesis feasibility beyond the explicit computable rules in the spec.
 
 ## 2. Inputs: task suites and specs
 
@@ -149,3 +161,22 @@ Each run produces:
 - RDKit version
 - git commit and dirty flag (when available)
 - SHA256 hashes of each spec file keyed by `spec_id` observed in the trace
+
+## 8. sgchem_v1.0 oracle-compiled release
+
+`sgchem_v1.0` is compiled from bundles, not template-filled task clones. The compiler emits construct, repair, candidate-audit, feasibility-check, boundary, representation-invariance, interrupt/resume, and tool-forced tasks from offline corpus/spec pairs. Each task has an oracle witness or certificate, but normal adapters consume only `PublicTaskView`; hidden expected actions, witnesses, proofs, certificates, split labels, task IDs, bundle IDs, and internal task labels stay private to validation/scoring.
+
+The rc1 build uses:
+
+```bash
+uv run python scripts/build_and_check_sgchem_v1.py
+uv run specguard-chem validate-dataset benchmarks/releases/sgchem_v1.0 --strict
+```
+
+The build runs prompt-leakage, oracle-scrambling, negative-control, Croissant, artifact-preflight, baseline-track, denominator, claim-readiness, and manual-dossier checks before paper artifacts are regenerated.
+
+## 9. Verifier-wrapper saturation
+
+The reality-check baseline `well_engineered_wrapper` is intentionally reported outside the primary model track. It consumes public task/spec fields and implements deterministic verifier/search behavior. Its saturation of the sgchem_v1.0 test split is a paper-facing result: the release is machine-checkable and should not be described as a hard chemistry leaderboard for systems engineered directly around the public rule contract.
+
+This motivates the intended interpretation. SpecGuard-Chem tests whether agent interfaces, action policies, verifier-tool use, rejection, abstention, and public/private task isolation preserve oracle-certified specification compliance. It does not rank systems as better at real-world chemistry.

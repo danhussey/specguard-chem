@@ -1,16 +1,34 @@
 baselines:
+  - name: always_accept
+    model: always_accept
+    track: primary_closed_book
+  - name: always_reject
+    model: always_reject
+    track: primary_closed_book
+  - name: always_abstain
+    model: always_abstain
+    track: primary_closed_book
+  - name: random_action
+    model: random_action
+    track: primary_closed_book
+  - name: schema_valid_dummy
+    model: schema_valid_dummy
+    track: primary_closed_book
   - name: heuristic
     model: heuristic
-    track: closed_book
+    track: primary_closed_book
   - name: abstention_guard
     model: abstention_guard
-    track: closed_book
+    track: primary_closed_book
+  - name: local_mutation_or_repair
+    model: local_mutation
+    track: primary_closed_book
   - name: verify_first
     model: verify_first
-    track: closed_book
-  - name: local_mutation
-    model: local_mutation
-    track: closed_book
-  - name: corpus_search
+    track: tool_enabled
+  - name: verifier_guided_greedy
+    model: verifier_guided_greedy
+    track: tool_enabled
+  - name: corpus_retrieval_upper_bound
     model: corpus_search
-    track: retrieval
+    track: retrieval_upper_bound
