@@ -168,21 +168,17 @@ uv run pytest
 
 ## Reproduce The Frozen Offline Sweep
 
-The compact paper-facing result package is already committed. To regenerate the
-offline paper tables and figures:
+The compact paper-facing result package is already committed. The full offline
+orchestrator validates the frozen benchmark, runs the offline baseline matrix,
+runs wrapper/protocol checks, and regenerates the v2 tables and figures:
 
 ```bash
-uv run specguard-chem run-benchmark \
-  --benchmark benchmarks/releases/sgchem_v1.0 \
-  --split test \
-  --baselines baselines/paper_v2_full_offline_baselines.yaml \
-  --out runs/paper_v2_full_offline \
-  --seed 7
-
-uv run specguard-chem paper-figures \
-  --runs runs/paper_v2_full_offline \
-  --out paper_v2/results
+RESULTS=paper_v2/results bash scripts/run_paper_v2_results.sh
 ```
+
+The curated review package in
+[`paper_final/results_offline_full_2026_05_20/`](paper_final/results_offline_full_2026_05_20/)
+is the frozen paper-facing copy used by the manuscript.
 
 For external API runs, use the runbook instead of the top-level README:
 
