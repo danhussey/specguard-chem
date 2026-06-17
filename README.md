@@ -1,265 +1,331 @@
 # SpecGuard-Chem
 
-SpecGuard-Chem asks one question:
+SpecGuard-Chem tests one simple question:
 
 > When a model is given explicit chemistry rules, does it take the right action?
 
-The action is usually one of:
+The action is one of:
 
-- `ACCEPT`: this molecule satisfies the visible hard rules.
-- `REJECT`: this molecule violates at least one hard rule.
-- `ABSTAIN`: the rules are contradictory or impossible to satisfy.
+- `ACCEPT`: the candidate molecule satisfies the visible hard rules.
+- `REJECT`: the candidate molecule violates at least one visible hard rule.
+- `ABSTAIN`: the visible rules are contradictory, impossible, or underspecified
+  in a way that makes a valid answer impossible.
 
-This is not a drug-discovery benchmark. It does not predict activity, toxicity,
-dosing, binding, synthesis, or clinical usefulness. The chemistry is a controlled
-setting for testing specification following, tool use, and auditability.
+The key unit is **the decision**, not the molecule.
 
-## What Actually Happens
+A molecule can be chemically valid and still be the wrong answer. A model can
+produce a plausible molecule and still fail because it accepted something it
+should have rejected, missed a contradiction, or ignored tool feedback.
 
-Each task has a public prompt, a machine-checkable spec, and a hidden oracle.
-The model sees only the public prompt. The scorer uses RDKit and the oracle to
-grade the final action.
+SpecGuard-Chem is **not** a drug-discovery benchmark. It does not measure
+biological activity, toxicity, dosing, binding, synthesis feasibility,
+therapeutic usefulness, or clinical value. Chemistry is used here because it
+gives us a controlled setting with rules that can be checked by software.
+
+## Why This Exists
+
+Many model evaluations reward plausible-looking outputs. SpecGuard-Chem instead
+asks whether a model follows explicit rules under audit.
+
+It is designed to measure:
+
+- whether a model reads and applies visible hard rules;
+- whether it rejects invalid candidates rather than over-accepting them;
+- whether it abstains when the rules are impossible;
+- whether verifier-tool access improves decisions or creates new failure modes;
+- whether the final trace is reproducible and auditable.
+
+This makes it a benchmark for **specification following, verifier use,
+abstention, and action correctness** in a chemistry-shaped environment.
+
+## Task Format
+
+Each task is generated from a structured, machine-checkable rule set.
+
+The model sees a **public task view**: the visible rules, any candidate molecule,
+and any allowed tool interface. It does not see the hidden answer key, scoring
+metadata, or oracle labels.
+
+The scorer uses RDKit, the chemistry toolkit, plus the hidden oracle to grade the
+final action.
 
 ```mermaid
 flowchart LR
-    A["Machine-checkable chemistry spec"] --> B["Public task prompt"]
+    A["Structured chemistry rules"] --> B["Public task view"]
     B --> C["Model or baseline"]
     C --> D["Final action: ACCEPT, REJECT, or ABSTAIN"]
     C --> E["Optional verify(smiles) tool calls"]
-    D --> F["RDKit verifier plus oracle"]
+    D --> F["RDKit verifier + hidden oracle"]
     E --> F
     F --> G["Trace, metrics, tables, figures"]
 ```
 
-The important point: a chemically valid molecule can still be the wrong answer.
+A `SMILES` string is a text representation of a molecule. RDKit computes
+properties such as molecular weight, hydrogen-bond acceptors, and structural
+alerts from that string.
 
 ## Concrete Examples
 
-**Example 1: valid molecule, wrong action if accepted**
+### Example 1: valid molecule, wrong action
 
 ```text
 Candidate SMILES:
 CC(=O)NC(C)CN
 
 Visible hard rule:
-MW must be between 120 and 480.
+Molecular weight must be between 120 and 480.
 
 RDKit result:
-MW = 116.164
+Molecular weight = 116.164
 
 Correct action:
 REJECT
 ```
 
-The SMILES is valid, and the molecule is close to the boundary. But accepting it
-is still wrong because it violates the visible molecular-weight rule.
+The molecule is valid, and it is close to the boundary. But accepting it is
+still wrong because it violates the visible molecular-weight rule.
 
-**Example 2: no molecule can satisfy the prompt**
+### Example 2: impossible rules
 
 ```text
 Visible hard rules:
-HBA must be <= 10
-HBA must be >= 11
+Hydrogen-bond acceptors must be <= 10.
+Hydrogen-bond acceptors must be >= 11.
 
 Correct action:
 ABSTAIN
 ```
 
-Returning any molecule here is a failure. The task is not to find a plausible
-SMILES; it is to notice the contradiction.
+Returning any molecule here is a failure. The right behaviour is to notice that
+the rules cannot all be satisfied.
 
-**Example 3: verifier tool use**
+### Example 3: verifier tool use
 
-Some tasks allow a `verify(smiles)` call. The model can ask the deterministic
-verifier whether a candidate passes the hard rules before finalizing. This lets
-the benchmark separate three things:
+Some tasks allow a deterministic `verify(smiles)` call. The model can use this
+tool to check whether a candidate passes the hard rules before it commits to a
+final action.
+
+This separates several abilities that are often blurred together:
 
 - Can the model read the rule?
-- Can it produce or inspect a molecule?
-- Can it use tool feedback without collapsing into the wrong final action?
+- Can it inspect, retrieve, edit, or propose a molecule?
+- Can it use verifier feedback correctly?
+- Can it still choose the right final action?
 
-## What The Results Say
+## Metrics
+
+The main metric is **action accuracy**: did the system choose the correct final
+action?
+
+Supporting metrics help explain failure modes:
+
+- `ACCEPT decision rate` (`molecule_acceptance_rate`): fraction of tasks where
+  the system chose `ACCEPT`. This is not an accuracy metric.
+- `Reject recall`: fraction of true reject cases that the system correctly
+  rejected.
+- `Abstain recall`: fraction of true abstain cases that the system correctly
+  abstained on.
+- `Task-inconsistent accept rate`: fraction of reject or abstain cases where the
+  system incorrectly chose `ACCEPT`.
+
+A high `ACCEPT decision rate` with low reject or abstain recall usually means
+the system is over-accepting.
+
+## Results
 
 The frozen offline result package is:
 
 [`paper_final/results_offline_full_2026_05_20/`](paper_final/results_offline_full_2026_05_20/)
 
-Held-out test split: 266 tasks.
+Held-out test split: **266 tasks**.
 
-| System | What it does | Action accuracy | Molecule acceptance | Reject recall | Abstain recall |
+| System | What it does | Action accuracy | ACCEPT decision rate | Reject recall | Abstain recall |
 | --- | --- | ---: | ---: | ---: | ---: |
 | `corpus_search` | retrieves nearby corpus molecules | 0.673 | 0.868 | 0.000 | 0.000 |
 | `local_mutation` | edits molecules locally | 0.650 | 0.846 | 0.000 | 0.000 |
 | `heuristic` | conservative rule baseline | 0.602 | 0.406 | 1.000 | 0.000 |
-| `well_engineered_wrapper` | deterministic verifier/search wrapper | 1.000 | 0.673 | 1.000 | 1.000 |
+| `well_engineered_wrapper` | deterministic verifier/search control, not a model baseline | 1.000 | 0.673 | 1.000 | 1.000 |
 
 Plain-English readout:
 
 - Retrieval and mutation baselines often find molecules that pass chemistry
   checks, but they collapse toward `ACCEPT`. On the test split, `corpus_search`
   accepts all reject cases and misses all abstain cases.
-- The conservative heuristic rejects reliably, but it misses contradiction
-  tasks and gives up too often on valid accept tasks.
-- The wrapper solves the held-out split because it is allowed to combine public
-  verifier access with deterministic search. That is a useful ceiling, not a
-  model-capability claim.
-- `molecule_acceptance` is not the headline metric. The task is to take the
-  right action under the prompt. There are 179 accept tasks, 52 reject tasks,
-  and 35 abstain tasks in the held-out split, so a correct system should not
-  maximize accepted molecules.
+- The conservative heuristic catches every reject case, but it does not handle
+  abstention and rejects many cases where `ACCEPT` was correct.
+- The wrapper saturates this release because it is engineered around the public
+  verifier/search setting. That is intentional information about the benchmark,
+  not a claim that a model solved chemistry.
 
-![Metric ranking shift](paper_final/results_offline_full_2026_05_20/figures/metric_rank_shift.png)
+## How To Interpret The Wrapper Result
 
-## External LLM Snapshot
+The `well_engineered_wrapper` result is a control.
 
-The strict external run uses structured tool-call outputs for OpenAI, Anthropic,
-and DeepSeek adapters. This fixed the earlier malformed-output confound: the
-full strict v3 snapshot has zero interface-error steps.
+It shows that this benchmark release is saturable when a system is allowed to
+engineer tightly around the public verifier/search interface. That matters
+because it tells us what the benchmark does and does not measure.
+
+The correct interpretation is:
+
+> SpecGuard-Chem v1.0 is best read as an oracle-compiled
+> specification-compliance contract and tool-use audit, not as an unsolved
+> chemistry-capability leaderboard.
+
+That is the point of the benchmark. It is meant to expose when systems take the
+wrong action under explicit rules, and when the evaluation setting itself can be
+saturated by wrappers.
+
+## External Model Snapshot
+
+The strict v3 external snapshot runs OpenAI, Anthropic, and DeepSeek adapters
+through structured tool-call interfaces:
 
 [`external_baselines/results_full_2026_05_20_strict_v3/`](external_baselines/results_full_2026_05_20_strict_v3/)
 
-| System | Mode | Action accuracy | Reject recall | Abstain recall | Interface errors |
-| --- | --- | ---: | ---: | ---: | ---: |
-| OpenAI strong | closed | 0.883 | 1.000 | 1.000 | 0 |
-| OpenAI strong | verify L3 | 0.831 | 1.000 | 1.000 | 0 |
-| Anthropic Sonnet | closed | 0.838 | 1.000 | 1.000 | 0 |
-| Anthropic Sonnet | verify L3 | 0.763 | 1.000 | 1.000 | 0 |
-| DeepSeek chat | closed | 0.808 | 1.000 | 1.000 | 0 |
-| DeepSeek chat | verify L3 | 0.703 | 1.000 | 1.000 | 0 |
+This snapshot is diagnostic. It fixed the earlier malformed-output confound, but
+it also showed that the current L3 verifier loop is not automatically better
+than a closed prompt. That is useful evidence for the broader SpecGuard-Agent
+line of work.
 
-Critical interpretation:
+## What This Benchmark Is Good For
 
-- Structured outputs helped: parsing/interface failure is no longer explaining
-  the results.
-- The current L3 verifier interface does not look like a clean win. Several
-  models do worse in the verify-L3 condition than in the closed condition.
-- That probably says something about the interface contract: the current tool
-  loop does not expose enough state about candidate history, remaining budget,
-  or whether a message is a tool request or a final decision.
-- Those interface lessons are the bridge to SpecGuard-Agent. The chemistry
-  benchmark remains useful as a concrete, reproducible testbed.
+SpecGuard-Chem is useful for studying:
 
-## Architecture Figure
+- rule following under explicit hard constraints;
+- over-acceptance of plausible but invalid outputs;
+- abstention on impossible specifications;
+- deterministic verifier-tool use;
+- traceable model or agent decisions;
+- benchmark validity under wrapper pressure.
 
-![SpecGuard-Chem architecture](external_baselines/results_diagnostic_2026_05_20_strict_v3/figures/figure2_specguard_architecture.png)
+## What This Benchmark Is Not Good For
 
-More result figures:
+SpecGuard-Chem does not measure:
 
-- [Per-family action accuracy heatmap](paper_final/results_offline_full_2026_05_20/figures/per_family_action_accuracy_heatmap.png)
-- [Wrapper ablation accuracy](paper_final/results_offline_full_2026_05_20/figures/wrapper_ablation_action_accuracy.png)
-- [Protocol ladder action accuracy](paper_final/results_offline_full_2026_05_20/figures/protocol_ladder_action_accuracy.png)
+- real-world drug discovery;
+- medicinal value;
+- biological activity;
+- toxicity;
+- dosing;
+- clinical usefulness;
+- synthesis planning;
+- target binding;
+- general chemistry intelligence.
 
-## Run A Small Demo
+It also does not claim that this release is resistant to all wrapper strategies.
+The wrapper-saturation result is part of the audit.
+
+## Quick Start
+
+Install the package and run a small task:
 
 ```bash
 uv venv --seed
 source .venv/bin/activate
 uv pip install -e .[dev]
 
-specguard-chem run basic_plain --protocol L1 --model heuristic --run-path runs/demo_basic_l1
+specguard-chem run basic_plain \
+  --protocol L1 \
+  --model heuristic \
+  --run-path runs/demo_basic_l1
+
 specguard-chem report runs/demo_basic_l1
 ```
 
-Run the tests:
+Run tests:
 
 ```bash
-uv run pytest
+uv run pytest --cov=src/specguard_chem --cov-report=term-missing
 ```
 
-## Reproduce The Frozen Offline Sweep
+## Frozen Benchmark Release
 
-The compact paper-facing result package is already committed. To regenerate the
-offline paper tables and figures:
+Compile the primary frozen release:
 
 ```bash
-uv run specguard-chem run-benchmark \
-  --benchmark benchmarks/releases/sgchem_v1.0 \
-  --split test \
-  --baselines baselines/paper_v2_full_offline_baselines.yaml \
-  --out runs/paper_v2_full_offline \
-  --seed 7
-
-uv run specguard-chem paper-figures \
-  --runs runs/paper_v2_full_offline \
-  --out paper_v2/results
+uv run specguard-chem compile-benchmark \
+  --benchmark-id sgchem_v1.0 \
+  --out benchmarks/releases/sgchem_v1.0 \
+  --seed 7 \
+  --target-bundles 120 \
+  --min-tasks 650 \
+  --max-tasks 900 \
+  --anonymous
 ```
 
-For external API runs, use the runbook instead of the top-level README:
+Validate it strictly:
+
+```bash
+uv run specguard-chem validate-dataset \
+  benchmarks/releases/sgchem_v1.0 \
+  --strict
+```
+
+Regenerate the current offline paper-facing result package:
+
+```bash
+RESULTS=paper_v2/results bash scripts/run_paper_v2_results.sh
+```
+
+The curated review copy used by the manuscript is:
+
+[`paper_final/results_offline_full_2026_05_20/`](paper_final/results_offline_full_2026_05_20/)
+
+For external API runs, use:
 
 [`external_baselines/RUNBOOK.md`](external_baselines/RUNBOOK.md)
 
+## Included Baselines
+
+- `corpus_search`: retrieves nearby corpus molecules.
+- `local_mutation`: edits molecules locally.
+- `heuristic`: conservative rule baseline.
+- `abstention_guard`: abstention-heavy baseline.
+- `verify_first`: calls the verifier before finalizing.
+- `openai_chat`: external model snapshot through the OpenAI chat API.
+- `openai_chat_verify_l3`: external model snapshot with a verify-first policy
+  template.
+- `anthropic_chat` and `anthropic_chat_verify_l3`: Anthropic external snapshots.
+- `deepseek_chat` and `deepseek_chat_verify_l3`: DeepSeek external snapshots.
+- `well_engineered_wrapper`: deterministic verifier/search control.
+
+The wrapper is reported separately because it is a control for the benchmark
+setting, not a normal model baseline.
+
+## Output Artifacts
+
+Runs produce auditable artifacts such as:
+
+- per-task traces;
+- final action decisions;
+- verifier-tool calls;
+- aggregate metrics;
+- result tables;
+- paper figures;
+- cache/replay files for external model snapshots.
+
+The goal is that a reviewer can inspect both the final score and the path that
+produced it.
+
 Raw traces, live-call caches, and task-level JSONL dumps are intentionally kept
-out of the Git review diff. They can be regenerated or archived separately.
+out of the compact Git review diff. They can be regenerated or archived
+separately.
 
-## Where To Look First
+## Repository Guide
 
+Useful entry points:
+
+- [`BENCHMARK_CARD.md`](BENCHMARK_CARD.md): benchmark scope, assumptions, and
+  intended interpretation.
+- [`METRICS.md`](METRICS.md): metric definitions.
+- [`SAFETY.md`](SAFETY.md): scope boundaries and non-goals.
+- [`docs/overview.md`](docs/overview.md): architecture and benchmark flow.
 - [`paper_final/main.tex`](paper_final/main.tex): current manuscript draft.
-- [`paper_final/README.md`](paper_final/README.md): paper package build notes.
-- [`paper_final/results_offline_full_2026_05_20/RESULTS_SUMMARY.md`](paper_final/results_offline_full_2026_05_20/RESULTS_SUMMARY.md): short result summary.
-- [`paper_final/results_offline_full_2026_05_20/tables/main_table_representative_baselines_with_ci.md`](paper_final/results_offline_full_2026_05_20/tables/main_table_representative_baselines_with_ci.md): main offline table with bootstrap intervals.
-- [`paper_final/results_offline_full_2026_05_20/tables/action_collapse_summary.md`](paper_final/results_offline_full_2026_05_20/tables/action_collapse_summary.md): where accept/reject/abstain failures happen.
+- [`paper_final/results_offline_full_2026_05_20/`](paper_final/results_offline_full_2026_05_20/): frozen offline result package.
 - [`external_baselines/results_full_2026_05_20_strict_v3/tables/replay/external_baseline_metrics.md`](external_baselines/results_full_2026_05_20_strict_v3/tables/replay/external_baseline_metrics.md): strict external snapshot.
-- [`benchmarks/releases/sgchem_v1.0/tasks/test.jsonl`](benchmarks/releases/sgchem_v1.0/tasks/test.jsonl): public test tasks with hidden oracle fields.
 
-## What Is In The Repo
+## Status
 
-- Benchmark compiler for the frozen `sgchem_v1.0` release.
-- RDKit verifiers for property bounds, alerts, synthetic-accessibility proxies,
-  edit constraints, and SMILES invariance policies.
-- Runner that emits replayable traces, reports, leaderboards, and cacheable
-  external calls.
-- Baselines for always-accept/reject/abstain, local mutation, retrieval,
-  verifier-first policies, wrapper ceilings, and external LLM adapters.
-- Paper artifacts: manuscript, figures, tables, checks, and frozen summaries.
-
-## Relationship To SpecGuard-Agent
-
-SpecGuard-Chem is the domain-specific artifact: chemistry specs, deterministic
-verifiers, frozen runs, and paper evidence.
-
-SpecGuard-Agent is the broader direction that grew out of the external runs.
-The most interesting general lesson is that "give the model a verifier" is not
-enough. The tool contract needs state: what has been tried, what failed, what
-budget remains, and whether the next message is a tool call or a final action.
-
-## Scope Guardrails
-
-SpecGuard-Chem deliberately avoids:
-
-- drug discovery claims
-- activity or toxicity prediction
-- docking, binding, or disease modeling
-- synthesis planning
-- therapeutic, clinical, dosing, or safety recommendations
-
-The project uses chemistry because RDKit gives deterministic checks that make
-specification-following failures easy to audit.
-
-## Included Adapters
-
-- `heuristic`: deterministic rule baseline.
-- `open_source_example`: simple L3 tool-using baseline.
-- `abstention_guard`: conservative abstention-oriented baseline.
-- `verify_first`: calls `verify()` before proposing.
-- `corpus_search`: deterministic retrieval baseline.
-- `local_mutation`: deterministic local mutation search.
-- `process`: external command adapter.
-- `openai_chat` and `openai_chat_verify_l3`.
-- `anthropic_chat` and `anthropic_chat_verify_l3`.
-- `deepseek_chat` and `deepseek_chat_verify_l3`.
-
-See [`docs/adapters.md`](docs/adapters.md) for integration details.
-
-## Included Task Suites
-
-- `basic_plain` and `basic_checklist`: small smoke-test suites.
-- `repair_ladder_plain` and `repair_ladder_checklist`: edit/repair tasks.
-- `interrupts`, `interrupt_strict`, and `interrupt_resume`: interrupt handling.
-- `alerts_pains_soft`: alert-focused soft-constraint tasks.
-- `smiles_invariance`: stereo, tautomer, charge, and aromatic equivalence cases.
-- `boundary_precision`: near-boundary tolerance checks.
-- `sgchem_v1.0`: frozen benchmark release used by the paper package.
-
-For formulas see [`METRICS.md`](METRICS.md). For guardrails see
-[`SAFETY.md`](SAFETY.md). For architecture details see
-[`docs/overview.md`](docs/overview.md).
+SpecGuard-Chem v1.0 is a research benchmark and audit harness. It is intended
+for studying rule-following, verifier use, abstention, and reproducible action
+scoring under chemistry-shaped constraints.
