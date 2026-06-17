@@ -139,9 +139,30 @@ Critical interpretation:
 - Those interface lessons are the bridge to SpecGuard-Agent. The chemistry
   benchmark remains useful as a concrete, reproducible testbed.
 
-## Architecture Figure
+## Evaluation Architecture
 
-![SpecGuard-Chem architecture](external_baselines/results_diagnostic_2026_05_20_strict_v3/figures/figure2_specguard_architecture.png)
+```mermaid
+flowchart TD
+    A["Benchmark compiler"] --> B["Frozen task bundle"]
+    A --> C["Hidden oracle and witness data"]
+    B --> D["Public task prompt"]
+    D --> E["Model or baseline"]
+    E --> F["Final action: ACCEPT, REJECT, or ABSTAIN"]
+    E --> G["Optional verify(smiles) call"]
+    G --> H["RDKit verifier"]
+    H --> E
+    F --> I["Scorer"]
+    H --> I
+    C --> I
+    I --> J["Action accuracy"]
+    I --> K["Reject and abstain recall"]
+    I --> L["Molecule acceptance"]
+    I --> M["Replay trace, tables, figures"]
+```
+
+The hidden oracle is used only by the scorer. The model sees the rendered task
+prompt and, in L3 tasks, may call the deterministic verifier within the stated
+budget.
 
 More result figures:
 
