@@ -1,14 +1,98 @@
 # SpecGuard-Chem
 
-Oracle-compiled evaluation contracts for agentic language models under chemically typed scientific specifications.
+SpecGuard-Chem is a reproducible evals project for agentic language models that
+must operate under explicit, machine-checkable chemistry specifications.
 
-**What it is:** a model-agnostic compiler and benchmark harness for rule-following under explicit, machine-checkable specs. Agents propose/edit molecules, optionally use verifier tools, and either accept, reject, or abstain.
+The task is not "generate a plausible molecule." The task is to read a public
+specification, decide whether to `ACCEPT`, `REJECT`, or `ABSTAIN`, optionally use
+verifier tools, and leave a trace that can be replayed and audited.
 
-**What it is NOT:** drug discovery, activity/toxicity prediction, synthesis planning, therapeutic selection, clinical evaluation, dosing guidance, disease modeling, or target-binding prediction.
+**What it is:** a benchmark compiler, deterministic RDKit verifier harness,
+runner, baseline suite, paper artifact chain, and cached external-model result
+package for chemistry-flavored specification following.
 
-Prompts are optional rendering. Canonical benchmark semantics are the structured task/spec objects, public task views, action contracts, and deterministic verifier truth.
+**What it is not:** drug discovery, activity prediction, toxicity prediction,
+synthesis planning, therapeutic selection, clinical evaluation, dosing guidance,
+disease modeling, or target-binding prediction.
 
-Alert checks support expanded deterministic families (`PAINS_A/B/C`, `BRENK`).
+Prompts are only a rendering layer. The canonical semantics are the structured
+task/spec objects, public task views, action contracts, deterministic verifier
+truth, and replayable traces.
+
+## Why This Exists
+
+Many molecule-generation demos blur together several questions:
+
+- Did the model output syntactically valid SMILES?
+- Did the molecule satisfy a visible specification?
+- Was accepting a molecule the right action for this task?
+- Did the agent use verifier/tool feedback correctly?
+- Can the result be reproduced without another live API call?
+
+SpecGuard-Chem separates those questions. The benchmark includes feasible
+construction, candidate audit, contradiction/abstention, near-miss repair,
+boundary precision, SMILES invariance, tool-forced L3, and interrupt/resume
+cases. This makes it useful as a small, controlled testbed for specification
+following and tool-mediated agent control.
+
+## What Is Implemented
+
+- A deterministic `sgchem_v1.0` benchmark compiler with train/dev/test splits.
+- RDKit-backed verifier checks for property bounds, alerts, synthetic
+  accessibility proxies, edit constraints, and invariance policies.
+- A runner that emits JSON traces, TSV leaderboards, cacheable external calls,
+  replay runs, confusion matrices, calibration fields, and verifier-use metrics.
+- Baselines covering closed-book heuristics, abstention, local mutation,
+  retrieval, verifier-first policies, a deterministic wrapper, and external
+  OpenAI/Anthropic/DeepSeek adapters.
+- Artifact checks for prompt leakage, oracle scrambling, dataset validation,
+  paper/table consistency, and external interface preflight.
+- Frozen offline and strict external result packages committed for review.
+
+## Relationship to SpecGuard-Agent
+
+This repository is the chemistry-specific artifact. It should stay focused on
+molecular specification contracts, deterministic verifiers, and frozen
+SpecGuard-Chem results.
+
+The broader SpecGuard-Agent direction grew out of this work. The strongest lead
+from the strict external runs is not a chemistry claim; it is an interface-design
+claim. The current L3 verifier contract lacks candidate history, remaining
+budget state, and a clean split between final decisions and tool requests. That
+belongs in the general agent-control line of work. SpecGuard-Chem remains the
+domain-specific benchmark and evidence base.
+
+## Current Frozen Results
+
+Primary offline package:
+
+```text
+paper_final/results_offline_full_2026_05_20/
+```
+
+Strict external snapshot:
+
+```text
+external_baselines/results_full_2026_05_20_strict_v3/
+```
+
+Key readout from the held-out 266-task test split:
+
+| System | Access model | Action accuracy | Molecule acceptance | Reject recall | Abstain recall |
+| --- | --- | ---: | ---: | ---: | ---: |
+| `corpus_search` | retrieval | 0.673 | 0.868 | 0.000 | 0.000 |
+| `local_mutation` | closed-book | 0.650 | 0.846 | 0.000 | 0.000 |
+| `heuristic` | closed-book | 0.602 | 0.406 | 1.000 | 0.000 |
+| `well_engineered_wrapper` | verifier/search wrapper | 1.000 | 0.673 | 1.000 | 1.000 |
+
+The wrapper's lower molecule-acceptance rate is not a weakness: only 179 of the
+266 held-out tasks require `ACCEPT`. The result shows why the action contract
+needs to be evaluated directly.
+
+The strict external v3 run completed with 3,968 cached live steps and zero
+interface-error steps. That removes the earlier malformed-output confound, but
+the L3 verify rows should still be treated as diagnostics rather than a final
+model leaderboard because the tool contract itself needs a stateful redesign.
 
 ## Quickstart
 ```bash
@@ -125,6 +209,57 @@ uv run python scripts/run_reality_check_experiments.py \
 
 The committed memo in `paper_v1/reality_check_decision_memo.md` reports that `well_engineered_wrapper` saturates the 266-task test split under the public verifier/search-wrapper threat model. That is an intended evaluation-validity result: sgchem_v1.0 should be interpreted as an oracle-compiled specification-compliance contract, not an intrinsic chemistry-capability leaderboard.
 
+## Artifact Map
+
+Start with these files when reviewing the project:
+
+- `paper_final/main.tex`: current manuscript draft.
+- `paper_final/README.md`: build notes for the review package.
+- `paper_final/reports/`: interpretation memos and artifact checks.
+- `paper_final/tables/` and `paper_final/figures/`: selected paper-facing
+  assets.
+- `scripts/run_paper_v2_results.sh`: offline result orchestration.
+- `scripts/run_external_baselines.sh`: strict external baseline orchestration.
+- `external_baselines/RUNBOOK.md`: diagnostic/full online runbook.
+
+The most complete offline result package is:
+
+```text
+paper_final/results_offline_full_2026_05_20/
+```
+
+Useful entry points:
+
+- `RESULTS_SUMMARY.md`: short interpretation and caveats.
+- `tables/main_table_representative_baselines_with_ci.md`: representative offline rows with task-level bootstrap CIs.
+- `tables/full_offline_baseline_matrix_test.csv`: full held-out test matrix.
+- `tables/wrapper_ablation_test.csv`: verifier/search wrapper ablations.
+- `tables/protocol_ladder_test.csv`: native L1/L2/L3 protocol slices.
+- `notes/*_interpretation.md`: paper-facing interpretation notes.
+
+The complete strict external baseline snapshot is:
+
+```text
+external_baselines/results_full_2026_05_20_strict_v3/
+```
+
+This run uses strict structured tool outputs for OpenAI, Anthropic, and DeepSeek
+adapters. The committed review package keeps the summary tables and metadata:
+
+- `tables/replay/external_baseline_summary.json`
+- `tables/replay/external_baseline_metrics.csv`
+
+Treat these rows as external diagnostic snapshots, not as the primary offline
+leaderboard. The v3 contract fixed the malformed-output problem, but the traces
+also show that the current L3 verifier interface is not a clean agent-control
+contract: it lacks candidate history, remaining-budget state, and a clear split
+between final decisions and tool requests. That finding is useful for the
+broader SpecGuard-Agent direction, but the SpecGuard-Chem paper should keep the
+claim grounded in the chemistry benchmark and frozen artifacts.
+
+Raw traces and live-call caches are intentionally kept out of the Git review
+diff. They can be regenerated or attached as an external archive if needed.
+
 Create the anonymous reviewer archive:
 
 ```bash
@@ -197,6 +332,10 @@ Inspect one test bundle manually in `benchmarks/releases/sgchem_v1.0/audits/manu
 - `process`: external command adapter (`SPEC_GUARD_PROCESS_ADAPTER_CMD`), cache/replay compatible.
 - `openai_chat`: OpenAI Chat Completions adapter (`OPENAI_API_KEY`).
 - `openai_chat_verify_l3`: OpenAI adapter with an L3 verify-first policy template.
+- `anthropic_chat`: Anthropic Messages adapter (`ANTHROPIC_API_KEY`).
+- `anthropic_chat_verify_l3`: Anthropic adapter with an L3 verify-first policy template.
+- `deepseek_chat`: DeepSeek OpenAI-compatible adapter (`DEEPSEEK_API_KEY`).
+- `deepseek_chat_verify_l3`: DeepSeek adapter with an L3 verify-first policy template.
 
 See `docs/adapters.md` for integration details.
 

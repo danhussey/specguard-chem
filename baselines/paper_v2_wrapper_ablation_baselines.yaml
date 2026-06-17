@@ -1,0 +1,60 @@
+baselines:
+  - name: wrapper_full
+    model: well_engineered_wrapper
+    track: wrapper_guarded
+    adapter_kwargs:
+      corpus_size: 250
+  - name: wrapper_no_public_candidate_search
+    model: well_engineered_wrapper
+    track: wrapper_guarded
+    adapter_kwargs:
+      use_public_candidate_search: false
+      corpus_size: 250
+  - name: wrapper_no_verifier_calls
+    model: well_engineered_wrapper
+    track: wrapper_guarded
+    adapter_kwargs:
+      use_verifier_calls: false
+      corpus_size: 250
+  - name: wrapper_verify_budget_1
+    model: well_engineered_wrapper
+    track: wrapper_guarded
+    adapter_kwargs:
+      verify_budget: 1
+      corpus_size: 250
+  - name: wrapper_verify_budget_3
+    model: well_engineered_wrapper
+    track: wrapper_guarded
+    adapter_kwargs:
+      verify_budget: 3
+      corpus_size: 250
+  - name: wrapper_verify_budget_10
+    model: well_engineered_wrapper
+    track: wrapper_guarded
+    adapter_kwargs:
+      verify_budget: 10
+      corpus_size: 250
+  - name: wrapper_no_contradiction_detector
+    model: well_engineered_wrapper
+    track: wrapper_guarded
+    adapter_kwargs:
+      use_contradiction_detector: false
+      corpus_size: 250
+  - name: wrapper_no_repair_loop
+    model: well_engineered_wrapper
+    track: wrapper_guarded
+    adapter_kwargs:
+      use_repair_loop: false
+      corpus_size: 250
+  - name: wrapper_no_boundary_special_case
+    model: well_engineered_wrapper
+    track: wrapper_guarded
+    adapter_kwargs:
+      use_boundary_special_case: false
+      corpus_size: 250
+  - name: wrapper_name_scrambled_public_view
+    model: well_engineered_wrapper
+    track: wrapper_guarded
+    adapter_kwargs:
+      name_scrambled_public_view: true
+      corpus_size: 250

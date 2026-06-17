@@ -1,0 +1,14 @@
+# Metric Definitions
+
+| metric | level | captures | misses |
+| --- | --- | --- | --- |
+| molecule_acceptance_rate | molecule/action | fraction ending in ACCEPT | whether ACCEPT was the correct action |
+| chemical validity | molecule | parseable and checkable molecule outputs | scientific decision correctness |
+| constraint satisfaction | molecule | hard rule compliance for attempted molecules | reject and abstain semantics |
+| action_accuracy | task | exact ACCEPT/REJECT/ABSTAIN match | why an action was selected |
+| accept_recall | action | ACCEPT tasks solved as ACCEPT | reject/abstain behavior |
+| reject_recall | action | REJECT tasks identified | molecule quality on accept tasks |
+| abstain_recall | action | contradiction/uncertainty abstentions | near-miss repair quality |
+| task_inconsistent_accept_rate | task | unsafe accept collapse on reject/abstain tasks | benign false abstentions |
+| mean_verify_calls | protocol | verifier budget usage | quality independent of budget |
+| schema_error_rate | wrapper | JSON/action contract failures | chemical correctness |

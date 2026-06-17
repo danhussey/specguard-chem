@@ -1,0 +1,53 @@
+\section{Action Collapse Summary}\label{action-collapse-summary}
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.1000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.1000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.1000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.1000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.1000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.1000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.1000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.1000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.1000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.1000}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+adapter
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+expected\_accept\_pred\_accept
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+expected\_reject\_pred\_accept
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+expected\_abstain\_pred\_accept
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+expected\_accept\_pred\_abstain
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+expected\_reject\_pred\_abstain
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+expected\_abstain\_pred\_abstain
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+reject\_to\_accept\_rate
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+abstain\_to\_accept\_rate
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+accept\_to\_abstain\_rate
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+always\_accept & 143 & 45 & 0 & 0 & 0 & 0 & 0.865 & 0.000 & 0.000 \\
+always\_abstain & 0 & 0 & 0 & 179 & 52 & 35 & 0.000 & 0.000 & 1.000 \\
+heuristic & 108 & 0 & 0 & 11 & 0 & 0 & 0.000 & 0.000 & 0.061 \\
+abstention\_guard & 146 & 35 & 0 & 11 & 0 & 0 & 0.673 & 0.000 & 0.061 \\
+local\_mutation & 173 & 52 & 0 & 0 & 0 & 0 & 1.000 & 0.000 & 0.000 \\
+verify\_first & 173 & 52 & 0 & 0 & 0 & 0 & 1.000 & 0.000 & 0.000 \\
+verifier\_guided\_greedy & 152 & 34 & 0 & 0 & 0 & 0 & 0.654 & 0.000 &
+0.000 \\
+corpus\_search & 179 & 52 & 0 & 0 & 0 & 0 & 1.000 & 0.000 & 0.000 \\
+well\_engineered\_wrapper & 179 & 0 & 0 & 0 & 0 & 35 & 0.000 & 0.000 &
+0.000 \\
+\end{longtable}
+}

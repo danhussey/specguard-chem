@@ -1,0 +1,12 @@
+# External Diagnostic Snapshot
+
+| system | provider | adapter | model_id | access_model | protocol | cache_mode | temperature | top_p | max_tokens | n_tasks | action_accuracy | balanced_action_accuracy | molecule_acceptance_rate | task_inconsistent_accept_rate | accept_recall | reject_recall | abstain_recall | schema_error_rate | hard_violation_rate | mean_verify_calls | estimated_cost_usd |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| openai_strong_strict-tool-call_closed | openai | openai_chat | gpt-5.1 | external diagnostic | mixed | replay | NA | NA | NA | 80 | 0.838 | 0.931 | 0.625 | 0.000 | 0.794 | 1.000 | 1.000 | 0.000 | 0.254 | 0.275 | NA |
+| openai_strong_strict-tool-call_verify_l3 | openai | openai_chat_verify_l3 | gpt-5.1 | external diagnostic | mixed | replay | NA | NA | NA | 80 | 0.738 | 0.889 | 0.525 | 0.000 | 0.667 | 1.000 | 1.000 | 0.000 | 0.417 | 0.787 | NA |
+| anthropic_fast_strict-tool-call_closed | anthropic | anthropic_chat | claude-haiku-4-5-20251001 | external diagnostic | mixed | replay | 0.000 | NA | 512 | 80 | 0.675 | 0.862 | 0.463 | 0.000 | 0.587 | 1.000 | 1.000 | 0.000 | 0.486 | 0.738 | NA |
+| anthropic_fast_strict-tool-call_verify_l3 | anthropic | anthropic_chat_verify_l3 | claude-haiku-4-5-20251001 | external diagnostic | mixed | replay | 0.000 | NA | 512 | 80 | 0.625 | 0.841 | 0.412 | 0.000 | 0.524 | 1.000 | 1.000 | 0.000 | 0.542 | 0.812 | NA |
+| anthropic_strong_strict-tool-call_closed | anthropic | anthropic_chat | claude-sonnet-4-20250514 | external diagnostic | mixed | replay | 0.000 | NA | 512 | 80 | 0.787 | 0.910 | 0.575 | 0.000 | 0.730 | 1.000 | 1.000 | 0.000 | 0.258 | 0.600 | NA |
+| anthropic_strong_strict-tool-call_verify_l3 | anthropic | anthropic_chat_verify_l3 | claude-sonnet-4-20250514 | external diagnostic | mixed | replay | 0.000 | NA | 512 | 80 | 0.637 | 0.847 | 0.425 | 0.000 | 0.540 | 1.000 | 1.000 | 0.000 | 0.452 | 0.613 | NA |
+| deepseek_fast_strict-tool-call_closed | deepseek | deepseek_chat | deepseek-chat | external diagnostic | mixed | replay | 0.000 | 1.000 | 1024 | 80 | 0.762 | 0.899 | 0.550 | 0.000 | 0.698 | 1.000 | 1.000 | 0.000 | 0.323 | 0.588 | NA |
+| deepseek_fast_strict-tool-call_verify_l3 | deepseek | deepseek_chat_verify_l3 | deepseek-chat | external diagnostic | mixed | replay | 0.000 | 1.000 | 1024 | 80 | 0.562 | 0.815 | 0.350 | 0.000 | 0.444 | 1.000 | 1.000 | 0.000 | 0.576 | 0.912 | NA |

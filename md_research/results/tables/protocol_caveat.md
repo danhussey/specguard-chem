@@ -1,0 +1,7 @@
+# Protocol Caveat
+
+| protocol | full_test_tasks | md_subset_tasks | interpretation |
+| --- | --- | --- | --- |
+| L1 | 97 | 23 | native task grouping; not a forced same-task protocol intervention |
+| L2 | 85 | 22 | native task grouping; not a forced same-task protocol intervention |
+| L3 | 84 | 35 | native task grouping; not a forced same-task protocol intervention |

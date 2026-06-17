@@ -1,0 +1,71 @@
+{
+  "generated_at": "2026-05-10T10:36:13.517958+00:00",
+  "num_rows": 8,
+  "num_failed": 0,
+  "rows": [
+    {
+      "name": "openai_fast_closed",
+      "model": "openai_chat",
+      "provider": "openai",
+      "model_id": "gpt-5-mini",
+      "status": "pass",
+      "response_action": "abstain"
+    },
+    {
+      "name": "openai_fast_verify_l3",
+      "model": "openai_chat_verify_l3",
+      "provider": "openai",
+      "model_id": "gpt-5-mini",
+      "status": "pass",
+      "response_action": "abstain"
+    },
+    {
+      "name": "openai_strong_closed",
+      "model": "openai_chat",
+      "provider": "openai",
+      "model_id": "gpt-5.1",
+      "status": "pass",
+      "response_action": "abstain"
+    },
+    {
+      "name": "openai_strong_verify_l3",
+      "model": "openai_chat_verify_l3",
+      "provider": "openai",
+      "model_id": "gpt-5.1",
+      "status": "pass",
+      "response_action": "abstain"
+    },
+    {
+      "name": "deepseek_fast_closed",
+      "model": "deepseek_chat",
+      "provider": "deepseek",
+      "model_id": "deepseek-chat",
+      "status": "pass",
+      "response_action": "abstain"
+    },
+    {
+      "name": "deepseek_fast_verify_l3",
+      "model": "deepseek_chat_verify_l3",
+      "provider": "deepseek",
+      "model_id": "deepseek-chat",
+      "status": "pass",
+      "response_action": "abstain"
+    },
+    {
+      "name": "deepseek_strong_closed",
+      "model": "deepseek_chat",
+      "provider": "deepseek",
+      "model_id": "deepseek-reasoner",
+      "status": "pass",
+      "response_action": "abstain"
+    },
+    {
+      "name": "deepseek_strong_verify_l3",
+      "model": "deepseek_chat_verify_l3",
+      "provider": "deepseek",
+      "model_id": "deepseek-reasoner",
+      "status": "pass",
+      "response_action": "abstain"
+    }
+  ]
+}

@@ -3,7 +3,7 @@ from __future__ import annotations
 """Deterministic corpus-search baseline adapter."""
 
 import json
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from ..config import SpecModel
 from ..dataset.corpus import build_corpus_records
@@ -17,13 +17,14 @@ class CorpusSearchAdapter(BaseAdapter):
     name = "corpus_search"
     track = "retrieval"
 
-    def __init__(self, *, seed: int = 0) -> None:
+    def __init__(self, *, seed: int = 0, corpus_size: int = 1200) -> None:
         super().__init__(seed=seed)
+        self.corpus_size = max(1, int(corpus_size))
         self._corpus = [
             str(item["canonical_smiles"])
             for item in build_corpus_records(
                 seed=max(seed, 1) + 101,
-                max_molecules=1200,
+                max_molecules=self.corpus_size,
                 reaction_depth=2,
             )
         ]
@@ -62,10 +63,14 @@ class CorpusSearchAdapter(BaseAdapter):
             else None
         )
         evaluator = ConstraintEvaluator(spec, input_smiles=input_smiles)
+        family = str(task.get("visible_task_name") or task.get("task_family") or "")
+        requires_input = _requires_input_context(spec_payload) or family.startswith(
+            "repair"
+        )
         spec_key = json.dumps(
             {
                 "spec": spec_payload,
-                "input_canonical": input_canonical,
+                "input_canonical": input_canonical if requires_input else None,
             },
             sort_keys=True,
             separators=(",", ":"),
@@ -83,8 +88,11 @@ class CorpusSearchAdapter(BaseAdapter):
             return "CC(=O)NC1=CC=CC=C1O"
 
         candidate_pool = list(passers)
-        family = str(task.get("visible_task_name") or task.get("task_family") or "")
-        if isinstance(input_smiles, str) and input_smiles and family.startswith("repair"):
+        if (
+            isinstance(input_smiles, str)
+            and input_smiles
+            and family.startswith("repair")
+        ):
             if input_canonical:
                 best_smiles = candidate_pool[0]
                 best_score = -1.0
@@ -96,3 +104,16 @@ class CorpusSearchAdapter(BaseAdapter):
                         best_smiles = candidate
                 return best_smiles
         return candidate_pool[0]
+
+
+def _requires_input_context(spec_payload: dict) -> bool:
+    constraints = spec_payload.get("constraints")
+    if not isinstance(constraints, list):
+        return False
+    input_dependent = {"similarity_min_to_input", "equivalent_to_input"}
+    for constraint in constraints:
+        if not isinstance(constraint, dict):
+            continue
+        if constraint.get("check") in input_dependent:
+            return True
+    return False

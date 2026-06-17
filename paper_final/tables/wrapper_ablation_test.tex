@@ -1,0 +1,120 @@
+\section{Wrapper Ablation}\label{wrapper-ablation}
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+variant
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+access\_model
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+n\_tasks
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+action\_accuracy
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+balanced\_action\_accuracy
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+molecule\_acceptance\_rate
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+task\_inconsistent\_accept\_rate
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+accept\_recall
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+reject\_recall
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+abstain\_recall
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+construct\_family\_accuracy
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+repair\_family\_accuracy
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+audit\_reject\_family\_accuracy
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+abstain\_family\_accuracy
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+boundary\_family\_accuracy
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+invariance\_family\_accuracy
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+interrupt\_family\_accuracy
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+mean\_verify\_calls
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+p95\_verify\_calls
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+max\_verify\_calls
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+budget\_exhaustion\_rate
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+notes
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+wrapper\_full & verifier/search wrapper & 266 & 1.000 & 1.000 & 0.673 &
+0.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 &
+1.000 & 1.000 & 0.263 & 1.000 & 1 & 0.195 & full public verifier/search
+wrapper \\
+wrapper\_no\_public\_candidate\_search & verifier/search wrapper & 266 &
+0.977 & 0.989 & 0.650 & 0.000 & 0.966 & 1.000 & 1.000 & 0.976 & 1.000 &
+1.000 & 1.000 & 1.000 & 1.000 & 1.000 & 0.263 & 1.000 & 1 & 0.195 &
+corpus/public candidate search disabled \\
+wrapper\_no\_verifier\_calls & verifier/search wrapper & 266 & 1.000 &
+1.000 & 0.673 & 0.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 &
+1.000 & 1.000 & 1.000 & 1.000 & 0 & 0.000 & 0 & 0.195 & explicit L3
+verify tool calls disabled; local public-spec evaluation remains
+available to this deterministic wrapper \\
+wrapper\_verify\_budget\_1 & verifier/search wrapper & 266 & 1.000 &
+1.000 & 0.673 & 0.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 &
+1.000 & 1.000 & 1.000 & 1.000 & 0.263 & 1.000 & 1 & 0.195 & explicit L3
+verify tool-call budget variant \\
+wrapper\_verify\_budget\_3 & verifier/search wrapper & 266 & 1.000 &
+1.000 & 0.673 & 0.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 &
+1.000 & 1.000 & 1.000 & 1.000 & 0.263 & 1.000 & 1 & 0.195 & explicit L3
+verify tool-call budget variant \\
+wrapper\_verify\_budget\_10 & verifier/search wrapper & 266 & 1.000 &
+1.000 & 0.673 & 0.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 &
+1.000 & 1.000 & 1.000 & 1.000 & 0.263 & 1.000 & 1 & 0.195 & explicit L3
+verify tool-call budget variant \\
+wrapper\_no\_contradiction\_detector & verifier/search wrapper & 266 &
+1.000 & 1.000 & 0.673 & 0.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 &
+1.000 & 1.000 & 1.000 & 1.000 & 1.000 & 0.263 & 1.000 & 1 & 0.195 &
+visible contradiction branch disabled \\
+wrapper\_no\_repair\_loop & verifier/search wrapper & 266 & 1.000 &
+1.000 & 0.673 & 0.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 &
+1.000 & 1.000 & 1.000 & 1.000 & 0.263 & 1.000 & 1 & 0.195 & local
+repair/mutation fallback disabled \\
+wrapper\_no\_boundary\_special\_case & verifier/search wrapper & 266 &
+0.959 & 0.929 & 0.714 & 0.126 & 1.000 & 0.788 & 1.000 & 1.000 & 1.000 &
+1.000 & 1.000 & 0.500 & 1.000 & 1.000 & 0.263 & 1.000 & 1 & 0.154 &
+boundary audit dispatch disabled \\
+wrapper\_name\_scrambled\_public\_view & verifier/search wrapper & 266 &
+1.000 & 1.000 & 0.673 & 0.000 & 1.000 & 1.000 & 1.000 & 1.000 & 1.000 &
+1.000 & 1.000 & 1.000 & 1.000 & 1.000 & 0.263 & 1.000 & 1 & 0.195 &
+adapter ignores canonical visible family names and infers from public
+action/input shape \\
+\end{longtable}
+}

@@ -1,0 +1,17 @@
+system,provider,action_accuracy,molecule_acceptance_rate,reject_recall,abstain_recall,task_inconsistent_accept_rate
+always_accept,deterministic,0.65,0.7375,0.1111111111111111,0.0,0.47058823529411764
+always_abstain,deterministic,0.1,0.0,0.0,1.0,0.0
+heuristic,deterministic,0.4875,0.375,1.0,0.0,0.0
+abstention_guard,deterministic,0.6125,0.65,0.3333333333333333,0.0,0.35294117647058826
+local_mutation,deterministic,0.7375,0.85,0.0,0.0,0.5294117647058824
+verify_first,deterministic,0.7375,0.85,0.0,0.0,0.5294117647058824
+corpus_search,deterministic,0.7875,0.9,0.0,0.0,0.5294117647058824
+well_engineered_wrapper,deterministic,1.0,0.7875,1.0,1.0,0.0
+openai_strong_strict-tool-call_closed,openai,0.8375,0.625,1.0,1.0,0.0
+openai_strong_strict-tool-call_verify_l3,openai,0.7375,0.525,1.0,1.0,0.0
+anthropic_fast_strict-tool-call_closed,anthropic,0.675,0.4625,1.0,1.0,0.0
+anthropic_fast_strict-tool-call_verify_l3,anthropic,0.625,0.4125,1.0,1.0,0.0
+anthropic_strong_strict-tool-call_closed,anthropic,0.7875,0.575,1.0,1.0,0.0
+anthropic_strong_strict-tool-call_verify_l3,anthropic,0.6375,0.425,1.0,1.0,0.0
+deepseek_fast_strict-tool-call_closed,deepseek,0.7625,0.55,1.0,1.0,0.0
+deepseek_fast_strict-tool-call_verify_l3,deepseek,0.5625,0.35,1.0,1.0,0.0

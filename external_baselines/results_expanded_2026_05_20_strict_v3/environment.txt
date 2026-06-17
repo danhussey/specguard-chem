@@ -1,0 +1,6 @@
+scope: expanded
+commit: ae17cfd26c8fb176de0f35a5e1a4dc258874ab4c
+date_utc: 2026-05-19T15:53:42Z
+python: Python 3.11.11
+providers: available-env
+interface_tiers: strict-tool-call

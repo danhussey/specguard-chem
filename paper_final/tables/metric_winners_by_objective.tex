@@ -1,0 +1,79 @@
+\section{Metric Winners by Objective}\label{metric-winners-by-objective}
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1250}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1250}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1250}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1250}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1250}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1250}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1250}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1250}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+objective\_metric
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+rank\_1\_system
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+rank\_1\_access\_model
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+rank\_1\_value
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+rank\_2\_system
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+rank\_2\_value
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+hidden\_failure\_mode
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+paper\_interpretation
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+action\_accuracy & well\_engineered\_wrapper & verifier/search wrapper &
+1.000 & corpus\_search & 0.673 & depends on access model and action
+distribution & primary decision-contract metric \\
+balanced\_action\_accuracy & well\_engineered\_wrapper & verifier/search
+wrapper & 1.000 & heuristic & 0.534 & depends on access model and action
+distribution & use as a diagnostic slice with denominator \\
+molecule\_acceptance\_rate & corpus\_search & retrieval & 0.868 &
+local\_mutation & 0.846 & can reward accept-biased systems on
+reject/abstain tasks & not a task-success headline metric \\
+task\_inconsistent\_accept\_rate & always\_reject & closed-book & 0.000
+& always\_abstain & 0.000 & exposes reject/abstain collapse into accept
+decisions & use as a diagnostic slice with denominator \\
+reject\_recall & always\_reject & closed-book & 1.000 & heuristic &
+1.000 & isolates one action class rather than aggregate task success &
+use as a diagnostic slice with denominator \\
+abstain\_recall & always\_abstain & closed-book & 1.000 &
+well\_engineered\_wrapper & 1.000 & isolates one action class rather
+than aggregate task success & use as a diagnostic slice with
+denominator \\
+hard\_violation\_rate & corpus\_search & retrieval & 0.132 &
+local\_mutation & 0.154 & depends on access model and action
+distribution & use as a diagnostic slice with denominator \\
+schema\_error\_rate & always\_accept & closed-book & 0.000 &
+always\_reject & 0.000 & depends on access model and action distribution
+& use as a diagnostic slice with denominator \\
+mean\_verify\_calls & always\_accept & closed-book & 0 & always\_reject
+& 0 & ignores accuracy unless thresholded & use as a diagnostic slice
+with denominator \\
+balanced\_action\_score & well\_engineered\_wrapper & verifier/search
+wrapper & 1.000 & heuristic & 0.534 & depends on access model and action
+distribution & use as a diagnostic slice with denominator \\
+safe\_action\_score & well\_engineered\_wrapper & verifier/search
+wrapper & 0.775 & always\_abstain & 0.132 & depends on access model and
+action distribution & penalizes unsafe accepts, hard violations, and
+schema failures \\
+cost\_adjusted\_action\_score\_lambda\_0\_01 & well\_engineered\_wrapper
+& verifier/search wrapper & 0.992 & corpus\_search & 0.673 & depends on
+access model and action distribution & separates high-accuracy systems
+by verifier economy \\
+cost\_adjusted\_action\_score\_lambda\_0\_05 & well\_engineered\_wrapper
+& verifier/search wrapper & 0.958 & corpus\_search & 0.673 & depends on
+access model and action distribution & separates high-accuracy systems
+by verifier economy \\
+\end{longtable}
+}

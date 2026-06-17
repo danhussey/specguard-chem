@@ -1,0 +1,103 @@
+{
+  "generated_at": "2026-05-10T13:21:35.184383+00:00",
+  "num_rows": 12,
+  "num_failed": 0,
+  "rows": [
+    {
+      "name": "openai_fast_closed",
+      "model": "openai_chat",
+      "provider": "openai",
+      "model_id": "gpt-5-mini",
+      "status": "pass",
+      "response_action": "abstain"
+    },
+    {
+      "name": "openai_fast_verify_l3",
+      "model": "openai_chat_verify_l3",
+      "provider": "openai",
+      "model_id": "gpt-5-mini",
+      "status": "pass",
+      "response_action": "abstain"
+    },
+    {
+      "name": "openai_strong_closed",
+      "model": "openai_chat",
+      "provider": "openai",
+      "model_id": "gpt-5.1",
+      "status": "pass",
+      "response_action": "abstain"
+    },
+    {
+      "name": "openai_strong_verify_l3",
+      "model": "openai_chat_verify_l3",
+      "provider": "openai",
+      "model_id": "gpt-5.1",
+      "status": "pass",
+      "response_action": "abstain"
+    },
+    {
+      "name": "anthropic_fast_closed",
+      "model": "anthropic_chat",
+      "provider": "anthropic",
+      "model_id": "claude-haiku-4-5-20251001",
+      "status": "pass",
+      "response_action": "abstain"
+    },
+    {
+      "name": "anthropic_fast_verify_l3",
+      "model": "anthropic_chat_verify_l3",
+      "provider": "anthropic",
+      "model_id": "claude-haiku-4-5-20251001",
+      "status": "pass",
+      "response_action": "abstain"
+    },
+    {
+      "name": "anthropic_strong_closed",
+      "model": "anthropic_chat",
+      "provider": "anthropic",
+      "model_id": "claude-sonnet-4-20250514",
+      "status": "pass",
+      "response_action": "abstain"
+    },
+    {
+      "name": "anthropic_strong_verify_l3",
+      "model": "anthropic_chat_verify_l3",
+      "provider": "anthropic",
+      "model_id": "claude-sonnet-4-20250514",
+      "status": "pass",
+      "response_action": "abstain"
+    },
+    {
+      "name": "deepseek_fast_closed",
+      "model": "deepseek_chat",
+      "provider": "deepseek",
+      "model_id": "deepseek-chat",
+      "status": "pass",
+      "response_action": "abstain"
+    },
+    {
+      "name": "deepseek_fast_verify_l3",
+      "model": "deepseek_chat_verify_l3",
+      "provider": "deepseek",
+      "model_id": "deepseek-chat",
+      "status": "pass",
+      "response_action": "abstain"
+    },
+    {
+      "name": "deepseek_strong_closed",
+      "model": "deepseek_chat",
+      "provider": "deepseek",
+      "model_id": "deepseek-reasoner",
+      "status": "pass",
+      "response_action": "abstain"
+    },
+    {
+      "name": "deepseek_strong_verify_l3",
+      "model": "deepseek_chat_verify_l3",
+      "provider": "deepseek",
+      "model_id": "deepseek-reasoner",
+      "status": "pass",
+      "response_action": "abstain"
+    }
+  ]
+}

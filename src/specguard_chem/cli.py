@@ -517,6 +517,11 @@ def run_benchmark(
     limit: Optional[int] = typer.Option(
         None, "--limit", help="Optional cap on number of tasks per baseline."
     ),
+    subset_manifest: Optional[Path] = typer.Option(
+        None,
+        "--subset-manifest",
+        help="Optional JSON manifest with exact task_ids to evaluate.",
+    ),
     allow_external: bool = typer.Option(
         False,
         "--allow-external",
@@ -555,6 +560,7 @@ def run_benchmark(
             out_dir=out,
             seed=seed,
             limit=limit,
+            subset_manifest=subset_manifest,
             allow_external=allow_external,
             cache_dir=cache_dir,
             replay_cache=replay_cache,

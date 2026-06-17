@@ -1,0 +1,16 @@
+# External Diagnostic Snapshot
+
+| system | provider | adapter | model_id | access_model | protocol | cache_mode | temperature | top_p | max_tokens | n_tasks | action_accuracy | balanced_action_accuracy | molecule_acceptance_rate | task_inconsistent_accept_rate | accept_recall | reject_recall | abstain_recall | schema_error_rate | hard_violation_rate | mean_verify_calls | estimated_cost_usd |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| openai_fast_closed | openai | openai_chat | gpt-5-mini | external diagnostic | mixed | replay | NA | NA | NA | 80 | 0.100 | 0.333 | 0.000 | 0.000 | 0.000 | 0.000 | 1.000 | 0.000 | NA | 0.000 | NA |
+| openai_fast_verify_l3 | openai | openai_chat_verify_l3 | gpt-5-mini | external diagnostic | mixed | replay | NA | NA | NA | 80 | 0.113 | 0.339 | 0.013 | 0.000 | 0.016 | 0.000 | 1.000 | 0.000 | 0.500 | 0.400 | NA |
+| openai_strong_closed | openai | openai_chat | gpt-5.1 | external diagnostic | mixed | replay | NA | NA | NA | 80 | 0.900 | 0.958 | 0.688 | 0.000 | 0.873 | 1.000 | 1.000 | 0.000 | 0.236 | 0.013 | NA |
+| openai_strong_verify_l3 | openai | openai_chat_verify_l3 | gpt-5.1 | external diagnostic | mixed | replay | NA | NA | NA | 80 | 0.675 | 0.862 | 0.463 | 0.000 | 0.587 | 1.000 | 1.000 | 0.000 | 0.464 | 0.700 | NA |
+| anthropic_fast_closed | anthropic | anthropic_chat | claude-haiku-4-5-20251001 | external diagnostic | mixed | replay | 0.000 | NA | 512 | 80 | 0.100 | 0.333 | 0.000 | 0.000 | 0.000 | 0.000 | 1.000 | 0.000 | NA | 0.000 | NA |
+| anthropic_fast_verify_l3 | anthropic | anthropic_chat_verify_l3 | claude-haiku-4-5-20251001 | external diagnostic | mixed | replay | 0.000 | NA | 512 | 80 | 0.100 | 0.333 | 0.000 | 0.000 | 0.000 | 0.000 | 1.000 | 0.000 | NA | 0.400 | NA |
+| anthropic_strong_closed | anthropic | anthropic_chat | claude-sonnet-4-20250514 | external diagnostic | mixed | replay | 0.000 | NA | 512 | 80 | 0.775 | 0.905 | 0.562 | 0.000 | 0.714 | 1.000 | 1.000 | 0.000 | 0.250 | 0.463 | NA |
+| anthropic_strong_verify_l3 | anthropic | anthropic_chat_verify_l3 | claude-sonnet-4-20250514 | external diagnostic | mixed | replay | 0.000 | NA | 512 | 80 | 0.588 | 0.825 | 0.375 | 0.000 | 0.476 | 1.000 | 1.000 | 0.000 | 0.474 | 0.700 | NA |
+| deepseek_fast_closed | deepseek | deepseek_chat | deepseek-chat | external diagnostic | mixed | replay | 0.000 | 1.000 | 512 | 80 | 0.675 | 0.831 | 0.475 | 0.000 | 0.603 | 0.889 | 1.000 | 0.000 | 0.377 | 0.000 | NA |
+| deepseek_fast_verify_l3 | deepseek | deepseek_chat_verify_l3 | deepseek-chat | external diagnostic | mixed | replay | 0.000 | 1.000 | 512 | 80 | 0.738 | 0.857 | 0.537 | 0.000 | 0.683 | 0.889 | 1.000 | 0.000 | 0.328 | 0.475 | NA |
+| deepseek_strong_closed | deepseek | deepseek_chat | deepseek-reasoner | external diagnostic | mixed | replay | NA | NA | 1024 | 80 | 0.175 | 0.397 | 0.062 | 0.000 | 0.079 | 0.111 | 1.000 | 0.000 | 0.167 | 0.000 | NA |
+| deepseek_strong_verify_l3 | deepseek | deepseek_chat_verify_l3 | deepseek-reasoner | external diagnostic | mixed | replay | NA | NA | 1024 | 80 | 0.175 | 0.365 | 0.075 | 0.000 | 0.095 | 0.000 | 1.000 | 0.013 | 0.143 | 0.438 | NA |
