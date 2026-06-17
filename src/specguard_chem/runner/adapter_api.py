@@ -42,5 +42,7 @@ class AgentResponse(TypedDict, total=False):
     schema_error: Optional[bool]
     schema_error_type: Optional[str]
     normalized_action: Optional[str]
+    declared_public_action: Optional[str]
+    interface_error_type: Optional[str]
     invalid_action: Optional[bool]
     invalid_tool_call: Optional[bool]

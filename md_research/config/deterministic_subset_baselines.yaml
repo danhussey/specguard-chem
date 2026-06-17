@@ -1,0 +1,25 @@
+baselines:
+  - name: always_accept
+    model: always_accept
+    track: closed_book
+  - name: always_abstain
+    model: always_abstain
+    track: closed_book
+  - name: heuristic
+    model: heuristic
+    track: closed_book
+  - name: abstention_guard
+    model: abstention_guard
+    track: closed_book
+  - name: local_mutation
+    model: local_mutation
+    track: closed_book
+  - name: verify_first
+    model: verify_first
+    track: tool_enabled
+  - name: corpus_search
+    model: corpus_search
+    track: retrieval
+  - name: well_engineered_wrapper
+    model: well_engineered_wrapper
+    track: wrapper_guarded

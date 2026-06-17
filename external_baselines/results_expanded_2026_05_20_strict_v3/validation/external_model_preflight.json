@@ -1,0 +1,111 @@
+{
+  "generated_at": "2026-05-19T15:56:38.889559+00:00",
+  "num_rows": 8,
+  "num_failed": 0,
+  "rows": [
+    {
+      "name": "openai_strong_strict-tool-call_closed",
+      "model": "openai_chat",
+      "provider": "openai",
+      "model_id": "gpt-5.1",
+      "interface_tier": "strict-tool-call",
+      "schema_hash": "528a3e3066b73549cea1c26559e85aa63973c0eafe9d037e30869cad617a036d",
+      "provider_feature": "chat.completions.tools.function.strict",
+      "status": "pass",
+      "error": null,
+      "response_action": "abstain",
+      "raw_output_empty": false
+    },
+    {
+      "name": "openai_strong_strict-tool-call_verify_l3",
+      "model": "openai_chat_verify_l3",
+      "provider": "openai",
+      "model_id": "gpt-5.1",
+      "interface_tier": "strict-tool-call",
+      "schema_hash": "528a3e3066b73549cea1c26559e85aa63973c0eafe9d037e30869cad617a036d",
+      "provider_feature": "chat.completions.tools.function.strict",
+      "status": "pass",
+      "error": null,
+      "response_action": "abstain",
+      "raw_output_empty": false
+    },
+    {
+      "name": "anthropic_fast_strict-tool-call_closed",
+      "model": "anthropic_chat",
+      "provider": "anthropic",
+      "model_id": "claude-haiku-4-5-20251001",
+      "interface_tier": "strict-tool-call",
+      "schema_hash": "528a3e3066b73549cea1c26559e85aa63973c0eafe9d037e30869cad617a036d",
+      "provider_feature": "messages.tools.input_schema.forced_tool_choice",
+      "status": "pass",
+      "error": null,
+      "response_action": "abstain",
+      "raw_output_empty": false
+    },
+    {
+      "name": "anthropic_fast_strict-tool-call_verify_l3",
+      "model": "anthropic_chat_verify_l3",
+      "provider": "anthropic",
+      "model_id": "claude-haiku-4-5-20251001",
+      "interface_tier": "strict-tool-call",
+      "schema_hash": "528a3e3066b73549cea1c26559e85aa63973c0eafe9d037e30869cad617a036d",
+      "provider_feature": "messages.tools.input_schema.forced_tool_choice",
+      "status": "pass",
+      "error": null,
+      "response_action": "abstain",
+      "raw_output_empty": false
+    },
+    {
+      "name": "anthropic_strong_strict-tool-call_closed",
+      "model": "anthropic_chat",
+      "provider": "anthropic",
+      "model_id": "claude-sonnet-4-20250514",
+      "interface_tier": "strict-tool-call",
+      "schema_hash": "528a3e3066b73549cea1c26559e85aa63973c0eafe9d037e30869cad617a036d",
+      "provider_feature": "messages.tools.input_schema.forced_tool_choice",
+      "status": "pass",
+      "error": null,
+      "response_action": "abstain",
+      "raw_output_empty": false
+    },
+    {
+      "name": "anthropic_strong_strict-tool-call_verify_l3",
+      "model": "anthropic_chat_verify_l3",
+      "provider": "anthropic",
+      "model_id": "claude-sonnet-4-20250514",
+      "interface_tier": "strict-tool-call",
+      "schema_hash": "528a3e3066b73549cea1c26559e85aa63973c0eafe9d037e30869cad617a036d",
+      "provider_feature": "messages.tools.input_schema.forced_tool_choice",
+      "status": "pass",
+      "error": null,
+      "response_action": "abstain",
+      "raw_output_empty": false
+    },
+    {
+      "name": "deepseek_fast_strict-tool-call_closed",
+      "model": "deepseek_chat",
+      "provider": "deepseek",
+      "model_id": "deepseek-chat",
+      "interface_tier": "strict-tool-call",
+      "schema_hash": "528a3e3066b73549cea1c26559e85aa63973c0eafe9d037e30869cad617a036d",
+      "provider_feature": "chat.completions.tools.function.strict",
+      "status": "pass",
+      "error": null,
+      "response_action": "abstain",
+      "raw_output_empty": false
+    },
+    {
+      "name": "deepseek_fast_strict-tool-call_verify_l3",
+      "model": "deepseek_chat_verify_l3",
+      "provider": "deepseek",
+      "model_id": "deepseek-chat",
+      "interface_tier": "strict-tool-call",
+      "schema_hash": "528a3e3066b73549cea1c26559e85aa63973c0eafe9d037e30869cad617a036d",
+      "provider_feature": "chat.completions.tools.function.strict",
+      "status": "pass",
+      "error": null,
+      "response_action": "abstain",
+      "raw_output_empty": false
+    }
+  ]
+}

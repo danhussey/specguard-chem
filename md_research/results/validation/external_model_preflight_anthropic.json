@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-05-10T12:56:00.226354+00:00",
+  "num_rows": 4,
+  "num_failed": 0,
+  "rows": [
+    {
+      "name": "anthropic_fast_closed",
+      "model": "anthropic_chat",
+      "provider": "anthropic",
+      "model_id": "claude-haiku-4-5-20251001",
+      "status": "pass",
+      "response_action": "abstain"
+    },
+    {
+      "name": "anthropic_fast_verify_l3",
+      "model": "anthropic_chat_verify_l3",
+      "provider": "anthropic",
+      "model_id": "claude-haiku-4-5-20251001",
+      "status": "pass",
+      "response_action": "abstain"
+    },
+    {
+      "name": "anthropic_strong_closed",
+      "model": "anthropic_chat",
+      "provider": "anthropic",
+      "model_id": "claude-sonnet-4-20250514",
+      "status": "pass",
+      "response_action": "abstain"
+    },
+    {
+      "name": "anthropic_strong_verify_l3",
+      "model": "anthropic_chat_verify_l3",
+      "provider": "anthropic",
+      "model_id": "claude-sonnet-4-20250514",
+      "status": "pass",
+      "response_action": "abstain"
+    }
+  ]
+}

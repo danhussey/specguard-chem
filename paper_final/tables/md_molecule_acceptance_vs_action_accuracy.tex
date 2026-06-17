@@ -1,0 +1,151 @@
+\section{Molecule Acceptance Versus Action
+Accuracy}\label{molecule-acceptance-versus-action-accuracy}
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 42\tabcolsep) * \real{0.0455}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+system
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+provider
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+adapter
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+model\_id
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+access\_model
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+protocol
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+cache\_mode
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+temperature
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+top\_p
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+max\_tokens
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+n\_tasks
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+action\_accuracy
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+balanced\_action\_accuracy
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+molecule\_acceptance\_rate
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+task\_inconsistent\_accept\_rate
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+accept\_recall
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+reject\_recall
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+abstain\_recall
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+schema\_error\_rate
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+hard\_violation\_rate
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+mean\_verify\_calls
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+estimated\_cost\_usd
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+always\_accept & deterministic & always\_accept & always\_accept &
+closed-book & mixed & offline & NA & NA & NA & 80 & 0.650 & 0.307 &
+0.738 & 0.471 & 0.810 & 0.111 & 0.000 & 0.000 & 0.263 & 0.000 & NA \\
+always\_abstain & deterministic & always\_abstain & always\_abstain &
+closed-book & mixed & offline & NA & NA & NA & 80 & 0.100 & 0.333 &
+0.000 & 0.000 & 0.000 & 0.000 & 1.000 & 0.000 & NA & 0.000 & NA \\
+heuristic & deterministic & heuristic & heuristic & closed-book & mixed
+& offline & NA & NA & NA & 80 & 0.487 & 0.492 & 0.375 & 0.000 & 0.476 &
+1.000 & 0.000 & 0.000 & 0.583 & 0.000 & NA \\
+abstention\_guard & deterministic & abstention\_guard &
+abstention\_guard & closed-book & mixed & offline & NA & NA & NA & 80 &
+0.613 & 0.354 & 0.650 & 0.353 & 0.730 & 0.333 & 0.000 & 0.000 & 0.278 &
+0.000 & NA \\
+local\_mutation & deterministic & local\_mutation & local\_mutation &
+closed-book & mixed & offline & NA & NA & NA & 80 & 0.738 & 0.312 &
+0.850 & 0.529 & 0.937 & 0.000 & 0.000 & 0.000 & 0.150 & 0.000 & NA \\
+verify\_first & deterministic & verify\_first & verify\_first &
+public-verifier & mixed & offline & NA & NA & NA & 80 & 0.738 & 0.312 &
+0.850 & 0.529 & 0.937 & 0.000 & 0.000 & 0.000 & 0.150 & 0.438 & NA \\
+corpus\_search & deterministic & corpus\_search & corpus\_search &
+retrieval & mixed & offline & NA & NA & NA & 80 & 0.787 & 0.333 & 0.900
+& 0.529 & 1.000 & 0.000 & 0.000 & 0.000 & 0.100 & 0.000 & NA \\
+well\_engineered\_wrapper & deterministic & well\_engineered\_wrapper &
+well\_engineered\_wrapper & verifier/search wrapper & mixed & offline &
+NA & NA & NA & 80 & 1.000 & 1.000 & 0.787 & 0.000 & 1.000 & 1.000 &
+1.000 & 0.000 & 0.125 & 0.400 & NA \\
+openai\_fast\_closed & openai & openai\_chat & gpt-5-mini & external
+diagnostic & mixed & replay & NA & NA & NA & 80 & 0.100 & 0.333 & 0.000
+& 0.000 & 0.000 & 0.000 & 1.000 & 0.000 & NA & 0.000 & NA \\
+openai\_fast\_verify\_l3 & openai & openai\_chat\_verify\_l3 &
+gpt-5-mini & external diagnostic & mixed & replay & NA & NA & NA & 80 &
+0.113 & 0.339 & 0.013 & 0.000 & 0.016 & 0.000 & 1.000 & 0.000 & 0.500 &
+0.400 & NA \\
+openai\_strong\_closed & openai & openai\_chat & gpt-5.1 & external
+diagnostic & mixed & replay & NA & NA & NA & 80 & 0.900 & 0.958 & 0.688
+& 0.000 & 0.873 & 1.000 & 1.000 & 0.000 & 0.236 & 0.013 & NA \\
+openai\_strong\_verify\_l3 & openai & openai\_chat\_verify\_l3 & gpt-5.1
+& external diagnostic & mixed & replay & NA & NA & NA & 80 & 0.675 &
+0.862 & 0.463 & 0.000 & 0.587 & 1.000 & 1.000 & 0.000 & 0.464 & 0.700 &
+NA \\
+anthropic\_fast\_closed & anthropic & anthropic\_chat &
+claude-haiku-4-5-20251001 & external diagnostic & mixed & replay & 0.000
+& NA & 512 & 80 & 0.100 & 0.333 & 0.000 & 0.000 & 0.000 & 0.000 & 1.000
+& 0.000 & NA & 0.000 & NA \\
+anthropic\_fast\_verify\_l3 & anthropic & anthropic\_chat\_verify\_l3 &
+claude-haiku-4-5-20251001 & external diagnostic & mixed & replay & 0.000
+& NA & 512 & 80 & 0.100 & 0.333 & 0.000 & 0.000 & 0.000 & 0.000 & 1.000
+& 0.000 & NA & 0.400 & NA \\
+anthropic\_strong\_closed & anthropic & anthropic\_chat &
+claude-sonnet-4-20250514 & external diagnostic & mixed & replay & 0.000
+& NA & 512 & 80 & 0.775 & 0.905 & 0.562 & 0.000 & 0.714 & 1.000 & 1.000
+& 0.000 & 0.250 & 0.463 & NA \\
+anthropic\_strong\_verify\_l3 & anthropic & anthropic\_chat\_verify\_l3
+& claude-sonnet-4-20250514 & external diagnostic & mixed & replay &
+0.000 & NA & 512 & 80 & 0.588 & 0.825 & 0.375 & 0.000 & 0.476 & 1.000 &
+1.000 & 0.000 & 0.474 & 0.700 & NA \\
+deepseek\_fast\_closed & deepseek & deepseek\_chat & deepseek-chat &
+external diagnostic & mixed & replay & 0.000 & 1.000 & 512 & 80 & 0.675
+& 0.831 & 0.475 & 0.000 & 0.603 & 0.889 & 1.000 & 0.000 & 0.377 & 0.000
+& NA \\
+deepseek\_fast\_verify\_l3 & deepseek & deepseek\_chat\_verify\_l3 &
+deepseek-chat & external diagnostic & mixed & replay & 0.000 & 1.000 &
+512 & 80 & 0.738 & 0.857 & 0.537 & 0.000 & 0.683 & 0.889 & 1.000 & 0.000
+& 0.328 & 0.475 & NA \\
+deepseek\_strong\_closed & deepseek & deepseek\_chat & deepseek-reasoner
+& external diagnostic & mixed & replay & NA & NA & 1024 & 80 & 0.175 &
+0.397 & 0.062 & 0.000 & 0.079 & 0.111 & 1.000 & 0.000 & 0.167 & 0.000 &
+NA \\
+deepseek\_strong\_verify\_l3 & deepseek & deepseek\_chat\_verify\_l3 &
+deepseek-reasoner & external diagnostic & mixed & replay & NA & NA &
+1024 & 80 & 0.175 & 0.365 & 0.075 & 0.000 & 0.095 & 0.000 & 1.000 &
+0.013 & 0.143 & 0.438 & NA \\
+\end{longtable}
+}

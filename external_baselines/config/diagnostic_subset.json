@@ -1,0 +1,57 @@
+{
+  "benchmark_id": "sgchem_v1.0",
+  "split": "test",
+  "seed": 7,
+  "selection": "stratified_by_task_family",
+  "max_per_family": 1,
+  "n_tasks": 10,
+  "task_ids": [
+    "sgchem_v1.0__bundle__00012__abstain_contradiction__04",
+    "sgchem_v1.0__bundle__00092__audit_accept__02",
+    "sgchem_v1.0__bundle__00017__audit_reject__03",
+    "sgchem_v1.0__bundle__00105__boundary_precision__06",
+    "sgchem_v1.0__bundle__00110__construct_feasible__01",
+    "sgchem_v1.0__bundle__00017__interrupt_resume__05",
+    "sgchem_v1.0__bundle__00036__repair_multi_violation__06",
+    "sgchem_v1.0__bundle__00109__repair_near_miss__05",
+    "sgchem_v1.0__bundle__00046__smiles_invariance__06",
+    "sgchem_v1.0__bundle__00012__tool_forced_l3__05"
+  ],
+  "task_public_hashes": [
+    "20d10dafd48b943a",
+    "0156ae6972db21b9",
+    "a615062c4db497a4",
+    "a01bc0103a53ed46",
+    "8adda16abf67c963",
+    "ac7d73956e89176a",
+    "bb5a5fcec17daab9",
+    "f04b2bd241139f27",
+    "82ee68311fcbe3d6",
+    "5de49456db144066"
+  ],
+  "counts": {
+    "by_task_family": {
+      "abstain_contradiction": 1,
+      "audit_accept": 1,
+      "audit_reject": 1,
+      "boundary_precision": 1,
+      "construct_feasible": 1,
+      "interrupt_resume": 1,
+      "repair_multi_violation": 1,
+      "repair_near_miss": 1,
+      "smiles_invariance": 1,
+      "tool_forced_l3": 1
+    },
+    "by_protocol": {
+      "L1": 3,
+      "L3": 4,
+      "L2": 3
+    },
+    "by_expected_action": {
+      "ABSTAIN": 1,
+      "ACCEPT": 7,
+      "REJECT": 2
+    }
+  },
+  "generated_at": "2026-05-19T15:46:08.356778+00:00"
+}

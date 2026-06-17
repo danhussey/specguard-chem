@@ -11,6 +11,8 @@ from .abstention_guard import AbstentionGuardAdapter
 from .process_adapter import ProcessAdapter
 from .openai_adapter import OpenAIChatAdapter
 from .openai_verify_l3 import OpenAIChatVerifyL3Adapter
+from .anthropic_adapter import AnthropicChatAdapter, AnthropicChatVerifyL3Adapter
+from .deepseek_adapter import DeepSeekChatAdapter, DeepSeekChatVerifyL3Adapter
 from .corpus_search import CorpusSearchAdapter
 from .local_mutation import LocalMutationAdapter
 from .verify_first import VerifyFirstAdapter
@@ -31,6 +33,10 @@ _ADAPTERS: Dict[str, Type[BaseAdapter]] = {
     ProcessAdapter.name: ProcessAdapter,
     OpenAIChatAdapter.name: OpenAIChatAdapter,
     OpenAIChatVerifyL3Adapter.name: OpenAIChatVerifyL3Adapter,
+    AnthropicChatAdapter.name: AnthropicChatAdapter,
+    AnthropicChatVerifyL3Adapter.name: AnthropicChatVerifyL3Adapter,
+    DeepSeekChatAdapter.name: DeepSeekChatAdapter,
+    DeepSeekChatVerifyL3Adapter.name: DeepSeekChatVerifyL3Adapter,
     CorpusSearchAdapter.name: CorpusSearchAdapter,
     LocalMutationAdapter.name: LocalMutationAdapter,
     VerifyFirstAdapter.name: VerifyFirstAdapter,

@@ -1,0 +1,55 @@
+\section{Representative Baselines}\label{representative-baselines}
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1111}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1111}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1111}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1111}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1111}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1111}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1111}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1111}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1111}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+system
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+access\_model
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+action\_accuracy
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+molecule\_acceptance\_rate
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+task\_inconsistent\_accept\_rate
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+reject\_recall
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+abstain\_recall
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+schema\_error\_rate
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+mean\_verify\_calls
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+always\_accept & closed-book & 0.564 & 0.707 & 0.517 & 0.135 & 0.000 &
+0.000 & 0 \\
+always\_abstain & closed-book & 0.132 & 0.000 & 0.000 & 0.000 & 1.000 &
+0.000 & 0 \\
+heuristic & closed-book & 0.602 & 0.406 & 0.000 & 1.000 & 0.000 & 0.000
+& 0 \\
+abstention\_guard & closed-book & 0.613 & 0.680 & 0.402 & 0.327 & 0.000
+& 0.000 & 0 \\
+local\_mutation & closed-book & 0.650 & 0.846 & 0.598 & 0.000 & 0.000 &
+0.000 & 0 \\
+verify\_first & public-verifier & 0.650 & 0.846 & 0.598 & 0.000 & 0.000
+& 0.000 & 0.316 \\
+corpus\_search & retrieval & 0.673 & 0.868 & 0.598 & 0.000 & 0.000 &
+0.000 & 0 \\
+well\_engineered\_wrapper & verifier/search wrapper & 1.000 & 0.673 &
+0.000 & 1.000 & 1.000 & 0.000 & 0.263 \\
+\end{longtable}
+}

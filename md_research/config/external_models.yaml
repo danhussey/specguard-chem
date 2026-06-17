@@ -1,0 +1,54 @@
+providers:
+  openai:
+    env: OPENAI_API_KEY
+    adapter: openai_chat
+    verify_adapter: openai_chat_verify_l3
+    models:
+      fast:
+        model: gpt-5-mini
+        temperature: null
+        top_p: null
+        max_tokens: null
+        max_completion_tokens: 512
+        timeout: 60.0
+      strong:
+        model: gpt-5.1
+        temperature: null
+        top_p: null
+        max_tokens: null
+        max_completion_tokens: 512
+        timeout: 60.0
+  anthropic:
+    env: ANTHROPIC_API_KEY
+    adapter: anthropic_chat
+    verify_adapter: anthropic_chat_verify_l3
+    models:
+      fast:
+        model: claude-haiku-4-5-20251001
+        temperature: 0.0
+        top_p: null
+        max_tokens: 512
+        timeout: 60.0
+      strong:
+        model: claude-sonnet-4-20250514
+        temperature: 0.0
+        top_p: null
+        max_tokens: 512
+        timeout: 60.0
+  deepseek:
+    env: DEEPSEEK_API_KEY
+    adapter: deepseek_chat
+    verify_adapter: deepseek_chat_verify_l3
+    models:
+      fast:
+        model: deepseek-chat
+        temperature: 0.0
+        top_p: 1.0
+        max_tokens: 512
+        timeout: 60.0
+      strong:
+        model: deepseek-reasoner
+        temperature: null
+        top_p: null
+        max_tokens: 1024
+        timeout: 90.0

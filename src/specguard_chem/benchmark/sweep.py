@@ -6,7 +6,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 import random
 from pathlib import Path
-from typing import Any, Dict, List, Mapping, Optional
+from typing import Any, Dict, List, Mapping, Optional, Sequence
 
 import yaml
 
@@ -44,9 +44,48 @@ def _infer_track(model: str) -> str:
         return "retrieval_upper_bound"
     if model in {"verify_first", "verifier_guided_greedy"}:
         return "tool_enabled"
-    if model in {"openai_chat", "openai_chat_verify_l3", "process"}:
+    if model in {
+        "openai_chat",
+        "openai_chat_verify_l3",
+        "anthropic_chat",
+        "anthropic_chat_verify_l3",
+        "deepseek_chat",
+        "deepseek_chat_verify_l3",
+        "process",
+    }:
         return "external_model_snapshot"
     return "primary_closed_book"
+
+
+def _load_subset_task_ids(path: Path) -> list[str]:
+    payload = jsonio.read_json(path)
+    if not isinstance(payload, dict):
+        raise ValueError("Subset manifest must be a JSON object")
+    raw_ids = payload.get("task_ids")
+    if raw_ids is None and isinstance(payload.get("tasks"), list):
+        raw_ids = [
+            row.get("task_id")
+            for row in payload["tasks"]
+            if isinstance(row, dict)
+        ]
+    if not isinstance(raw_ids, list):
+        raise ValueError("Subset manifest must contain a task_ids list")
+    task_ids = [str(value) for value in raw_ids if isinstance(value, str) and value]
+    if not task_ids:
+        raise ValueError("Subset manifest task_ids list is empty")
+    if len(set(task_ids)) != len(task_ids):
+        raise ValueError("Subset manifest task_ids list contains duplicates")
+    return task_ids
+
+
+def _filter_tasks_by_subset(tasks: Sequence[Any], task_ids: Sequence[str]) -> list[Any]:
+    by_id = {str(task.task_id): task for task in tasks}
+    missing = [task_id for task_id in task_ids if task_id not in by_id]
+    if missing:
+        preview = ", ".join(missing[:5])
+        suffix = "" if len(missing) <= 5 else f" and {len(missing) - 5} more"
+        raise ValueError(f"Subset manifest references unknown task_id(s): {preview}{suffix}")
+    return [by_id[task_id] for task_id in task_ids]
 
 
 def load_baseline_matrix(path: Path) -> List[BaselineEntry]:
@@ -427,6 +466,7 @@ def run_benchmark_sweep(
     out_dir: Path,
     seed: int = 7,
     limit: Optional[int] = None,
+    subset_manifest: Optional[Path] = None,
     allow_external: bool = False,
     cache_dir: Optional[Path] = None,
     replay_cache: Optional[Path] = None,
@@ -437,6 +477,10 @@ def run_benchmark_sweep(
 
     release = load_benchmark_release(benchmark_dir)
     tasks = release.load_split_tasks(split)
+    subset_task_ids: list[str] | None = None
+    if subset_manifest is not None:
+        subset_task_ids = _load_subset_task_ids(subset_manifest)
+        tasks = _filter_tasks_by_subset(tasks, subset_task_ids)
     if limit is not None:
         tasks = tasks[: max(limit, 0)]
 
@@ -554,6 +598,8 @@ def run_benchmark_sweep(
         "split": split,
         "seed": seed,
         "limit": limit,
+        "subset_manifest": str(subset_manifest) if subset_manifest else None,
+        "subset_task_ids": subset_task_ids,
         "n_baselines": len(baseline_rows),
         "n_skipped_baselines": len(skipped_rows),
         "baselines": baseline_rows,

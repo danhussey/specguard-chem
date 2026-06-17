@@ -1,0 +1,138 @@
+baselines:
+- name: openai_fast_strict-tool-call_closed
+  model: openai_chat
+  track: external
+  optional: false
+  adapter_kwargs:
+    model: gpt-5-mini
+    temperature: null
+    top_p: null
+    max_tokens: null
+    max_completion_tokens: 512
+    timeout: 60.0
+    interface_tier: strict-tool-call
+- name: openai_fast_strict-tool-call_verify_l3
+  model: openai_chat_verify_l3
+  track: external
+  optional: false
+  adapter_kwargs:
+    model: gpt-5-mini
+    temperature: null
+    top_p: null
+    max_tokens: null
+    max_completion_tokens: 512
+    timeout: 60.0
+    interface_tier: strict-tool-call
+- name: openai_strong_strict-tool-call_closed
+  model: openai_chat
+  track: external
+  optional: false
+  adapter_kwargs:
+    model: gpt-5.1
+    temperature: null
+    top_p: null
+    max_tokens: null
+    max_completion_tokens: 512
+    timeout: 60.0
+    interface_tier: strict-tool-call
+- name: openai_strong_strict-tool-call_verify_l3
+  model: openai_chat_verify_l3
+  track: external
+  optional: false
+  adapter_kwargs:
+    model: gpt-5.1
+    temperature: null
+    top_p: null
+    max_tokens: null
+    max_completion_tokens: 512
+    timeout: 60.0
+    interface_tier: strict-tool-call
+- name: anthropic_fast_strict-tool-call_closed
+  model: anthropic_chat
+  track: external
+  optional: false
+  adapter_kwargs:
+    model: claude-haiku-4-5-20251001
+    temperature: 0.0
+    top_p: null
+    max_tokens: 512
+    timeout: 60.0
+    interface_tier: strict-tool-call
+- name: anthropic_fast_strict-tool-call_verify_l3
+  model: anthropic_chat_verify_l3
+  track: external
+  optional: false
+  adapter_kwargs:
+    model: claude-haiku-4-5-20251001
+    temperature: 0.0
+    top_p: null
+    max_tokens: 512
+    timeout: 60.0
+    interface_tier: strict-tool-call
+- name: anthropic_strong_strict-tool-call_closed
+  model: anthropic_chat
+  track: external
+  optional: false
+  adapter_kwargs:
+    model: claude-sonnet-4-20250514
+    temperature: 0.0
+    top_p: null
+    max_tokens: 512
+    timeout: 60.0
+    interface_tier: strict-tool-call
+- name: anthropic_strong_strict-tool-call_verify_l3
+  model: anthropic_chat_verify_l3
+  track: external
+  optional: false
+  adapter_kwargs:
+    model: claude-sonnet-4-20250514
+    temperature: 0.0
+    top_p: null
+    max_tokens: 512
+    timeout: 60.0
+    interface_tier: strict-tool-call
+- name: deepseek_fast_strict-tool-call_closed
+  model: deepseek_chat
+  track: external
+  optional: false
+  adapter_kwargs:
+    model: deepseek-chat
+    temperature: 0.0
+    top_p: 1.0
+    max_tokens: 1024
+    timeout: 60.0
+    interface_tier: strict-tool-call
+- name: deepseek_fast_strict-tool-call_verify_l3
+  model: deepseek_chat_verify_l3
+  track: external
+  optional: false
+  adapter_kwargs:
+    model: deepseek-chat
+    temperature: 0.0
+    top_p: 1.0
+    max_tokens: 1024
+    timeout: 60.0
+    interface_tier: strict-tool-call
+- name: deepseek_strong_strict-tool-call_closed
+  model: deepseek_chat
+  track: external
+  optional: false
+  adapter_kwargs:
+    model: deepseek-reasoner
+    temperature: null
+    top_p: null
+    max_tokens: 1024
+    timeout: 90.0
+    interface_tier: strict-tool-call
+- name: deepseek_strong_strict-tool-call_verify_l3
+  model: deepseek_chat_verify_l3
+  track: external
+  optional: false
+  adapter_kwargs:
+    model: deepseek-reasoner
+    temperature: null
+    top_p: null
+    max_tokens: 1024
+    timeout: 90.0
+    interface_tier: strict-tool-call
+skipped_providers: []

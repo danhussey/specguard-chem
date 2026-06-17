@@ -382,8 +382,12 @@ class TaskRunner:
         self._replay_records: Dict[str, Dict[str, Any]] = {}
         if replay_cache is not None:
             self._replay_records = self._load_replay_cache(replay_cache)
+        self._live_cache_records: Dict[str, Dict[str, Any]] = {}
         if self.cache_dir is not None:
             self.cache_dir.mkdir(parents=True, exist_ok=True)
+            cache_path = self._resolve_cache_path(self.cache_dir)
+            if replay_cache is None and cache_path.exists():
+                self._live_cache_records = self._load_replay_cache(cache_path)
 
     def run_suite(
         self,
@@ -513,6 +517,12 @@ class TaskRunner:
                 )
             return parsed
 
+        cached_entry = self._live_cache_records.get(cache_key)
+        if cached_entry is not None:
+            parsed = cached_entry.get("parsed_adapter_response")
+            if isinstance(parsed, dict):
+                return parsed
+
         if self.adapter is None:
             self.adapter = build_adapter(
                 self.model_name, seed=self.seed, **self.adapter_kwargs
@@ -544,15 +554,15 @@ class TaskRunner:
         model_metadata = dict(model_metadata)
         model_metadata.setdefault("git_commit", self._git_commit)
         model_metadata.setdefault("adapter_name", self.model_name)
-        self._append_cache_record(
-            {
-                "cache_key": cache_key,
-                "adapter_request": cache_request,
-                "raw_model_output": raw_output,
-                "parsed_adapter_response": raw_response,
-                "model_metadata": model_metadata,
-            }
-        )
+        cache_record = {
+            "cache_key": cache_key,
+            "adapter_request": cache_request,
+            "raw_model_output": raw_output,
+            "parsed_adapter_response": raw_response,
+            "model_metadata": model_metadata,
+        }
+        self._append_cache_record(cache_record)
+        self._live_cache_records[cache_key] = cache_record
         return raw_response
 
     def _run_task(

@@ -1,0 +1,44 @@
+baselines:
+  - name: always_accept
+    model: always_accept
+    track: primary_closed_book
+  - name: always_reject
+    model: always_reject
+    track: primary_closed_book
+  - name: always_abstain
+    model: always_abstain
+    track: primary_closed_book
+  - name: random_action
+    model: random_action
+    track: primary_closed_book
+  - name: schema_valid_dummy
+    model: schema_valid_dummy
+    track: primary_closed_book
+  - name: heuristic
+    model: heuristic
+    track: primary_closed_book
+  - name: abstention_guard
+    model: abstention_guard
+    track: primary_closed_book
+  - name: open_source_example
+    model: open_source_example
+    track: primary_closed_book
+  - name: local_mutation
+    model: local_mutation
+    track: primary_closed_book
+  - name: verify_first
+    model: verify_first
+    track: tool_enabled
+  - name: verifier_guided_greedy
+    model: verifier_guided_greedy
+    track: tool_enabled
+  - name: corpus_search
+    model: corpus_search
+    track: retrieval_upper_bound
+    adapter_kwargs:
+      corpus_size: 250
+  - name: well_engineered_wrapper
+    model: well_engineered_wrapper
+    track: wrapper_guarded
+    adapter_kwargs:
+      corpus_size: 250
